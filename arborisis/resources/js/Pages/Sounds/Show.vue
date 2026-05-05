@@ -1,12 +1,19 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
+import LikeButton from '@/Components/Social/LikeButton.vue';
+import FollowButton from '@/Components/Social/FollowButton.vue';
+import CommentSection from '@/Components/Social/CommentSection.vue';
+import ReportModal from '@/Components/Social/ReportModal.vue';
 import { ref } from 'vue';
 
 const props = defineProps({
     sound: Object,
     audioUrl: String,
     coverUrl: String,
+    comments: Object,
+    isLiked: Boolean,
+    isFollowing: Boolean,
 });
 
 const isPlaying = ref(false);
@@ -80,9 +87,9 @@ const formatDate = (dateString) => {
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <!-- Main Content -->
-                    <div class="lg:col-span-2">
+                    <div class="lg:col-span-2 space-y-8">
                         <!-- Cover / Visual -->
-                        <div class="aspect-[16/9] rounded-2xl overflow-hidden bg-arbor-deep mb-8 relative">
+                        <div class="aspect-[16/9] rounded-2xl overflow-hidden bg-arbor-deep relative">
                             <div
                                 v-if="coverUrl"
                                 class="absolute inset-0 bg-cover bg-center"
@@ -96,7 +103,7 @@ const formatDate = (dateString) => {
                         </div>
 
                         <!-- Audio Player -->
-                        <div class="glass-card p-6 mb-8">
+                        <div class="glass-card p-6">
                             <audio
                                 ref="audioRef"
                                 :src="audioUrl"
@@ -122,9 +129,12 @@ const formatDate = (dateString) => {
                                     <h1 class="font-display text-xl font-bold text-arbor-cream truncate">
                                         {{ sound.title }}
                                     </h1>
-                                    <p class="text-sm text-arbor-sage">
+                                    <Link
+                                        :href="route('creators.show', sound.user?.slug)"
+                                        class="text-sm text-arbor-sage hover:text-arbor-emerald transition-colors"
+                                    >
                                         {{ sound.user?.name ?? 'Anonyme' }}
-                                    </p>
+                                    </Link>
                                 </div>
                             </div>
 
@@ -144,8 +154,21 @@ const formatDate = (dateString) => {
                             </div>
                         </div>
 
+                        <!-- Actions -->
+                        <div class="flex items-center gap-3">
+                            <LikeButton
+                                :sound-id="sound.id"
+                                :initial-liked="isLiked"
+                                :initial-count="sound.like_count"
+                            />
+                            <ReportModal
+                                reportable-type="sound"
+                                :reportable-id="sound.id"
+                            />
+                        </div>
+
                         <!-- Description -->
-                        <div class="mb-8">
+                        <div>
                             <h2 class="font-semibold text-arbor-cream mb-3">Description</h2>
                             <p class="text-arbor-sage leading-relaxed whitespace-pre-line">
                                 {{ sound.description || 'Aucune description.' }}
@@ -179,13 +202,19 @@ const formatDate = (dateString) => {
                                 <div class="text-sm font-medium text-arbor-cream">{{ sound.sound_location.location_name }}</div>
                             </div>
                         </div>
+
+                        <!-- Comments -->
+                        <CommentSection
+                            :sound-id="sound.id"
+                            :comments="comments"
+                        />
                     </div>
 
                     <!-- Sidebar -->
                     <div class="space-y-6">
                         <!-- Creator Card -->
                         <div class="glass-card p-6">
-                            <div class="flex items-center gap-3 mb-4">
+                            <Link :href="route('creators.show', sound.user?.slug)" class="flex items-center gap-3 mb-4">
                                 <div class="w-12 h-12 rounded-full bg-arbor-moss/30 flex items-center justify-center">
                                     <span class="text-lg font-display font-bold text-arbor-emerald">
                                         {{ sound.user?.name?.charAt(0)?.toUpperCase() ?? '?' }}
@@ -195,10 +224,14 @@ const formatDate = (dateString) => {
                                     <div class="font-semibold text-arbor-cream">{{ sound.user?.name ?? 'Anonyme' }}</div>
                                     <div class="text-xs text-arbor-sage">Créateur</div>
                                 </div>
-                            </div>
-                            <button class="w-full btn-primary text-sm py-2">
-                                Suivre
-                            </button>
+                            </Link>
+                            <FollowButton
+                                v-if="$page.props.auth.user && $page.props.auth.user.id !== sound.user_id"
+                                :user-id="sound.user_id"
+                                :initial-following="isFollowing"
+                                size="md"
+                                class="w-full"
+                            />
                         </div>
 
                         <!-- Tags -->
