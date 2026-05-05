@@ -41,10 +41,11 @@
 - [x] Don ECHO
 - [x] Historique
 
-## Phase 6 — Admin + Modération ⏳
-- [ ] Filament 3
-- [ ] Ressources admin
-- [ ] Gestion signalements
+## Phase 6 — Admin + Modération ✅
+- [x] Filament 3 (downgrade Laravel 13→12 pour compatibilité)
+- [x] Panel admin `/admin` avec restriction modérateur/admin
+- [x] Ressources : Users, Sounds, Categories, Wallets, EchoTransactions
+- [x] Gestion signalements avec actions Examiner/Résoudre/Rejeter
 
 ## Phase 7 — Premium + Polish ⏳
 - [ ] Wavesurfer.js
