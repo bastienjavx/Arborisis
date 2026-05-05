@@ -1,8 +1,8 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
-import ApplicationLogo from '@/Components/ApplicationLogo.vue';
-import { ref } from 'vue';
+import SoundMap from '@/Components/Map/SoundMap.vue';
+import { ref, onMounted } from 'vue';
 
 const props = defineProps({
     stats: Object,
@@ -34,6 +34,27 @@ const categories = ref([
     { name: 'Pluie', count: 0, color: 'bg-indigo-500/20 text-indigo-400' },
     { name: 'Crépuscule', count: 0, color: 'bg-amber-500/20 text-amber-400' },
 ]);
+
+const mapSounds = ref([]);
+const mapLoading = ref(true);
+const mapError = ref(false);
+
+onMounted(() => {
+    loadMapSounds();
+});
+
+const loadMapSounds = async () => {
+    try {
+        const response = await fetch('/api/map/sounds?limit=50');
+        const data = await response.json();
+        mapSounds.value = data.features ?? [];
+    } catch (e) {
+        console.error('Failed to load map sounds:', e);
+        mapError.value = true;
+    } finally {
+        mapLoading.value = false;
+    }
+};
 </script>
 
 <template>
@@ -165,14 +186,19 @@ const categories = ref([
                             </svg>
                         </Link>
                     </div>
-                    <div class="glass-card aspect-[4/3] flex items-center justify-center relative overflow-hidden">
-                        <div class="absolute inset-0 bg-gradient-to-br from-arbor-moss/10 to-arbor-emerald/5" />
-                        <div class="text-center relative z-10">
-                            <svg class="w-16 h-16 text-arbor-moss/40 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 7m0 13V7m0 0L9 7" />
-                            </svg>
-                            <p class="text-arbor-sage text-sm">Carte interactive en cours de construction</p>
+                    <div class="glass-card aspect-[4/3] relative overflow-hidden rounded-2xl border border-arbor-glass-border">
+                        <div v-if="mapLoading" class="absolute inset-0 flex flex-col items-center justify-center bg-arbor-deep/80 z-10">
+                            <div class="w-10 h-10 border-2 border-arbor-emerald/30 border-t-arbor-emerald rounded-full animate-spin mb-4"></div>
+                            <p class="text-arbor-sage text-sm">Chargement de la carte...</p>
                         </div>
+                        <SoundMap
+                            v-else
+                            :sounds="mapSounds"
+                            :initial-zoom="2"
+                            :initial-center="[25, 10]"
+                        />
+                        <!-- Overlay gradient for seamless blend -->
+                        <div class="absolute inset-0 pointer-events-none rounded-2xl ring-1 ring-inset ring-white/5"></div>
                     </div>
                 </div>
             </div>

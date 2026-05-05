@@ -13,6 +13,7 @@ const loading = ref(false);
 const searchQuery = ref('');
 const selectedCategory = ref('');
 const searchTimeout = ref(null);
+const initialLoad = ref(true);
 
 const hasSounds = computed(() => sounds.value.length > 0);
 
@@ -32,6 +33,7 @@ const fetchSounds = async () => {
         sounds.value = [];
     } finally {
         loading.value = false;
+        initialLoad.value = false;
     }
 };
 
@@ -81,7 +83,7 @@ onMounted(() => {
         <div class="relative h-[calc(100vh-4rem)] min-h-[600px]">
             <!-- Sidebar filters -->
             <div class="absolute top-4 left-4 z-[1000] w-80 max-w-[calc(100vw-2rem)]">
-                <div class="glass-card p-4 space-y-4">
+                <div class="glass-card p-4 space-y-4 shadow-2xl shadow-black/20">
                     <!-- Search -->
                     <div class="relative">
                         <svg
@@ -101,12 +103,12 @@ onMounted(() => {
                             v-model="searchQuery"
                             type="text"
                             placeholder="Rechercher un son, un lieu..."
-                            class="w-full pl-10 pr-9 py-2.5 bg-arbor-deep border border-arbor-glass-border rounded-xl text-sm text-arbor-cream placeholder:text-arbor-sage/60 focus:outline-none focus:border-arbor-emerald/50 transition-colors"
+                            class="w-full pl-10 pr-9 py-2.5 bg-arbor-charcoal/80 border border-arbor-fog/50 rounded-xl text-sm text-arbor-cream placeholder:text-arbor-sage/50 focus:outline-none focus:border-arbor-emerald/50 focus:ring-2 focus:ring-arbor-emerald/10 transition-all"
                             @input="onSearchInput"
                         />
                         <button
                             v-if="searchQuery"
-                            class="absolute right-3 top-1/2 -translate-y-1/2 text-arbor-sage hover:text-arbor-cream"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-arbor-sage hover:text-arbor-cream transition-colors"
                             @click="clearSearch"
                         >
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -119,10 +121,10 @@ onMounted(() => {
                     <div class="flex flex-wrap gap-1.5">
                         <button
                             :class="[
-                                'px-3 py-1.5 rounded-lg text-xs font-medium transition-colors',
+                                'px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200',
                                 selectedCategory === ''
-                                    ? 'bg-arbor-emerald/20 text-arbor-emerald border border-arbor-emerald/30'
-                                    : 'bg-arbor-deep text-arbor-sage border border-arbor-glass-border hover:border-arbor-sage/50',
+                                    ? 'bg-arbor-emerald/15 text-arbor-emerald border border-arbor-emerald/30 shadow-sm shadow-arbor-emerald/5'
+                                    : 'bg-arbor-charcoal/60 text-arbor-sage border border-arbor-fog/40 hover:border-arbor-sage/50 hover:bg-arbor-charcoal',
                             ]"
                             @click="selectCategory('')"
                         >
@@ -132,10 +134,10 @@ onMounted(() => {
                             v-for="category in categories"
                             :key="category.id"
                             :class="[
-                                'px-3 py-1.5 rounded-lg text-xs font-medium transition-colors',
+                                'px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200',
                                 selectedCategory == category.id
-                                    ? 'bg-arbor-emerald/20 text-arbor-emerald border border-arbor-emerald/30'
-                                    : 'bg-arbor-deep text-arbor-sage border border-arbor-glass-border hover:border-arbor-sage/50',
+                                    ? 'bg-arbor-emerald/15 text-arbor-emerald border border-arbor-emerald/30 shadow-sm shadow-arbor-emerald/5'
+                                    : 'bg-arbor-charcoal/60 text-arbor-sage border border-arbor-fog/40 hover:border-arbor-sage/50 hover:bg-arbor-charcoal',
                             ]"
                             @click="selectCategory(category.id)"
                         >
@@ -143,12 +145,17 @@ onMounted(() => {
                         </button>
                     </div>
 
-                    <!-- Results count -->
-                    <div class="flex items-center justify-between text-xs text-arbor-sage">
-                        <span>
-                            {{ sounds.length }} son{{ sounds.length > 1 ? 's' : '' }} trouvé{{ sounds.length > 1 ? 's' : '' }}
+                    <!-- Results count + status -->
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-arbor-sage">
+                            <span v-if="initialLoad">Chargement...</span>
+                            <span v-else-if="hasSounds">
+                                <span class="text-arbor-emerald font-medium">{{ sounds.length }}</span>
+                                son{{ sounds.length > 1 ? 's' : '' }} trouvé{{ sounds.length > 1 ? 's' : '' }}
+                            </span>
+                            <span v-else class="text-arbor-sage/70">Aucun son trouvé</span>
                         </span>
-                        <span v-if="loading" class="flex items-center gap-1">
+                        <span v-if="loading && !initialLoad" class="flex items-center gap-1.5 text-arbor-sage">
                             <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
                                 <path
@@ -157,9 +164,21 @@ onMounted(() => {
                                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                 />
                             </svg>
-                            Chargement...
+                            Actualisation...
                         </span>
                     </div>
+                </div>
+
+                <!-- Empty state - elegant overlay -->
+                <div
+                    v-if="!loading && !hasSounds && !initialLoad"
+                    class="mt-3 glass-card p-5 text-center"
+                >
+                    <svg class="w-10 h-10 text-arbor-moss/40 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 7m0 13V7m0 0L9 7" />
+                    </svg>
+                    <p class="text-sm text-arbor-sage mb-2">Aucun enregistrement ici</p>
+                    <p class="text-xs text-arbor-sage/60">Essayez une autre recherche ou catégorie</p>
                 </div>
             </div>
 
