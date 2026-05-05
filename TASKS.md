@@ -35,11 +35,11 @@
 - [x] Signalements
 
 ## Phase 5 — ECHO + Stripe ⏳
-- [ ] Modèles wallet + transactions
-- [ ] Stripe Checkout
-- [ ] Webhooks sécurisés
-- [ ] Don ECHO
-- [ ] Historique
+- [x] Modèles wallet + transactions
+- [x] Stripe Checkout
+- [x] Webhooks sécurisés
+- [x] Don ECHO
+- [x] Historique
 
 ## Phase 6 — Admin + Modération ⏳
 - [ ] Filament 3
