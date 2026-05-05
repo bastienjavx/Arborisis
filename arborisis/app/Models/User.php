@@ -77,6 +77,26 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Report::class, 'reporter_id');
     }
 
+    public function wallet(): HasOne
+    {
+        return $this->hasOne(Wallet::class);
+    }
+
+    public function echoTransactions(): HasMany
+    {
+        return $this->hasMany(EchoTransaction::class);
+    }
+
+    public function donationsSent(): HasMany
+    {
+        return $this->hasMany(EchoDonation::class, 'donor_id');
+    }
+
+    public function donationsReceived(): HasMany
+    {
+        return $this->hasMany(EchoDonation::class, 'recipient_id');
+    }
+
     public function casts(): array
     {
         return [
