@@ -1,6 +1,7 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
+import MiniPlayer from '@/Components/Audio/MiniPlayer.vue';
 </script>
 
 <template>
@@ -43,6 +44,8 @@ import ApplicationLogo from '@/Components/ApplicationLogo.vue';
             <slot />
         </main>
 
+        <MiniPlayer />
+
         <footer class="border-t border-arbor-glass-border bg-arbor-deep">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -66,7 +69,7 @@ import ApplicationLogo from '@/Components/ApplicationLogo.vue';
                     <div>
                         <h4 class="font-medium text-arbor-cream mb-4 text-sm">Communauté</h4>
                         <ul class="space-y-2 text-sm text-arbor-sage">
-                            <li><Link href="/echo" class="hover:text-arbor-emerald transition-colors">Crédits ECHO</Link></li>
+                            <li><Link href="/transparency" class="hover:text-arbor-emerald transition-colors">Crédits ECHO</Link></li>
                             <li><Link href="/about" class="hover:text-arbor-emerald transition-colors">Notre mission</Link></li>
                             <li><Link href="/guidelines" class="hover:text-arbor-emerald transition-colors">Charte</Link></li>
                         </ul>

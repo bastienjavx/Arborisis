@@ -5,7 +5,9 @@ import LikeButton from '@/Components/Social/LikeButton.vue';
 import FollowButton from '@/Components/Social/FollowButton.vue';
 import CommentSection from '@/Components/Social/CommentSection.vue';
 import ReportModal from '@/Components/Social/ReportModal.vue';
-import { ref } from 'vue';
+import WaveSurfer from '@/Components/Audio/WaveSurfer.vue';
+import { usePlayerStore } from '@/Stores/player';
+import { ref, computed, watch } from 'vue';
 
 const props = defineProps({
     sound: Object,
@@ -16,10 +18,28 @@ const props = defineProps({
     isFollowing: Boolean,
 });
 
+const player = usePlayerStore();
 const isPlaying = ref(false);
 const currentTime = ref(0);
 const duration = ref(props.sound.duration || 0);
-const audioRef = ref(null);
+const waveSurferRef = ref(null);
+
+const isCurrentInPlayer = computed(() =>
+    player.currentSound?.id === props.sound.id
+);
+
+const effectiveIsPlaying = computed(() => {
+    if (isCurrentInPlayer.value) {
+        return player.isPlaying;
+    }
+    return isPlaying.value;
+});
+
+watch(() => player.isPlaying, (playing) => {
+    if (isCurrentInPlayer.value) {
+        isPlaying.value = playing;
+    }
+});
 
 const formatTime = (seconds) => {
     if (!seconds || isNaN(seconds)) return '0:00';
@@ -29,37 +49,52 @@ const formatTime = (seconds) => {
 };
 
 const togglePlay = () => {
-    if (!audioRef.value) return;
-    if (isPlaying.value) {
-        audioRef.value.pause();
-    } else {
-        audioRef.value.play();
+    if (!isCurrentInPlayer.value) {
+        player.play({
+            id: props.sound.id,
+            title: props.sound.title,
+            slug: props.sound.slug,
+            audioUrl: props.audioUrl,
+            userName: props.sound.user?.name,
+            duration: duration.value,
+        });
+        isPlaying.value = true;
+        return;
     }
-    isPlaying.value = !isPlaying.value;
+
+    player.togglePlay();
 };
 
-const onTimeUpdate = () => {
-    if (audioRef.value) {
-        currentTime.value = audioRef.value.currentTime;
+const onWaveReady = (dur) => {
+    duration.value = dur;
+};
+
+const onWaveTimeUpdate = (time) => {
+    currentTime.value = time;
+    if (isCurrentInPlayer.value) {
+        player.setTime(time);
     }
 };
 
-const onLoadedMetadata = () => {
-    if (audioRef.value) {
-        duration.value = audioRef.value.duration;
-    }
-};
-
-const onEnded = () => {
+const onWaveFinish = () => {
     isPlaying.value = false;
     currentTime.value = 0;
+    if (isCurrentInPlayer.value) {
+        player.stop();
+    }
 };
 
 const seek = (event) => {
-    if (!audioRef.value || !duration.value) return;
-    const rect = event.target.getBoundingClientRect();
+    if (!duration.value) return;
+    const rect = event.currentTarget.getBoundingClientRect();
     const percent = (event.clientX - rect.left) / rect.width;
-    audioRef.value.currentTime = percent * duration.value;
+    if (waveSurferRef.value) {
+        waveSurferRef.value.seekTo(percent);
+    }
+    currentTime.value = percent * duration.value;
+    if (isCurrentInPlayer.value) {
+        player.setTime(currentTime.value);
+    }
 };
 
 const formatDate = (dateString) => {
@@ -104,21 +139,12 @@ const formatDate = (dateString) => {
 
                         <!-- Audio Player -->
                         <div class="glass-card p-6">
-                            <audio
-                                ref="audioRef"
-                                :src="audioUrl"
-                                @timeupdate="onTimeUpdate"
-                                @loadedmetadata="onLoadedMetadata"
-                                @ended="onEnded"
-                                class="hidden"
-                            />
-
                             <div class="flex items-center gap-4 mb-4">
                                 <button
                                     @click="togglePlay"
                                     class="w-14 h-14 rounded-full bg-arbor-emerald flex items-center justify-center hover:bg-arbor-emerald-dark transition-colors shrink-0"
                                 >
-                                    <svg v-if="!isPlaying" class="w-6 h-6 text-arbor-night ml-1" fill="currentColor" viewBox="0 0 24 24">
+                                    <svg v-if="!effectiveIsPlaying" class="w-6 h-6 text-arbor-night ml-1" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M8 5v14l11-7z" />
                                     </svg>
                                     <svg v-else class="w-6 h-6 text-arbor-night" fill="currentColor" viewBox="0 0 24 24">
@@ -138,8 +164,25 @@ const formatDate = (dateString) => {
                                 </div>
                             </div>
 
-                            <!-- Progress bar -->
-                            <div class="flex items-center gap-3">
+                            <!-- WaveSurfer -->
+                            <WaveSurfer
+                                v-if="audioUrl"
+                                ref="waveSurferRef"
+                                :audio-url="audioUrl"
+                                :is-playing="effectiveIsPlaying"
+                                wave-color="#4a5d4a"
+                                progress-color="#7c9a6a"
+                                cursor-color="#d4c9a8"
+                                :height="80"
+                                @ready="onWaveReady"
+                                @timeupdate="onWaveTimeUpdate"
+                                @finish="onWaveFinish"
+                                @play="isPlaying = true"
+                                @pause="isPlaying = false"
+                            />
+
+                            <!-- Progress bar fallback / time display -->
+                            <div class="flex items-center gap-3 mt-4">
                                 <span class="text-xs text-arbor-sage w-10 text-right">{{ formatTime(currentTime) }}</span>
                                 <div
                                     class="flex-1 h-1.5 bg-arbor-glass rounded-full cursor-pointer relative overflow-hidden"

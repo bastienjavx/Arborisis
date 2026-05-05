@@ -47,8 +47,8 @@
 - [x] Ressources : Users, Sounds, Categories, Wallets, EchoTransactions
 - [x] Gestion signalements avec actions Examiner/Résoudre/Rejeter
 
-## Phase 7 — Premium + Polish ⏳
-- [ ] Wavesurfer.js
-- [ ] Mini-player global
-- [ ] Page transparence
-- [ ] Tests
+## Phase 7 — Premium + Polish ✅
+- [x] Wavesurfer.js
+- [x] Mini-player global
+- [x] Page transparence
+- [x] Tests
