@@ -3,3 +3,42 @@
 landing-preview.png
 login-preview.png
 sounds-index.png
+
+# Dependencies
+node_modules/
+vendor/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build
+/public/build
+/public/hot
+/public/storage
+dist/
+build/
+
+# Testing
+.phpunit.result.cache
+.phpunit.cache/
+coverage/
+
+# Misc
+*.key
+storage/pail
+auth.json
+
