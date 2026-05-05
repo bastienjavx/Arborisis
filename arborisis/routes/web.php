@@ -11,6 +11,8 @@ Route::get('/', [LandingController::class, 'index'])->name('landing');
 Route::get('/sounds', [SoundController::class, 'index'])->name('sounds.index');
 Route::get('/sounds/{slug}', [SoundController::class, 'show'])->name('sounds.show');
 
+Route::get('/map', [\App\Http\Controllers\Web\MapController::class, 'index'])->name('map.index');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard');
