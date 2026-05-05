@@ -43,6 +43,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/users/{user}/follows', [FollowController::class, 'destroy'])->name('follows.destroy');
 
     Route::post('/reports', [ReportController::class, 'store'])->name('reports.store');
+
+    // ECHO Wallet
+    Route::get('/wallet', [\App\Http\Controllers\Web\WalletController::class, 'show'])->name('wallet.show');
+    Route::post('/wallet/checkout', [\App\Http\Controllers\Web\WalletController::class, 'checkout'])->name('wallet.checkout');
+    Route::get('/wallet/success', [\App\Http\Controllers\Web\WalletController::class, 'success'])->name('wallet.success');
+    Route::get('/wallet/cancel', [\App\Http\Controllers\Web\WalletController::class, 'cancel'])->name('wallet.cancel');
+
+    // ECHO Donations
+    Route::post('/donations', [\App\Http\Controllers\Web\EchoDonationController::class, 'store'])->name('donations.store');
+    Route::get('/donations/history', [\App\Http\Controllers\Web\EchoDonationController::class, 'history'])->name('donations.history');
 });
+
+// Stripe Webhook (no auth, signed by Stripe)
+Route::post('/webhooks/stripe', \App\Http\Controllers\StripeWebhookController::class)
+    ->name('webhooks.stripe')
+    ->withoutMiddleware([
+        \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+    ]);
 
 require __DIR__.'/auth.php';
