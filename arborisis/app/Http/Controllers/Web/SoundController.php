@@ -58,10 +58,26 @@ class SoundController extends Controller
                 ->url($sound->cover_image);
         }
 
+        $comments = $sound->comments()
+            ->with(['user', 'replies.user'])
+            ->latest()
+            ->paginate(10);
+
+        $isLiked = auth()->check()
+            ? $sound->isLikedBy(auth()->user())
+            : false;
+
+        $isFollowing = auth()->check() && $sound->user
+            ? auth()->user()->isFollowing($sound->user)
+            : false;
+
         return Inertia::render('Sounds/Show', [
             'sound' => $sound,
             'audioUrl' => $audioUrl,
             'coverUrl' => $coverUrl,
+            'comments' => $comments,
+            'isLiked' => $isLiked,
+            'isFollowing' => $isFollowing,
         ]);
     }
 

@@ -27,12 +27,12 @@
 - [x] Filtres carte
 - [x] Recherche par lieu
 
-## Phase 4 — Social ⏳
-- [ ] Like / Favoris
-- [ ] Commentaires
-- [ ] Follow créateurs
-- [ ] Page profil créateur
-- [ ] Signalements
+## Phase 4 — Social ✅
+- [x] Like / Favoris
+- [x] Commentaires
+- [x] Follow créateurs
+- [x] Page profil créateur
+- [x] Signalements
 
 ## Phase 5 — ECHO + Stripe ⏳
 - [ ] Modèles wallet + transactions

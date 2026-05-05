@@ -1,6 +1,11 @@
 <?php
 
+use App\Http\Controllers\Web\CommentController;
+use App\Http\Controllers\Web\CreatorProfileController;
+use App\Http\Controllers\Web\FollowController;
 use App\Http\Controllers\Web\LandingController;
+use App\Http\Controllers\Web\LikeController;
+use App\Http\Controllers\Web\ReportController;
 use App\Http\Controllers\Web\SoundController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -13,6 +18,8 @@ Route::get('/sounds/{slug}', [SoundController::class, 'show'])->name('sounds.sho
 
 Route::get('/map', [\App\Http\Controllers\Web\MapController::class, 'index'])->name('map.index');
 
+Route::get('/creators/{slug}', [CreatorProfileController::class, 'show'])->name('creators.show');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard');
@@ -24,6 +31,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Social
+    Route::post('/sounds/{sound}/likes', [LikeController::class, 'store'])->name('likes.store');
+    Route::delete('/sounds/{sound}/likes', [LikeController::class, 'destroy'])->name('likes.destroy');
+
+    Route::post('/sounds/{sound}/comments', [CommentController::class, 'store'])->name('comments.store');
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+
+    Route::post('/users/{user}/follows', [FollowController::class, 'store'])->name('follows.store');
+    Route::delete('/users/{user}/follows', [FollowController::class, 'destroy'])->name('follows.destroy');
+
+    Route::post('/reports', [ReportController::class, 'store'])->name('reports.store');
 });
 
 require __DIR__.'/auth.php';
