@@ -10,22 +10,22 @@
 - [x] Créer landing page premium
 - [x] Vérifier build et premier commit
 
-## Phase 2 — Sons et stockage ⏳
-- [ ] Modèles Category, Tag, Sound, SoundFile, SoundLocation
-- [ ] Migrations + seeders catégories nature
-- [ ] Configuration Contabo S3
-- [ ] Formulaire upload audio (validation, sécurité)
-- [ ] Service SoundUploadService
-- [ ] Page détail son + lecteur basique
-- [ ] Liste sons avec filtres
-- [ ] Confidentialité géographique
+## Phase 2 — Sons et stockage ✅
+- [x] Modèles Category, Tag, Sound, SoundFile, SoundLocation
+- [x] Migrations + seeders catégories nature
+- [x] Configuration Contabo S3
+- [x] Formulaire upload audio (validation, sécurité)
+- [x] Service SoundUploadService
+- [x] Page détail son + lecteur basique
+- [x] Liste sons avec filtres
+- [x] Confidentialité géographique
 
-## Phase 3 — Carte interactive ⏳
-- [ ] Leaflet + Vue wrapper
-- [ ] API /api/map/sounds (GeoJSON)
-- [ ] Clusters + popup fiches
-- [ ] Filtres carte
-- [ ] Recherche par lieu
+## Phase 3 — Carte interactive ✅
+- [x] Leaflet + Vue wrapper
+- [x] API /api/map/sounds (GeoJSON)
+- [x] Clusters + popup fiches
+- [x] Filtres carte
+- [x] Recherche par lieu
 
 ## Phase 4 — Social ⏳
 - [ ] Like / Favoris
