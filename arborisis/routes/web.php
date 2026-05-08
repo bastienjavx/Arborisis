@@ -14,6 +14,7 @@ use App\Http\Controllers\Web\LandingController;
 use App\Http\Controllers\Web\LikeController;
 use App\Http\Controllers\Web\MapController;
 use App\Http\Controllers\Web\PageController;
+use App\Http\Controllers\Web\RadioController;
 use App\Http\Controllers\Web\ReportController;
 use App\Http\Controllers\Web\AudioAnalysisController;
 use App\Http\Controllers\Web\SoundController;
@@ -52,6 +53,15 @@ Route::get('/echo', [PageController::class, 'echoInfo'])->name('echo.info');
 Route::get('/mission', [PageController::class, 'mission'])->name('mission');
 Route::get('/charte', [PageController::class, 'charte'])->name('charte');
 Route::get('/offline', [PageController::class, 'offline'])->name('offline');
+
+Route::get('/radio', [RadioController::class, 'index'])->name('radio.index');
+Route::get('/radio/stream', [RadioController::class, 'stream'])
+    ->name('radio.stream')
+    ->withoutMiddleware([
+        \App\Http\Middleware\HandleInertiaRequests::class,
+        \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
+    ]);
+Route::get('/radio/stream.m3u', [RadioController::class, 'playlist'])->name('radio.playlist');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
