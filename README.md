@@ -231,6 +231,16 @@ php artisan queue:work
 
 ---
 
+## 🚀 Déploiement
+
+Le pipeline GitLab CI contient un job manuel `deploy_production` pour déployer
+Arborisis sur un VPS via SSH + rsync, avec releases atomiques et dossiers
+partagés.
+
+Voir [`docs/deploiement-gitlab-vps.md`](docs/deploiement-gitlab-vps.md).
+
+---
+
 ## 🧪 Tests
 
 ```bash
