@@ -1,0 +1,53 @@
+# GitLab CI/CD — Déploiement automatique Arborisis
+# Workflow : push sur main → build → déploiement SSH sur le serveur de production
+
+stages:
+  - deploy
+
+variables:
+  DEPLOY_HOST: "213.199.53.8"
+  DEPLOY_USER: "root"
+  DEPLOY_PATH: "/var/www/arborisis"
+  GIT_DEPTH: 0
+
+deploy_production:
+  stage: deploy
+  image: node:22-alpine
+  only:
+    - main
+  before_script:
+    # Installer les outils nécessaires
+    - apk add --no-cache openssh-client git
+    # Configurer la clé SSH
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+    - chmod 600 ~/.ssh/id_ed25519
+    - ssh-keyscan -H $DEPLOY_HOST >> ~/.ssh/known_hosts 2>/dev/null || true
+  script:
+    - echo "🚀 Déploiement sur $DEPLOY_HOST..."
+    # Pull du code sur le serveur
+    - |
+      ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 $DEPLOY_USER@$DEPLOY_HOST "
+        cd $DEPLOY_PATH && \
+        git config --global --add safe.directory $DEPLOY_PATH && \
+        git fetch origin main && \
+        git reset --hard origin/main && \
+        echo '✅ Code mis à jour'
+      "
+    # Build des assets frontend
+    - |
+      ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 $DEPLOY_USER@$DEPLOY_HOST "
+        chown -R arborisis:arborisis $DEPLOY_PATH/public/build && \
+        su - arborisis -s /bin/bash -c 'cd $DEPLOY_PATH && npm run build 2>&1' && \
+        echo '✅ Build terminé'
+      "
+    # Optimisations Laravel
+    - |
+      ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 $DEPLOY_USER@$DEPLOY_HOST "
+        cd $DEPLOY_PATH && \
+        php artisan optimize 2>&1 && \
+        php artisan view:cache 2>&1 && \
+        echo '✅ Cache Laravel rafraîchi'
+      "
+    - echo "🎉 Déploiement terminé avec succès !"
