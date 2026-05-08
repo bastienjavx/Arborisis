@@ -35,17 +35,18 @@ deploy_production:
         git reset --hard origin/main && \
         echo '✅ Code mis à jour'
       "
-    # Build des assets frontend
+    # Install + build des assets frontend
     - |
       ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 $DEPLOY_USER@$DEPLOY_HOST "
-        chown -R <redacted>:<redacted> $DEPLOY_PATH/public/build && \
+        su - <redacted> -s /bin/bash -c 'cd $DEPLOY_PATH && npm ci 2>&1' && \
         su - <redacted> -s /bin/bash -c 'cd $DEPLOY_PATH && npm run build 2>&1' && \
         echo '✅ Build terminé'
       "
-    # Optimisations Laravel (config + routes, sans view:cache qui échoue sur ce projet)
+    # Nettoyage + optimisations Laravel
     - |
       ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 $DEPLOY_USER@$DEPLOY_HOST "
         cd $DEPLOY_PATH && \
+        php artisan view:clear 2>&1 && \
         php artisan config:cache 2>&1 && \
         php artisan route:cache 2>&1 && \
         php artisan event:cache 2>&1 && \
