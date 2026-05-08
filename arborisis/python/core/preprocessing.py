@@ -125,4 +125,20 @@ def trim_silence(y: np.ndarray, sr: int, top_db: int = 20) -> tuple[np.ndarray, 
     Returns:
         (signal_trimmed, (start_frame, end_frame))
     """
-    return librosa.effects.trim(y, top_db=top_db)
+    if y.size == 0:
+        return y, (0, 0)
+
+    peak = np.max(np.abs(y))
+    if peak == 0:
+        return y, (0, len(y))
+
+    threshold = peak * (10 ** (-top_db / 20))
+    non_silent = np.flatnonzero(np.abs(y) > threshold)
+
+    if non_silent.size == 0:
+        return y, (0, len(y))
+
+    start = int(non_silent[0])
+    end = int(non_silent[-1] + 1)
+
+    return y[start:end], (start, end)
