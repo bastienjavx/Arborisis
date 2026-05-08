@@ -16,11 +16,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Sound extends Model
 {
     use HasFactory, SoftDeletes;
+
+    protected $appends = ['cover_url'];
 
     protected $fillable = [
         'user_id',
@@ -103,6 +106,35 @@ class Sound extends Model
     public function reports(): HasMany
     {
         return $this->morphMany(Report::class, 'reportable');
+    }
+
+    public function getCoverUrlAttribute(): ?string
+    {
+        if (empty($this->cover_image)) {
+            return null;
+        }
+
+        $disk = $this->soundFile?->disk ?? 'public';
+
+        return $this->getStorageUrl($disk, $this->cover_image);
+    }
+
+    public function getAudioUrlAttribute(): ?string
+    {
+        if (empty($this->soundFile?->path)) {
+            return null;
+        }
+
+        return $this->getStorageUrl($this->soundFile->disk, $this->soundFile->path);
+    }
+
+    private function getStorageUrl(string $disk, string $path): string
+    {
+        if ($disk === 'audio' || $disk === 's3') {
+            return Storage::disk($disk)->temporaryUrl($path, now()->addMinutes(60));
+        }
+
+        return Storage::disk($disk)->url($path);
     }
 
     public function isPublic(): bool

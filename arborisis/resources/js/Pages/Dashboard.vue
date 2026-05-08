@@ -1,7 +1,7 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 
 const props = defineProps({
     stats: {
@@ -35,6 +35,39 @@ const greeting = computed(() => {
     if (hour < 12) return 'Bon matin';
     if (hour < 18) return 'Bon après-midi';
     return 'Bonsoir';
+});
+
+const animatedStats = ref({
+    totalSounds: 0,
+    totalPlays: 0,
+    totalLikes: 0,
+    totalFollowers: 0,
+});
+
+const statsAnimated = ref(false);
+
+const animateCount = (target, key, duration = 1200) => {
+    const start = performance.now();
+    const from = 0;
+    const to = target;
+    const step = (now) => {
+        const progress = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        animatedStats.value[key] = Math.floor(from + (to - from) * eased);
+        if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+};
+
+onMounted(() => {
+    // Animate stat numbers on mount with delay
+    setTimeout(() => {
+        statsAnimated.value = true;
+        animateCount(props.stats.totalSounds, 'totalSounds');
+        animateCount(props.stats.totalPlays, 'totalPlays');
+        animateCount(props.stats.totalLikes, 'totalLikes');
+        animateCount(props.stats.totalFollowers, 'totalFollowers');
+    }, 300);
 });
 
 const formatDuration = (seconds) => {
@@ -111,15 +144,12 @@ const getActivityColor = (type) => {
     return colors[type] || colors.play;
 };
 
-onMounted(() => {
-    // Animate stat numbers on mount
-    const statElements = document.querySelectorAll('.stat-number');
-    statElements.forEach((el, index) => {
-        setTimeout(() => {
-            el.classList.add('animate-slide-up');
-        }, index * 100);
+const getMiniWaveform = (seed) => {
+    return Array.from({ length: 12 }, (_, i) => {
+        const base = 20 + Math.abs(Math.sin(seed + i * 0.8)) * 60;
+        return Math.max(8, Math.min(100, base));
     });
-});
+};
 </script>
 
 <template>
@@ -179,16 +209,16 @@ onMounted(() => {
                             <!-- Stat: Sounds -->
                             <div class="stat-card group">
                                 <div class="flex items-center gap-3 mb-4">
-                                    <div class="w-10 h-10 rounded-xl bg-arbor-emerald/15 flex items-center justify-center">
+                                    <div class="w-10 h-10 rounded-xl bg-arbor-emerald/15 flex items-center justify-center transition-transform group-hover:scale-110">
                                         <svg class="w-5 h-5 text-arbor-emerald" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                                         </svg>
                                     </div>
                                     <span class="text-arbor-sage text-xs font-medium uppercase tracking-wider">Enregistrements</span>
                                 </div>
-                                <div class="stat-number opacity-0">
+                                <div class="animate-count-up">
                                     <span class="font-display text-3xl lg:text-4xl font-semibold text-arbor-cream">
-                                        {{ formatNumber(stats.totalSounds) }}
+                                        {{ formatNumber(animatedStats.totalSounds) }}
                                     </span>
                                 </div>
                             </div>
@@ -196,16 +226,16 @@ onMounted(() => {
                             <!-- Stat: Plays -->
                             <div class="stat-card group">
                                 <div class="flex items-center gap-3 mb-4">
-                                    <div class="w-10 h-10 rounded-xl bg-arbor-moss/20 flex items-center justify-center">
+                                    <div class="w-10 h-10 rounded-xl bg-arbor-moss/20 flex items-center justify-center transition-transform group-hover:scale-110">
                                         <svg class="w-5 h-5 text-arbor-moss-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
                                     </div>
                                     <span class="text-arbor-sage text-xs font-medium uppercase tracking-wider">Écoutes</span>
                                 </div>
-                                <div class="stat-number opacity-0">
+                                <div class="animate-count-up">
                                     <span class="font-display text-3xl lg:text-4xl font-semibold text-arbor-cream">
-                                        {{ formatNumber(stats.totalPlays) }}
+                                        {{ formatNumber(animatedStats.totalPlays) }}
                                     </span>
                                 </div>
                             </div>
@@ -213,16 +243,16 @@ onMounted(() => {
                             <!-- Stat: Likes -->
                             <div class="stat-card group">
                                 <div class="flex items-center gap-3 mb-4">
-                                    <div class="w-10 h-10 rounded-xl bg-rose-500/15 flex items-center justify-center">
+                                    <div class="w-10 h-10 rounded-xl bg-rose-500/15 flex items-center justify-center transition-transform group-hover:scale-110">
                                         <svg class="w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                         </svg>
                                     </div>
                                     <span class="text-arbor-sage text-xs font-medium uppercase tracking-wider">J'aime</span>
                                 </div>
-                                <div class="stat-number opacity-0">
+                                <div class="animate-count-up">
                                     <span class="font-display text-3xl lg:text-4xl font-semibold text-arbor-cream">
-                                        {{ formatNumber(stats.totalLikes) }}
+                                        {{ formatNumber(animatedStats.totalLikes) }}
                                     </span>
                                 </div>
                             </div>
@@ -230,16 +260,16 @@ onMounted(() => {
                             <!-- Stat: Followers -->
                             <div class="stat-card group">
                                 <div class="flex items-center gap-3 mb-4">
-                                    <div class="w-10 h-10 rounded-xl bg-arbor-amber/15 flex items-center justify-center">
+                                    <div class="w-10 h-10 rounded-xl bg-arbor-amber/15 flex items-center justify-center transition-transform group-hover:scale-110">
                                         <svg class="w-5 h-5 text-arbor-amber" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                                         </svg>
                                     </div>
                                     <span class="text-arbor-sage text-xs font-medium uppercase tracking-wider">Abonnés</span>
                                 </div>
-                                <div class="stat-number opacity-0">
+                                <div class="animate-count-up">
                                     <span class="font-display text-3xl lg:text-4xl font-semibold text-arbor-cream">
-                                        {{ formatNumber(stats.totalFollowers) }}
+                                        {{ formatNumber(animatedStats.totalFollowers) }}
                                     </span>
                                 </div>
                             </div>
@@ -278,17 +308,18 @@ onMounted(() => {
                                     <div v-if="recentSounds.length > 0">
                                         <div class="space-y-4">
                                             <Link
-                                                v-for="sound in recentSounds.slice(0, 5)"
+                                                v-for="(sound, index) in recentSounds.slice(0, 5)"
                                                 :key="sound.id"
                                                 :href="route('sounds.show', sound.slug)"
                                                 class="flex items-center gap-4 p-4 rounded-xl bg-arbor-charcoal/50 border border-arbor-fog/50 hover:border-arbor-moss/50 hover:bg-arbor-charcoal transition-all duration-300 group"
+                                                :style="`animation: slideInRight 0.4s ease-out forwards; animation-delay: ${index * 0.08}s; opacity: 0;`"
                                             >
                                                 <!-- Cover / Play button -->
                                                 <div class="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-arbor-deep">
                                                     <div
-                                                        v-if="sound.cover_image"
+                                                        v-if="sound.cover_url"
                                                         class="absolute inset-0 bg-cover bg-center"
-                                                        :style="`background-image: url(${sound.cover_image})`"
+                                                        :style="`background-image: url(${sound.cover_url})`"
                                                     />
                                                     <div v-else class="absolute inset-0 flex items-center justify-center">
                                                         <svg class="w-6 h-6 text-arbor-moss/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -315,6 +346,16 @@ onMounted(() => {
                                                     </p>
                                                 </div>
 
+                                                <!-- Mini waveform -->
+                                                <div class="hidden sm:flex items-end gap-[2px] h-6 opacity-40 group-hover:opacity-70 transition-opacity">
+                                                    <div
+                                                        v-for="(h, i) in getMiniWaveform(sound.id)"
+                                                        :key="i"
+                                                        class="w-[2px] bg-arbor-emerald rounded-full"
+                                                        :style="{ height: `${h}%` }"
+                                                    />
+                                                </div>
+
                                                 <!-- Stats -->
                                                 <div class="hidden sm:flex items-center gap-4 text-sm text-arbor-sage shrink-0">
                                                     <span class="flex items-center gap-1.5">
@@ -339,7 +380,7 @@ onMounted(() => {
 
                                     <!-- Empty State -->
                                     <div v-else class="text-center py-16">
-                                        <div class="w-16 h-16 rounded-2xl bg-arbor-moss/10 flex items-center justify-center mx-auto mb-4">
+                                        <div class="w-16 h-16 rounded-2xl bg-arbor-moss/10 flex items-center justify-center mx-auto mb-4 transition-transform hover:scale-110">
                                             <svg class="w-8 h-8 text-arbor-moss/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                                             </svg>
@@ -360,12 +401,13 @@ onMounted(() => {
 
                                     <div v-if="activities.length > 0" class="space-y-4">
                                         <div
-                                            v-for="activity in activities.slice(0, 6)"
+                                            v-for="(activity, index) in activities.slice(0, 6)"
                                             :key="activity.id"
                                             class="flex items-start gap-4 p-4 rounded-xl hover:bg-arbor-charcoal/30 transition-colors"
+                                            :style="`animation: slideInRight 0.4s ease-out forwards; animation-delay: ${index * 0.06}s; opacity: 0;`"
                                         >
                                             <div
-                                                class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                                                class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform hover:scale-110"
                                                 :class="getActivityColor(activity.type)"
                                             >
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -402,15 +444,19 @@ onMounted(() => {
                                             </div>
                                             <span class="text-arbor-sage text-xs font-medium uppercase tracking-wider">Solde ECHO</span>
                                         </div>
-                                        <div class="font-mono text-3xl font-medium text-arbor-amber mb-2">
+                                        <div class="font-mono text-3xl font-medium text-arbor-amber mb-2 relative">
                                             {{ echoBalance.toLocaleString('fr-FR') }}
+                                            <div v-if="echoBalance > 0" class="absolute inset-0 shimmer-text opacity-20 pointer-events-none" />
                                         </div>
                                         <p class="text-arbor-sage text-xs">
                                             Crédits disponibles
                                         </p>
                                         <div class="mt-4 pt-4 border-t border-arbor-glass-border">
-                                            <Link href="/echo" class="text-arbor-amber text-sm hover:underline">
-                                                Voir l'historique →
+                                            <Link href="/echo" class="text-arbor-amber text-sm hover:underline inline-flex items-center gap-1 group">
+                                                Voir l'historique
+                                                <svg class="w-3 h-3 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                                </svg>
                                             </Link>
                                         </div>
                                     </div>
@@ -429,7 +475,7 @@ onMounted(() => {
                                             class="flex items-center gap-4 p-3 rounded-xl hover:bg-arbor-charcoal/50 transition-colors group"
                                         >
                                             <div
-                                                class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                                                class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110"
                                                 :class="{
                                                     'bg-arbor-emerald/15 text-arbor-emerald': action.color === 'emerald',
                                                     'bg-arbor-moss/20 text-arbor-moss-light': action.color === 'moss',
@@ -451,7 +497,7 @@ onMounted(() => {
                                 </div>
 
                                 <!-- Tip Card -->
-                                <div class="glass-card p-6 bg-gradient-to-br from-arbor-moss/10 to-transparent">
+                                <div class="glass-card p-6 bg-gradient-to-br from-arbor-moss/10 to-transparent hover-lift">
                                     <div class="flex items-start gap-3">
                                         <div class="w-8 h-8 rounded-lg bg-arbor-emerald/20 flex items-center justify-center shrink-0 mt-0.5">
                                             <svg class="w-4 h-4 text-arbor-emerald" fill="none" stroke="currentColor" viewBox="0 0 24 24">

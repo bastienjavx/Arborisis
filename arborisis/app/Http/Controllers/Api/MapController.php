@@ -16,7 +16,7 @@ class MapController extends Controller
     public function sounds(Request $request): JsonResponse
     {
         $query = Sound::public()
-            ->with(['user:id,name', 'category:id,name,slug', 'soundLocation'])
+            ->with(['user:id,name', 'category:id,name,slug', 'soundLocation', 'soundFile'])
             ->whereHas('soundLocation', function ($q) {
                 $q->whereNotNull('public_latitude')
                    ->whereNotNull('public_longitude');
@@ -52,7 +52,7 @@ class MapController extends Controller
                     'duration' => $sound->duration,
                     'user_name' => $sound->user?->name ?? 'Anonyme',
                     'category' => $sound->category?->name,
-                    'cover_image' => $sound->cover_image,
+                    'cover_url' => $sound->cover_url,
                     'play_count' => $sound->play_count,
                     'like_count' => $sound->like_count,
                     'location_name' => $location->location_name,
@@ -76,7 +76,7 @@ class MapController extends Controller
         $query = $request->input('q');
 
         $sounds = Sound::public()
-            ->with(['user:id,name', 'category:id,name', 'soundLocation'])
+            ->with(['user:id,name', 'category:id,name', 'soundLocation', 'soundFile'])
             ->whereHas('soundLocation', function ($q) {
                 $q->whereNotNull('public_latitude')
                    ->whereNotNull('public_longitude');
@@ -110,7 +110,7 @@ class MapController extends Controller
                     'user_name' => $sound->user?->name ?? 'Anonyme',
                     'category' => $sound->category?->name,
                     'duration' => $sound->duration,
-                    'cover_image' => $sound->cover_image,
+                    'cover_url' => $sound->cover_url,
                     'location_name' => $location->location_name,
                 ],
             ];

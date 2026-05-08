@@ -24,7 +24,7 @@ class SoundController extends Controller
     public function index(): Response
     {
         $sounds = Sound::public()
-            ->with(['user.profile', 'category', 'tags'])
+            ->with(['user.profile', 'category', 'tags', 'soundFile'])
             ->latest()
             ->paginate(12);
 
@@ -47,15 +47,15 @@ class SoundController extends Controller
         // Get audio URL
         $audioUrl = null;
         if ($sound->soundFile) {
-            $audioUrl = Storage::disk($sound->soundFile->disk)
-                ->url($sound->soundFile->path);
+            $disk = $sound->soundFile->disk;
+            $audioUrl = $this->getFileUrl($disk, $sound->soundFile->path);
         }
 
         // Get cover URL
         $coverUrl = null;
         if ($sound->cover_image) {
-            $coverUrl = Storage::disk($sound->soundFile?->disk ?? 'public')
-                ->url($sound->cover_image);
+            $disk = $sound->soundFile?->disk ?? 'public';
+            $coverUrl = $this->getFileUrl($disk, $sound->cover_image);
         }
 
         $comments = $sound->comments()
@@ -106,5 +106,16 @@ class SoundController extends Controller
                 ->withInput()
                 ->with('error', 'Une erreur est survenue lors de la publication. Veuillez réessayer.');
         }
+    }
+
+    private function getFileUrl(string $disk, string $path): string
+    {
+        $storage = Storage::disk($disk);
+
+        if ($disk === 'audio' || $disk === 's3') {
+            return $storage->temporaryUrl($path, now()->addMinutes(60));
+        }
+
+        return $storage->url($path);
     }
 }
