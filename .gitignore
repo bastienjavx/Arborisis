@@ -3,6 +3,8 @@
 landing-preview.png
 login-preview.png
 sounds-index.png
+*.png
+gitlab-pipelines.png
 
 # Dependencies
 node_modules/

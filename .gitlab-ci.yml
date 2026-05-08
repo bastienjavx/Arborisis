@@ -45,8 +45,13 @@ deploy_production:
           --exclude='.git/' \
           --exclude='node_modules/' \
           --exclude='vendor/' \
-          arborisis/ ./ && \
-        echo '✅ Code synchronisé vers la racine'
+          arborisis/ ./ ; \
+        RC=\$? ; \
+        if [ \$RC -eq 0 ] || [ \$RC -eq 24 ]; then \
+          echo '✅ Code synchronisé vers la racine' ; \
+        else \
+          exit \$RC ; \
+        fi
       "
     # Install + build des assets frontend
     - |
