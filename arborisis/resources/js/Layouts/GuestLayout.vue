@@ -164,8 +164,8 @@ const showingMobileMenu = ref(false);
                         <h4 class="font-medium text-arbor-cream mb-4 text-sm">Communauté</h4>
                         <ul class="space-y-2 text-sm text-arbor-sage">
                             <li><Link href="/transparency" class="hover:text-arbor-emerald transition-colors">Crédits ECHO</Link></li>
-                            <li><Link href="/about" class="hover:text-arbor-emerald transition-colors">Notre mission</Link></li>
-                            <li><Link href="/guidelines" class="hover:text-arbor-emerald transition-colors">Charte</Link></li>
+                            <li><Link href="/mission" class="hover:text-arbor-emerald transition-colors">Notre mission</Link></li>
+                            <li><Link href="/charte" class="hover:text-arbor-emerald transition-colors">Charte</Link></li>
                         </ul>
                     </div>
                 </div>

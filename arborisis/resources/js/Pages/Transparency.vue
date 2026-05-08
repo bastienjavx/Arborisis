@@ -59,7 +59,7 @@ import GuestLayout from '@/Layouts/GuestLayout.vue';
                             <div class="w-12 h-12 rounded-full bg-arbor-emerald/10 flex items-center justify-center shrink-0 text-arbor-emerald font-bold text-lg">1</div>
                             <div>
                                 <h3 class="font-semibold text-arbor-cream mb-2">Achat de crédits</h3>
-                                <p class="text-arbor-sage text-sm leading-relaxed">Les utilisateurs achètent des ECHO via Stripe en toute sécurité. 1€ = 100 ECHO. Les paiements sont sécurisés et conformes au RGPD.</p>
+                                <p class="text-arbor-sage text-sm leading-relaxed">Les utilisateurs achètent des ECHO via Stripe en toute sécurité. 1€ = 10 ECHO. Les paiements sont sécurisés et conformes au RGPD.</p>
                             </div>
                         </div>
 

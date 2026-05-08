@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Web\CommentController;
+use App\Http\Controllers\Web\CreatorController;
 use App\Http\Controllers\Web\CreatorProfileController;
+use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\FollowController;
 use App\Http\Controllers\Web\LandingController;
 use App\Http\Controllers\Web\LikeController;
@@ -24,16 +26,27 @@ Route::get('/sounds/{slug}', [SoundController::class, 'show'])->name('sounds.sho
 
 Route::get('/map', [\App\Http\Controllers\Web\MapController::class, 'index'])->name('map.index');
 
+Route::get('/creators', [CreatorController::class, 'index'])->name('creators.index');
 Route::get('/creators/{slug}', [CreatorProfileController::class, 'show'])->name('creators.show');
 
 Route::get('/transparency', function () {
     return Inertia::render('Transparency');
 })->name('transparency');
 
+Route::get('/echo', function () {
+    return Inertia::render('Echo/Info');
+})->name('echo.info');
+
+Route::get('/mission', function () {
+    return Inertia::render('Mission');
+})->name('mission');
+
+Route::get('/charte', function () {
+    return Inertia::render('Charte');
+})->name('charte');
+
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

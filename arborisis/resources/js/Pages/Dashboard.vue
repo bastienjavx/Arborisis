@@ -452,7 +452,7 @@ const getMiniWaveform = (seed) => {
                                             Crédits disponibles
                                         </p>
                                         <div class="mt-4 pt-4 border-t border-arbor-glass-border">
-                                            <Link href="/echo" class="text-arbor-amber text-sm hover:underline inline-flex items-center gap-1 group">
+                                            <Link href="/wallet" class="text-arbor-amber text-sm hover:underline inline-flex items-center gap-1 group">
                                                 Voir l'historique
                                                 <svg class="w-3 h-3 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
