@@ -60,7 +60,7 @@ class WalletResource extends Resource
                     ->label('Solde ECHO')
                     ->suffix(' ECHO')
                     ->sortable()
-                    ->color(fn (string $state): string => (float) $state > 0 ? 'success' : 'gray'),
+                    ->color(fn (string|float|int $state): string => (float) $state > 0 ? 'success' : 'gray'),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Créé le')
@@ -92,6 +92,7 @@ class WalletResource extends Resource
     {
         return [
             'index' => Pages\ListWallets::route('/'),
+            'create' => Pages\CreateWallet::route('/create'),
             'edit' => Pages\EditWallet::route('/{record}/edit'),
         ];
     }

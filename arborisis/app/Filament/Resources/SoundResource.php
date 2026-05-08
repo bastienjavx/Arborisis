@@ -158,8 +158,8 @@ class SoundResource extends Resource
                 Tables\Columns\TextColumn::make('status')
                     ->label('Statut')
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => SoundStatus::from($state)->label())
-                    ->color(fn (string $state): string => match (SoundStatus::from($state)) {
+                    ->formatStateUsing(fn (SoundStatus $state): string => $state->label())
+                    ->color(fn (SoundStatus $state): string => match ($state) {
                         SoundStatus::Published => 'success',
                         SoundStatus::Pending => 'warning',
                         SoundStatus::Draft => 'gray',
@@ -170,8 +170,8 @@ class SoundResource extends Resource
                 Tables\Columns\TextColumn::make('visibility')
                     ->label('Visibilité')
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => SoundVisibility::from($state)->label())
-                    ->color(fn (string $state): string => match (SoundVisibility::from($state)) {
+                    ->formatStateUsing(fn (SoundVisibility $state): string => $state->label())
+                    ->color(fn (SoundVisibility $state): string => match ($state) {
                         SoundVisibility::Public => 'success',
                         SoundVisibility::Followers => 'warning',
                         SoundVisibility::Private => 'gray',
