@@ -13,6 +13,7 @@ variables:
   APP_DIR: <redacted>
   PHP_VERSION: "8.4"
   NODE_VERSION: "22"
+  PYTHON_VERSION: "3.10"
   COMPOSER_CACHE_DIR: "$CI_PROJECT_DIR/.cache/composer"
   NPM_CONFIG_CACHE: "$CI_PROJECT_DIR/.cache/npm"
   APP_ENV: testing
@@ -35,13 +36,16 @@ variables:
       - ${APP_DIR}/vendor/
   before_script:
     - apt-get update
-    - apt-get install -y --no-install-recommends git unzip libicu-dev libzip-dev libsqlite3-dev
+    - apt-get install -y --no-install-recommends git unzip libicu-dev libzip-dev libsqlite3-dev ffmpeg python3 python3-pip python3-venv
     - docker-php-ext-install intl pdo_sqlite zip
     - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
     - cd "$APP_DIR"
     - cp .env.example .env
     - composer install --prefer-dist --no-interaction --no-progress
     - php artisan key:generate
+    - python3 -m venv python/venv
+    - python/venv/bin/pip install --upgrade pip
+    - python/venv/bin/pip install -r python/requirements.txt
 
 composer:
   extends: .php_job
@@ -61,6 +65,23 @@ php_tests:
   stage: test
   script:
     - php artisan test --colors=always
+
+python_tests:
+  image: python:${PYTHON_VERSION}-slim
+  stage: test
+  cache:
+    key:
+      files:
+        - <redacted>/python/requirements.txt
+    paths:
+      - .cache/pip/
+  before_script:
+    - apt-get update
+    - apt-get install -y --no-install-recommends ffmpeg
+    - pip install --cache-dir .cache/pip -r "${APP_DIR}/python/requirements.txt"
+  script:
+    - cd "${APP_DIR}/python"
+    - python -m pytest tests/ -v
 
 frontend_build:
   image: node:${NODE_VERSION}-alpine
@@ -87,6 +108,7 @@ deploy_production:
   stage: deploy
   needs:
     - job: php_tests
+    - job: python_tests
     - job: frontend_build
       artifacts: true
   rules:
@@ -108,7 +130,9 @@ deploy_production:
     - chmod 600 ~/.ssh/id_ed25519
     - ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
   script:
-    - rsync -az --delete --exclude='.env' --exclude='storage/' --exclude='public/storage/' --exclude='vendor/' --exclude='node_modules/' "$APP_DIR"/ "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/"
+    - rsync -az --delete --exclude='.env' --exclude='storage/' --exclude='public/storage/' --exclude='vendor/' --exclude='node_modules/' --exclude='python/venv/' "$APP_DIR"/ "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/"
+    - ssh "$DEPLOY_USER@$DEPLOY_HOST" "sudo apt-get update && sudo apt-get install -y ffmpeg python3 python3-venv python3-pip"
+    - ssh "$DEPLOY_USER@$DEPLOY_HOST" "cd '$DEPLOY_PATH' && python3 -m venv python/venv && python/venv/bin/pip install --upgrade pip && python/venv/bin/pip install -r python/requirements.txt"
     - ssh "$DEPLOY_USER@$DEPLOY_HOST" "cd '$DEPLOY_PATH' && composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader"
     - ssh "$DEPLOY_USER@$DEPLOY_HOST" "cd '$DEPLOY_PATH' && php artisan migrate --force"
     - ssh "$DEPLOY_USER@$DEPLOY_HOST" "cd '$DEPLOY_PATH' && php artisan config:cache && php artisan route:cache && php artisan view:cache"

@@ -1,7 +1,7 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 const props = defineProps({
     stats: {
@@ -100,29 +100,44 @@ const formatNumber = (num) => {
     return num.toString();
 };
 
-const quickActions = ref([
-    {
-        label: 'Nouvel enregistrement',
-        description: 'Publier un son',
-        href: '/sounds/create',
-        icon: 'M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z',
-        color: 'emerald',
-    },
-    {
-        label: 'Explorer la carte',
-        description: 'Découvrir des sons',
-        href: '/map',
-        icon: 'M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 7m0 13V7m0 0L9 7',
-        color: 'moss',
-    },
-    {
-        label: 'Mon profil',
-        description: 'Gérer mon compte',
-        href: '/profile',
-        icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
-        color: 'sage',
-    },
-]);
+const quickActions = computed(() => {
+    const actions = [
+        {
+            label: 'Nouvel enregistrement',
+            description: 'Publier un son',
+            href: '/sounds/create',
+            icon: 'M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z',
+            color: 'emerald',
+        },
+        {
+            label: 'Explorer la carte',
+            description: 'Découvrir des sons',
+            href: '/map',
+            icon: 'M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 7m0 13V7m0 0L9 7',
+            color: 'moss',
+        },
+        {
+            label: 'Mon profil',
+            description: 'Gérer mon compte',
+            href: '/profile',
+            icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
+            color: 'sage',
+        },
+    ];
+
+    const latestSound = props.recentSounds[0];
+    if (latestSound) {
+        actions.unshift({
+            label: 'Analyser mon dernier son',
+            description: latestSound.title,
+            href: route('sounds.analysis.show', latestSound.slug),
+            icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
+            color: 'amber',
+        });
+    }
+
+    return actions;
+});
 
 const getActivityIcon = (type) => {
     const icons = {

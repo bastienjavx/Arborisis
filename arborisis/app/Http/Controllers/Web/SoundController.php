@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Web;
 
-use App\Enums\SoundStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Sound\StoreSoundRequest;
 use App\Models\Category;
 use App\Models\Environment;
 use App\Models\Sound;
+use App\Models\SoundAnalysis;
 use App\Services\Sound\SoundUploadService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
@@ -42,6 +42,8 @@ class SoundController extends Controller
             ->where('slug', $slug)
             ->firstOrFail();
 
+        $this->authorize('view', $sound);
+
         // Increment play count (can be optimized with cache/queue later)
         $sound->increment('play_count');
 
@@ -72,13 +74,36 @@ class SoundController extends Controller
             ? auth()->user()->isFollowing($sound->user)
             : false;
 
+        $analysis = SoundAnalysis::with('visualizations')
+            ->where('sound_id', $sound->id)
+            ->where('status', 'completed')
+            ->first();
+
         return Inertia::render('Sounds/Show', [
-            'sound' => $sound,
+            'sound' => [
+                ...$sound->toArray(),
+                'sound_location' => $sound->soundLocation ? [
+                    'public_latitude' => $sound->soundLocation->public_latitude,
+                    'public_longitude' => $sound->soundLocation->public_longitude,
+                    'location_name' => $sound->soundLocation->location_name,
+                    'is_sensitive' => $sound->soundLocation->is_sensitive,
+                ] : null,
+            ],
             'audioUrl' => $audioUrl,
             'coverUrl' => $coverUrl,
             'comments' => $comments,
             'isLiked' => $isLiked,
             'isFollowing' => $isFollowing,
+            'analysis' => $analysis ? [
+                'id' => $analysis->id,
+                'status' => $analysis->status->value,
+                'features' => $analysis->features_json,
+                'visualizations' => $analysis->visualizations->map(fn ($v) => [
+                    'id' => $v->id,
+                    'type' => $v->type->value,
+                    'url' => $v->url,
+                ])->values(),
+            ] : null,
         ]);
     }
 
@@ -92,6 +117,8 @@ class SoundController extends Controller
 
     public function store(StoreSoundRequest $request): RedirectResponse
     {
+        $this->authorize('create', Sound::class);
+
         try {
             $sound = $this->uploadService->upload(
                 $request->validated(),
