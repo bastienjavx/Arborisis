@@ -45,8 +45,13 @@ deploy_production:
           --exclude='.git/' \
           --exclude='node_modules/' \
           --exclude='vendor/' \
-          <redacted>/ ./ && \
-        echo '✅ Code synchronisé vers la racine'
+          <redacted>/ ./ ; \
+        RC=\$? ; \
+        if [ \$RC -eq 0 ] || [ \$RC -eq 24 ]; then \
+          echo '✅ Code synchronisé vers la racine' ; \
+        else \
+          exit \$RC ; \
+        fi
       "
     # Install + build des assets frontend
     - |
