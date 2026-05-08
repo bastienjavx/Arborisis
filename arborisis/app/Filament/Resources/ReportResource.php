@@ -81,9 +81,9 @@ class ReportResource extends Resource
                             ->required()
                             ->live(),
 
-                        Forms\Components\TextInput::make('resolver.name')
+                        Forms\Components\Placeholder::make('resolver_name')
                             ->label('Résolu par')
-                            ->disabled(),
+                            ->content(fn (Report $record): ?string => $record->resolver?->name),
 
                         Forms\Components\DateTimePicker::make('resolved_at')
                             ->label('Résolu le')
@@ -121,22 +121,22 @@ class ReportResource extends Resource
                 Tables\Columns\TextColumn::make('reason')
                     ->label('Motif')
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => ReportReason::from($state)->label())
-                    ->color(fn (string $state): string => match (ReportReason::from($state)) {
+                    ->formatStateUsing(fn (ReportReason $state): string => $state->label())
+                    ->color(fn (ReportReason $state): string => match ($state) {
                         ReportReason::Spam => 'gray',
                         ReportReason::Harassment => 'danger',
                         ReportReason::InappropriateContent => 'warning',
                         ReportReason::Copyright => 'primary',
                         ReportReason::Misinformation => 'info',
-                        ReportReason::Other => 'secondary',
+                        ReportReason::Other => 'gray',
                     })
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('status')
                     ->label('Statut')
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => ReportStatus::from($state)->label())
-                    ->color(fn (string $state): string => match (ReportStatus::from($state)) {
+                    ->formatStateUsing(fn (ReportStatus $state): string => $state->label())
+                    ->color(fn (ReportStatus $state): string => match ($state) {
                         ReportStatus::Pending => 'warning',
                         ReportStatus::Reviewing => 'primary',
                         ReportStatus::Resolved => 'success',

@@ -56,8 +56,7 @@ class CategoryResource extends Resource
                 Forms\Components\TextInput::make('order')
                     ->label('Ordre')
                     ->numeric()
-                    ->default(0)
-                    ->sortable(),
+                    ->default(0),
             ]);
     }
 

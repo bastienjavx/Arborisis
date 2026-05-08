@@ -110,23 +110,23 @@ class EchoTransactionResource extends Resource
                 Tables\Columns\TextColumn::make('type')
                     ->label('Type')
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => TransactionType::from($state)->label())
-                    ->color(fn (string $state): string => match (TransactionType::from($state)) {
+                    ->formatStateUsing(fn (TransactionType $state): string => $state->label())
+                    ->color(fn (TransactionType $state): string => match ($state) {
                         TransactionType::Purchase => 'primary',
                         TransactionType::Donation => 'success',
                         TransactionType::Tip => 'info',
                         TransactionType::Withdrawal => 'warning',
                         TransactionType::Refund => 'danger',
                         TransactionType::Commission => 'gray',
-                        TransactionType::CommunityFund => 'secondary',
+                        TransactionType::CommunityFund => 'gray',
                     })
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('status')
                     ->label('Statut')
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => TransactionStatus::from($state)->label())
-                    ->color(fn (string $state): string => match (TransactionStatus::from($state)) {
+                    ->formatStateUsing(fn (TransactionStatus $state): string => $state->label())
+                    ->color(fn (TransactionStatus $state): string => match ($state) {
                         TransactionStatus::Completed => 'success',
                         TransactionStatus::Pending => 'warning',
                         TransactionStatus::Failed => 'danger',
@@ -193,6 +193,7 @@ class EchoTransactionResource extends Resource
     {
         return [
             'index' => Pages\ListEchoTransactions::route('/'),
+            'create' => Pages\CreateEchoTransaction::route('/create'),
             'edit' => Pages\EditEchoTransaction::route('/{record}/edit'),
         ];
     }

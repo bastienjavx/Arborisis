@@ -84,8 +84,8 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('role')
                     ->label('Rôle')
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => UserRole::from($state)->label())
-                    ->color(fn (string $state): string => match (UserRole::from($state)) {
+                    ->formatStateUsing(fn (UserRole $state): string => $state->label())
+                    ->color(fn (UserRole $state): string => match ($state) {
                         UserRole::Admin => 'danger',
                         UserRole::Moderator => 'warning',
                         UserRole::Creator => 'success',
