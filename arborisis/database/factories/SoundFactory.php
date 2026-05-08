@@ -6,6 +6,7 @@ use App\Enums\LicenseType;
 use App\Enums\SoundStatus;
 use App\Enums\SoundVisibility;
 use App\Models\Category;
+use App\Models\Environment;
 use App\Models\Sound;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -22,12 +23,12 @@ class SoundFactory extends Factory
         return [
             'user_id' => User::factory(),
             'category_id' => Category::factory(),
+            'environment_id' => Environment::factory(),
             'title' => $title,
-            'slug' => Str::slug($title . '-' . uniqid()),
+            'slug' => Str::slug($title.'-'.uniqid()),
             'description' => fake()->paragraph(),
             'recorded_at' => fake()->dateTimeBetween('-1 year', 'now'),
             'duration' => fake()->numberBetween(30, 600),
-            'environment' => fake()->randomElement(['forest', 'ocean', 'mountain', 'river', 'meadow']),
             'equipment' => fake()->words(3, true),
             'license' => LicenseType::CcBy,
             'visibility' => SoundVisibility::Public,
