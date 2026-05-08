@@ -41,4 +41,14 @@ class SoundPolicy
     {
         return $user->id === $sound->user_id || $user->isModerator();
     }
+
+    public function like(User $user, Sound $sound): bool
+    {
+        return $sound->isPublic() || $user->id === $sound->user_id || $user->isModerator();
+    }
+
+    public function unlike(User $user, Sound $sound): bool
+    {
+        return $sound->isPublic() || $user->id === $sound->user_id || $user->isModerator();
+    }
 }

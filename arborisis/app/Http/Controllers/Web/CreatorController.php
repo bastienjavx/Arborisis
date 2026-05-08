@@ -21,7 +21,7 @@ class CreatorController extends Controller
             ->with('profile')
             ->when($search, fn ($q) => $q->where(function ($q) use ($search) {
                 $q->where('name', 'ilike', "%{$search}%")
-                  ->orWhereHas('profile', fn ($q) => $q->where('bio', 'ilike', "%{$search}%"));
+                    ->orWhereHas('profile', fn ($q) => $q->where('bio', 'ilike', "%{$search}%"));
             }))
             ->orderBy('public_sounds_count', 'desc')
             ->paginate(48)

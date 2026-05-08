@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Web;
 use App\Enums\EchoDonationType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\EchoDonation\StoreEchoDonationRequest;
+use App\Models\EchoDonation;
 use App\Models\Sound;
 use App\Models\User;
 use App\Services\Echo\DonationService;
@@ -23,6 +24,8 @@ class EchoDonationController extends Controller
 
     public function store(StoreEchoDonationRequest $request): RedirectResponse
     {
+        $this->authorize('create', EchoDonation::class);
+
         $donor = $request->user();
         $validated = $request->validated();
 
@@ -46,6 +49,9 @@ class EchoDonationController extends Controller
     public function history(Request $request): Response
     {
         $user = $request->user();
+
+        $this->authorize('view', $user);
+
         $history = $this->donationService->getDonationHistory($user);
 
         return Inertia::render('Wallet/DonationHistory', [

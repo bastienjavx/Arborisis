@@ -20,6 +20,8 @@ class StoreReportRequest extends FormRequest
         return [
             'reason' => ['required', 'string', Rule::enum(ReportReason::class)],
             'description' => ['nullable', 'string', 'max:2000'],
+            'reportable_type' => ['required', 'string', Rule::in(['sound', 'comment'])],
+            'reportable_id' => ['required', 'integer', 'min:1'],
         ];
     }
 }

@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -51,7 +50,7 @@ class Sound extends Model
     {
         static::creating(function (Sound $sound) {
             if (empty($sound->slug)) {
-                $sound->slug = Str::slug($sound->title . '-' . uniqid());
+                $sound->slug = Str::slug($sound->title.'-'.uniqid());
             }
         });
     }
@@ -149,6 +148,6 @@ class Sound extends Model
     public function scopePublic($query)
     {
         return $query->where('status', SoundStatus::Published)
-                     ->where('visibility', SoundVisibility::Public);
+            ->where('visibility', SoundVisibility::Public);
     }
 }

@@ -11,17 +11,20 @@ use Illuminate\Support\Facades\DB;
 
 class LikeService
 {
-    public function toggle(User $user, Sound $sound): array
+    public function like(User $user, Sound $sound): array
     {
         return DB::transaction(function () use ($user, $sound) {
-            $existing = Like::where('user_id', $user->id)
+            $existing = Like::withTrashed()
+                ->where('user_id', $user->id)
                 ->where('sound_id', $sound->id)
                 ->first();
 
             if ($existing) {
-                $existing->delete();
-                $sound->decrement('like_count');
-                $liked = false;
+                if ($existing->trashed()) {
+                    $existing->restore();
+                    $sound->increment('like_count');
+                }
+                $liked = true;
             } else {
                 Like::create([
                     'user_id' => $user->id,
@@ -32,6 +35,22 @@ class LikeService
             }
 
             return ['liked' => $liked, 'count' => $sound->fresh()->like_count];
+        });
+    }
+
+    public function unlike(User $user, Sound $sound): array
+    {
+        return DB::transaction(function () use ($user, $sound) {
+            $existing = Like::where('user_id', $user->id)
+                ->where('sound_id', $sound->id)
+                ->first();
+
+            if ($existing) {
+                $existing->delete();
+                $sound->decrement('like_count');
+            }
+
+            return ['liked' => false, 'count' => $sound->fresh()->like_count];
         });
     }
 }

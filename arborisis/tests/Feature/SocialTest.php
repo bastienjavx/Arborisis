@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Report;
 use App\Models\Sound;
 use App\Models\User;
 
@@ -90,5 +91,5 @@ it('allows users to submit reports', function () {
     ]);
 
     $response->assertRedirect();
-    expect(\App\Models\Report::count())->toBe(1);
+    expect(Report::count())->toBe(1);
 });

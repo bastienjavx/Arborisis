@@ -34,6 +34,15 @@ class EchoTransaction extends Model
         'completed_at' => 'datetime',
     ];
 
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::deleting(function (self $transaction): void {
+            throw new \RuntimeException('Les transactions ECHO sont immuables et ne peuvent pas être supprimées.');
+        });
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -52,20 +61,5 @@ class EchoTransaction extends Model
     public function scopePending($query)
     {
         return $query->where('status', TransactionStatus::Pending);
-    }
-
-    public function markAsCompleted(): void
-    {
-        $this->update([
-            'status' => TransactionStatus::Completed,
-            'completed_at' => now(),
-        ]);
-    }
-
-    public function markAsFailed(): void
-    {
-        $this->update([
-            'status' => TransactionStatus::Failed,
-        ]);
     }
 }

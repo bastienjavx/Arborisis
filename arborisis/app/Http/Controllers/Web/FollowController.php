@@ -18,14 +18,18 @@ class FollowController extends Controller
 
     public function store(Request $request, User $user): JsonResponse
     {
-        $result = $this->followService->toggle($request->user(), $user);
+        $this->authorize('follow', $user);
+
+        $result = $this->followService->follow($request->user(), $user);
 
         return response()->json($result);
     }
 
     public function destroy(Request $request, User $user): JsonResponse
     {
-        $result = $this->followService->toggle($request->user(), $user);
+        $this->authorize('unfollow', $user);
+
+        $result = $this->followService->unfollow($request->user(), $user);
 
         return response()->json($result);
     }
