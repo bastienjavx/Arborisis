@@ -1,79 +1,114 @@
-# GitLab CI/CD — Déploiement automatique Arborisis
-# Workflow : push sur main → build → déploiement SSH sur le serveur de production
-
 stages:
+  - quality
+  - test
+  - build
   - deploy
 
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH
+
 variables:
-  DEPLOY_HOST: "213.199.53.8"
-  DEPLOY_USER: "root"
-  DEPLOY_PATH: "/var/www/arborisis"
-  GIT_DEPTH: 0
+  APP_DIR: arborisis
+  PHP_VERSION: "8.3"
+  NODE_VERSION: "22"
+  COMPOSER_CACHE_DIR: "$CI_PROJECT_DIR/.cache/composer"
+  NPM_CONFIG_CACHE: "$CI_PROJECT_DIR/.cache/npm"
+  APP_ENV: testing
+  APP_DEBUG: "false"
+  CACHE_STORE: array
+  DB_CONNECTION: sqlite
+  DB_DATABASE: ":memory:"
+  MAIL_MAILER: array
+  QUEUE_CONNECTION: sync
+  SESSION_DRIVER: array
+
+.php_job:
+  image: php:${PHP_VERSION}-cli
+  cache:
+    key:
+      files:
+        - arborisis/composer.lock
+    paths:
+      - .cache/composer/
+      - ${APP_DIR}/vendor/
+  before_script:
+    - apt-get update
+    - apt-get install -y --no-install-recommends git unzip libicu-dev libzip-dev libsqlite3-dev
+    - docker-php-ext-install intl pdo_sqlite zip
+    - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+    - cd "$APP_DIR"
+    - cp .env.example .env
+    - composer install --prefer-dist --no-interaction --no-progress
+    - php artisan key:generate
+
+composer:
+  extends: .php_job
+  stage: quality
+  script:
+    - composer validate --strict
+
+pint:
+  extends: .php_job
+  stage: quality
+  allow_failure: true
+  script:
+    - ./vendor/bin/pint --test
+
+php_tests:
+  extends: .php_job
+  stage: test
+  script:
+    - php artisan test --colors=always
+
+frontend_build:
+  image: node:${NODE_VERSION}-alpine
+  stage: build
+  cache:
+    key:
+      files:
+        - arborisis/package-lock.json
+    paths:
+      - .cache/npm/
+      - ${APP_DIR}/node_modules/
+  before_script:
+    - cd "$APP_DIR"
+    - npm ci
+  script:
+    - npm run build
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - ${APP_DIR}/public/build/
 
 deploy_production:
+  image: alpine:3.20
   stage: deploy
-  image: node:22-alpine
-  only:
-    - main
+  needs:
+    - job: php_tests
+    - job: frontend_build
+      artifacts: true
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: manual
+    - when: never
+  environment:
+    name: production
+    url: https://arborisis.com
   before_script:
-    # Installer les outils nécessaires
-    - apk add --no-cache openssh-client git
-    # Configurer la clé SSH (décodée depuis base64 pour préserver le format)
+    - apk add --no-cache openssh-client rsync
+    - test -n "$DEPLOY_HOST"
+    - test -n "$DEPLOY_USER"
+    - test -n "$DEPLOY_PATH"
+    - test -n "$SSH_PRIVATE_KEY"
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
-    - echo "$SSH_PRIVATE_KEY_BASE64" | base64 -d > ~/.ssh/id_ed25519
+    - printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
     - chmod 600 ~/.ssh/id_ed25519
-    - ssh-keyscan -H $DEPLOY_HOST >> ~/.ssh/known_hosts 2>/dev/null || true
+    - ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
   script:
-    - echo "🚀 Déploiement sur $DEPLOY_HOST..."
-    # Pull du code sur le serveur
-    - |
-      ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 $DEPLOY_USER@$DEPLOY_HOST "
-        cd $DEPLOY_PATH && \
-        git config --global --add safe.directory $DEPLOY_PATH && \
-        git fetch origin main && \
-        git reset --hard origin/main && \
-        echo '✅ Code mis à jour'
-      "
-    # Synchroniser arborisis/ vers la racine (nginx sert la racine, pas le sous-dossier)
-    - |
-      ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 $DEPLOY_USER@$DEPLOY_HOST "
-        cd $DEPLOY_PATH && \
-        rsync -av --delete \
-          --exclude='.env' \
-          --exclude='storage/' \
-          --exclude='.git/' \
-          --exclude='node_modules/' \
-          --exclude='vendor/' \
-          arborisis/ ./ ; \
-        RC=\$? ; \
-        if [ \$RC -eq 0 ] || [ \$RC -eq 24 ]; then \
-          echo '✅ Code synchronisé vers la racine' ; \
-        else \
-          exit \$RC ; \
-        fi
-      "
-    # Fix permissions pour l'utilisateur de build
-    - |
-      ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 $DEPLOY_USER@$DEPLOY_HOST "
-        chown -R arborisis:arborisis $DEPLOY_PATH && \
-        echo '✅ Permissions corrigées'
-      "
-    # Install + build des assets frontend
-    - |
-      ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 $DEPLOY_USER@$DEPLOY_HOST "
-        su - arborisis -s /bin/bash -c 'cd $DEPLOY_PATH && npm ci 2>&1' && \
-        su - arborisis -s /bin/bash -c 'cd $DEPLOY_PATH && npm run build 2>&1' && \
-        echo '✅ Build terminé'
-      "
-    # Nettoyage + optimisations Laravel
-    - |
-      ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 $DEPLOY_USER@$DEPLOY_HOST "
-        cd $DEPLOY_PATH && \
-        php artisan view:clear 2>&1 && \
-        php artisan config:cache 2>&1 && \
-        php artisan route:cache 2>&1 && \
-        php artisan event:cache 2>&1 && \
-        echo '✅ Cache Laravel rafraîchi'
-      "
-    - echo "🎉 Déploiement terminé avec succès !"
+    - rsync -az --delete --exclude='.env' --exclude='storage/' --exclude='public/storage/' --exclude='vendor/' --exclude='node_modules/' "$APP_DIR"/ "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/"
+    - ssh "$DEPLOY_USER@$DEPLOY_HOST" "cd '$DEPLOY_PATH' && composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader"
+    - ssh "$DEPLOY_USER@$DEPLOY_HOST" "cd '$DEPLOY_PATH' && php artisan migrate --force"
+    - ssh "$DEPLOY_USER@$DEPLOY_HOST" "cd '$DEPLOY_PATH' && php artisan config:cache && php artisan route:cache && php artisan view:cache"
