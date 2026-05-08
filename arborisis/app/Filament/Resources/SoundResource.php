@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources;
 
-use App\Enums\EnvironmentType;
 use App\Enums\LicenseType;
 use App\Enums\SoundStatus;
 use App\Enums\SoundVisibility;
@@ -61,13 +60,11 @@ class SoundResource extends Resource
 
                 Forms\Components\Section::make('Métadonnées')
                     ->schema([
-                        Forms\Components\Select::make('environment')
+                        Forms\Components\Select::make('environment_id')
                             ->label('Environnement')
-                            ->options(
-                                collect(EnvironmentType::cases())
-                                    ->mapWithKeys(fn (EnvironmentType $env) => [$env->value => $env->label()])
-                                    ->toArray()
-                            ),
+                            ->relationship('environment', 'name')
+                            ->searchable()
+                            ->preload(),
 
                         Forms\Components\TextInput::make('equipment')
                             ->label('Équipement')
@@ -151,6 +148,11 @@ class SoundResource extends Resource
                     ->sortable()
                     ->searchable(),
 
+                Tables\Columns\TextColumn::make('environment.name')
+                    ->label('Environnement')
+                    ->sortable()
+                    ->searchable(),
+
                 Tables\Columns\TextColumn::make('status')
                     ->label('Statut')
                     ->badge()
@@ -209,6 +211,12 @@ class SoundResource extends Resource
                 Tables\Filters\SelectFilter::make('category_id')
                     ->label('Catégorie')
                     ->relationship('category', 'name')
+                    ->searchable()
+                    ->preload(),
+
+                Tables\Filters\SelectFilter::make('environment_id')
+                    ->label('Environnement')
+                    ->relationship('environment', 'name')
                     ->searchable()
                     ->preload(),
 

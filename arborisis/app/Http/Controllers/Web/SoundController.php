@@ -8,6 +8,7 @@ use App\Enums\SoundStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Sound\StoreSoundRequest;
 use App\Models\Category;
+use App\Models\Environment;
 use App\Models\Sound;
 use App\Services\Sound\SoundUploadService;
 use Illuminate\Http\RedirectResponse;
@@ -37,7 +38,7 @@ class SoundController extends Controller
     public function show(string $slug): Response
     {
         $sound = Sound::public()
-            ->with(['user.profile', 'category', 'tags', 'soundLocation', 'soundFile'])
+            ->with(['user.profile', 'category', 'environment', 'tags', 'soundLocation', 'soundFile'])
             ->where('slug', $slug)
             ->firstOrFail();
 
@@ -85,6 +86,7 @@ class SoundController extends Controller
     {
         return Inertia::render('Sounds/Create', [
             'categories' => Category::orderBy('order')->get(),
+            'environments' => Environment::orderBy('order')->get(),
         ]);
     }
 

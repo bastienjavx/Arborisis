@@ -45,6 +45,10 @@ Route::get('/charte', function () {
     return Inertia::render('Charte');
 })->name('charte');
 
+Route::get('/offline', function () {
+    return response()->view('offline');
+})->name('offline');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 

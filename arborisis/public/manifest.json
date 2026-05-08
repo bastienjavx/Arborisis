@@ -1,0 +1,22 @@
+{
+  "name": "Arborisis",
+  "short_name": "Arborisis",
+  "description": "L'archive sonore de la nature. Découvrez, partagez et préservez les sons du monde vivant.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0B1220",
+  "theme_color": "#0B1220",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "/pwa-icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["music", "social", "education"],
+  "screenshots": []
+}

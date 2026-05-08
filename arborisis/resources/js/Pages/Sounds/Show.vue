@@ -270,7 +270,7 @@ const getMetaIcon = (type) => {
                                     </svg>
                                     <div class="text-xs text-arbor-sage">Environnement</div>
                                 </div>
-                                <div class="text-sm font-medium text-arbor-cream">{{ sound.environment }}</div>
+                                <div class="text-sm font-medium text-arbor-cream">{{ sound.environment.name }}</div>
                             </div>
                             <div v-if="sound.equipment" class="glass-card p-4 hover-lift">
                                 <div class="flex items-center gap-2 mb-2">

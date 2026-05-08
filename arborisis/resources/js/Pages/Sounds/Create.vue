@@ -8,6 +8,7 @@ import { ref } from 'vue';
 
 const props = defineProps({
     categories: Array,
+    environments: Array,
 });
 
 const form = useForm({
@@ -22,7 +23,7 @@ const form = useForm({
     is_sensitive_location: false,
     tags: '',
     category_id: '',
-    environment: '',
+    environment_id: '',
     equipment: '',
     license: 'all_rights_reserved',
     visibility: 'public',
@@ -32,21 +33,6 @@ const form = useForm({
 const audioPreview = ref(null);
 const coverPreview = ref(null);
 const isDragging = ref(false);
-
-const environments = [
-    { value: 'forest', label: 'Forêt' },
-    { value: 'ocean', label: 'Océan' },
-    { value: 'mountain', label: 'Montagne' },
-    { value: 'river', label: 'Rivière' },
-    { value: 'rain', label: 'Pluie' },
-    { value: 'dawn', label: 'Aube' },
-    { value: 'dusk', label: 'Crépuscule' },
-    { value: 'night', label: 'Nuit' },
-    { value: 'urban_nature', label: 'Nature urbaine' },
-    { value: 'wetland', label: 'Zone humide' },
-    { value: 'desert', label: 'Désert' },
-    { value: 'meadow', label: 'Prairie' },
-];
 
 const licenses = [
     { value: 'all_rights_reserved', label: 'Tous droits réservés' },
@@ -292,15 +278,15 @@ const submit = () => {
                             </select>
                         </div>
                         <div>
-                            <InputLabel for="environment" value="Environnement" />
+                            <InputLabel for="environment_id" value="Environnement" />
                             <select
-                                id="environment"
-                                v-model="form.environment"
+                                id="environment_id"
+                                v-model="form.environment_id"
                                 class="mt-2 block w-full rounded-xl border-arbor-glass-border bg-arbor-deep text-arbor-cream shadow-sm focus:border-arbor-emerald focus:ring-arbor-emerald"
                             >
                                 <option value="">Choisir un environnement</option>
-                                <option v-for="env in environments" :key="env.value" :value="env.value">
-                                    {{ env.label }}
+                                <option v-for="env in environments" :key="env.id" :value="env.id">
+                                    {{ env.name }}
                                 </option>
                             </select>
                         </div>

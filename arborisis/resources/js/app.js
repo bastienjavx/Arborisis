@@ -1,5 +1,6 @@
 import '../css/app.css';
 import './bootstrap';
+import { registerServiceWorker } from './pwa';
 
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
@@ -10,6 +11,8 @@ import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 const pinia = createPinia();
+
+registerServiceWorker();
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,

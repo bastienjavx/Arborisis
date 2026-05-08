@@ -6,6 +6,15 @@
         <meta name="description" content="Arborisis — L'archive sonore de la nature. Découvrez, partagez et préservez les sons du monde vivant.">
         <meta name="theme-color" content="#0B1220">
 
+        <!-- PWA -->
+        <link rel="manifest" href="/manifest.json">
+        <link rel="apple-touch-icon" href="/pwa-icons/icon.svg">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="apple-mobile-web-app-title" content="Arborisis">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="application-name" content="Arborisis">
+
         <title inertia>{{ config('app.name', 'Arborisis') }}</title>
 
         <!-- Fonts -->
