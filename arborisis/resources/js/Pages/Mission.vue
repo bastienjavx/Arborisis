@@ -32,7 +32,7 @@ const values = [
 
             <div class="relative z-10">
                 <!-- Hero -->
-                <section class="pt-32 pb-20 section-padding">
+                <section class="pt-24 pb-16 section-padding">
                     <div class="max-w-4xl mx-auto text-center">
                         <h1 class="font-display text-5xl sm:text-6xl font-bold text-arbor-cream leading-tight mb-6">
                             Préserver l'écoute <span class="text-transparent bg-clip-text bg-gradient-to-r from-arbor-emerald to-arbor-moss">du monde vivant</span>
@@ -45,10 +45,10 @@ const values = [
                 </section>
 
                 <!-- Genesis -->
-                <section class="pb-20 section-padding bg-arbor-deep/30 border-y border-arbor-glass-border">
-                    <div class="max-w-3xl mx-auto">
+                <section class="py-20 section-padding bg-arbor-deep/30 border-y border-arbor-glass-border">
+                    <div class="max-w-3xl mx-auto text-center">
                         <h2 class="font-display text-3xl font-bold text-arbor-cream mb-6">La genèse d'Arborisis</h2>
-                        <div class="space-y-6 text-arbor-sage leading-relaxed">
+                        <div class="space-y-6 text-arbor-sage leading-relaxed text-left">
                             <p>
                                 Dans un monde de plus en plus bruyant, les espaces de silence deviennent rares. Les sons de la nature
                                 — le chant d'un oiseau à l'aube, le murmure d'une rivière, le vent dans les cimes — sont des
@@ -70,9 +70,9 @@ const values = [
 
                 <!-- Vision -->
                 <section class="py-20 section-padding">
-                    <div class="max-w-3xl mx-auto">
+                    <div class="max-w-3xl mx-auto text-center">
                         <h2 class="font-display text-3xl font-bold text-arbor-cream mb-6">Notre vision</h2>
-                        <div class="glass-card p-8 lg:p-10">
+                        <div class="glass-card p-8 lg:p-10 text-left">
                             <p class="text-arbor-sage leading-relaxed mb-6">
                                 Nous imaginons une plateforme où chaque son naturel partagé contribue à une mémoire collective
                                 du monde vivant. Une ressource ouverte pour les chercheurs, les artistes, les méditateurs
