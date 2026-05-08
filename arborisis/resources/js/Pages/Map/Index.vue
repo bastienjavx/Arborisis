@@ -171,7 +171,7 @@ onMounted(() => {
 
             <!-- Floating header title -->
             <div
-                class="absolute top-6 left-1/2 -translate-x-1/2 z-[700] text-center map-title-fade pointer-events-none"
+                class="absolute top-6 left-1/2 -translate-x-1/2 z-[40] text-center map-title-fade pointer-events-none"
                 :class="{ 'map-title-hidden': titleHidden }"
             >
                 <h1 class="font-display text-3xl md:text-4xl font-semibold text-arbor-cream tracking-tight">
@@ -184,7 +184,7 @@ onMounted(() => {
 
             <!-- Mobile sidebar toggle -->
             <button
-                class="md:hidden fixed bottom-6 left-4 z-[900] w-12 h-12 rounded-xl glass-card flex items-center justify-center shadow-lg shadow-black/30"
+                class="md:hidden fixed bottom-6 left-4 z-[40] w-12 h-12 rounded-xl glass-card flex items-center justify-center shadow-lg shadow-black/30"
                 :class="{ 'ring-2 ring-arbor-emerald/40': sidebarOpen }"
                 aria-label="Ouvrir le panneau de l'explorateur"
                 @click="sidebarOpen = !sidebarOpen"
@@ -199,7 +199,7 @@ onMounted(() => {
 
             <!-- Sidebar — Panneau de l'explorateur -->
             <div
-                class="absolute top-4 left-4 z-[800] w-[340px] lg:w-[380px] max-w-[calc(100vw-2rem)] mobile-sidebar"
+                class="absolute top-4 left-4 z-[40] w-[340px] lg:w-[380px] max-w-[calc(100vw-2rem)] mobile-sidebar"
                 :class="sidebarOpen ? 'mobile-sidebar-open' : 'mobile-sidebar-closed md:mobile-sidebar-open'"
                 @mouseenter="hideTitle"
                 @click="hideTitle"

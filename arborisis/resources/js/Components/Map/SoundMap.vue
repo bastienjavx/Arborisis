@@ -293,7 +293,7 @@ watch(() => props.sounds, updateMarkers, { deep: true });
         <!-- Empty state overlay -->
         <div
             v-if="sounds.length === 0"
-            class="absolute inset-0 z-[500] flex items-center justify-center pointer-events-none"
+            class="absolute inset-0 z-[30] flex items-center justify-center pointer-events-none"
         >
             <div class="text-center animate-scale-in">
                 <div class="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-arbor-moss/10 mb-6 ring-1 ring-arbor-emerald/10">
