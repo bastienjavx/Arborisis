@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch, computed } from 'vue';
+import { ref, onMounted, watch, computed, nextTick } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import SoundMap from '@/Components/Map/SoundMap.vue';
@@ -14,9 +14,42 @@ const searchQuery = ref('');
 const selectedCategory = ref('');
 const searchTimeout = ref(null);
 const initialLoad = ref(true);
+const sidebarOpen = ref(false);
+const titleHidden = ref(false);
+const activeSoundId = ref(null);
+const titleTimeout = ref(null);
+const soundMapRef = ref(null);
 
+/* ── Category color mapping for pills ───────────────── */
+const categoryColorMap = {
+    'Forêts': { bg: 'bg-emerald-500/15', text: 'text-emerald-400', border: 'border-emerald-500/30', glow: 'shadow-emerald-500/5' },
+    'Océans': { bg: 'bg-sky-500/15', text: 'text-sky-400', border: 'border-sky-500/30', glow: 'shadow-sky-500/5' },
+    'Montagnes': { bg: 'bg-stone-500/15', text: 'text-stone-400', border: 'border-stone-500/30', glow: 'shadow-stone-500/5' },
+    'Déserts': { bg: 'bg-amber-500/15', text: 'text-amber-400', border: 'border-amber-500/30', glow: 'shadow-amber-500/5' },
+    'Rivières': { bg: 'bg-cyan-500/15', text: 'text-cyan-400', border: 'border-cyan-500/30', glow: 'shadow-cyan-500/5' },
+    'Urbain': { bg: 'bg-pink-500/15', text: 'text-pink-400', border: 'border-pink-500/30', glow: 'shadow-pink-500/5' },
+    'Cavernes': { bg: 'bg-violet-500/15', text: 'text-violet-400', border: 'border-violet-500/30', glow: 'shadow-violet-500/5' },
+    'Prairies': { bg: 'bg-lime-500/15', text: 'text-lime-400', border: 'border-lime-500/30', glow: 'shadow-lime-500/5' },
+    'Lacs': { bg: 'bg-blue-400/15', text: 'text-blue-400', border: 'border-blue-400/30', glow: 'shadow-blue-400/5' },
+    'Marais': { bg: 'bg-teal-500/15', text: 'text-teal-400', border: 'border-teal-500/30', glow: 'shadow-teal-500/5' },
+    'Jungles': { bg: 'bg-green-500/15', text: 'text-green-400', border: 'border-green-500/30', glow: 'shadow-green-500/5' },
+    'Glaciers': { bg: 'bg-indigo-300/15', text: 'text-indigo-300', border: 'border-indigo-300/30', glow: 'shadow-indigo-300/5' },
+};
+
+const getCategoryStyle = (name) => {
+    return categoryColorMap[name] || { bg: 'bg-arbor-emerald/15', text: 'text-arbor-emerald', border: 'border-arbor-emerald/30', glow: 'shadow-arbor-emerald/5' };
+};
+
+/* ── Computed ───────────────────────────────────────── */
 const hasSounds = computed(() => sounds.value.length > 0);
 
+const activeCategoryName = computed(() => {
+    if (!selectedCategory.value) return '';
+    const cat = props.categories.find(c => String(c.id) === String(selectedCategory.value));
+    return cat?.name || '';
+});
+
+/* ── Data fetching ──────────────────────────────────── */
 const fetchSounds = async () => {
     loading.value = true;
     try {
@@ -72,118 +105,279 @@ const selectCategory = (id) => {
 
 watch(selectedCategory, fetchSounds);
 
+/* ── Sound list interactions ────────────────────────── */
+const formatDuration = (seconds) => {
+    if (!seconds) return '--:--';
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+};
+
+const onSoundClick = (sound) => {
+    const p = sound.properties;
+    const coords = sound.geometry.coordinates;
+    activeSoundId.value = p.id;
+    hideTitle();
+
+    if (soundMapRef.value) {
+        soundMapRef.value.flyToSound(coords, 14);
+        soundMapRef.value.highlightMarker(p.id);
+        nextTick(() => {
+            soundMapRef.value.openPopup(p.id);
+        });
+    }
+
+    if (window.innerWidth < 768) {
+        sidebarOpen.value = false;
+    }
+};
+
+const onSoundHover = (sound) => {
+    if (soundMapRef.value) {
+        soundMapRef.value.highlightMarker(sound.properties.id);
+    }
+};
+
+const onSoundHoverLeave = () => {
+    if (soundMapRef.value) {
+        soundMapRef.value.highlightMarker(activeSoundId.value);
+    }
+};
+
+/* ── Title auto-hide ────────────────────────────────── */
+const hideTitle = () => {
+    titleHidden.value = true;
+    if (titleTimeout.value) clearTimeout(titleTimeout.value);
+};
+
+/* ── Lifecycle ──────────────────────────────────────── */
 onMounted(() => {
     fetchSounds();
+    titleTimeout.value = setTimeout(() => {
+        titleHidden.value = true;
+    }, 4000);
 });
 </script>
 
 <template>
     <Head title="Carte sonore" />
     <GuestLayout>
-        <div class="relative h-[calc(100vh-4rem)] min-h-[600px]">
-            <!-- Sidebar filters -->
-            <div class="absolute top-4 left-4 z-[1000] w-80 max-w-[calc(100vw-2rem)]">
-                <div class="glass-card p-4 space-y-4 shadow-2xl shadow-black/20">
-                    <!-- Search -->
-                    <div class="relative">
-                        <svg
-                            class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-arbor-sage"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                            />
-                        </svg>
-                        <input
-                            v-model="searchQuery"
-                            type="text"
-                            placeholder="Rechercher un son, un lieu..."
-                            class="w-full pl-10 pr-9 py-2.5 bg-arbor-charcoal/80 border border-arbor-fog/50 rounded-xl text-sm text-arbor-cream placeholder:text-arbor-sage/50 focus:outline-none focus:border-arbor-emerald/50 focus:ring-2 focus:ring-arbor-emerald/10 transition-all"
-                            @input="onSearchInput"
-                        />
-                        <button
-                            v-if="searchQuery"
-                            class="absolute right-3 top-1/2 -translate-y-1/2 text-arbor-sage hover:text-arbor-cream transition-colors"
-                            @click="clearSearch"
-                        >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
+        <div class="relative h-[calc(100vh-4rem)] min-h-[600px] overflow-hidden">
+            <!-- Ambient gradient overlay -->
+            <div class="absolute inset-0 z-[5] pointer-events-none bg-gradient-radial from-arbor-moss/10 via-transparent to-transparent"></div>
 
-                    <!-- Categories -->
-                    <div class="flex flex-wrap gap-1.5">
-                        <button
-                            :class="[
-                                'px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200',
-                                selectedCategory === ''
-                                    ? 'bg-arbor-emerald/15 text-arbor-emerald border border-arbor-emerald/30 shadow-sm shadow-arbor-emerald/5'
-                                    : 'bg-arbor-charcoal/60 text-arbor-sage border border-arbor-fog/40 hover:border-arbor-sage/50 hover:bg-arbor-charcoal',
-                            ]"
-                            @click="selectCategory('')"
-                        >
-                            Tous
-                        </button>
-                        <button
-                            v-for="category in categories"
-                            :key="category.id"
-                            :class="[
-                                'px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200',
-                                selectedCategory == category.id
-                                    ? 'bg-arbor-emerald/15 text-arbor-emerald border border-arbor-emerald/30 shadow-sm shadow-arbor-emerald/5'
-                                    : 'bg-arbor-charcoal/60 text-arbor-sage border border-arbor-fog/40 hover:border-arbor-sage/50 hover:bg-arbor-charcoal',
-                            ]"
-                            @click="selectCategory(category.id)"
-                        >
-                            {{ category.name }}
-                        </button>
-                    </div>
+            <!-- Grain texture -->
+            <div class="absolute inset-0 z-[6] pointer-events-none map-grain"></div>
 
-                    <!-- Results count + status -->
-                    <div class="flex items-center justify-between text-xs">
-                        <span class="text-arbor-sage">
-                            <span v-if="initialLoad">Chargement...</span>
-                            <span v-else-if="hasSounds">
-                                <span class="text-arbor-emerald font-medium">{{ sounds.length }}</span>
-                                son{{ sounds.length > 1 ? 's' : '' }} trouvé{{ sounds.length > 1 ? 's' : '' }}
-                            </span>
-                            <span v-else class="text-arbor-sage/70">Aucun son trouvé</span>
-                        </span>
-                        <span v-if="loading && !initialLoad" class="flex items-center gap-1.5 text-arbor-sage">
-                            <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+            <!-- Floating header title -->
+            <div
+                class="absolute top-6 left-1/2 -translate-x-1/2 z-[700] text-center map-title-fade pointer-events-none"
+                :class="{ 'map-title-hidden': titleHidden }"
+            >
+                <h1 class="font-display text-3xl md:text-4xl font-semibold text-arbor-cream tracking-tight">
+                    Carte sonore
+                </h1>
+                <p class="text-arbor-sage/70 text-sm mt-1 font-light">
+                    Explorez les enregistrements à travers le monde
+                </p>
+            </div>
+
+            <!-- Mobile sidebar toggle -->
+            <button
+                class="md:hidden fixed bottom-6 left-4 z-[900] w-12 h-12 rounded-xl glass-card flex items-center justify-center shadow-lg shadow-black/30"
+                :class="{ 'ring-2 ring-arbor-emerald/40': sidebarOpen }"
+                aria-label="Ouvrir le panneau de l'explorateur"
+                @click="sidebarOpen = !sidebarOpen"
+            >
+                <svg v-if="!sidebarOpen" class="w-5 h-5 text-arbor-sage" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+                <svg v-else class="w-5 h-5 text-arbor-sage" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+
+            <!-- Sidebar — Panneau de l'explorateur -->
+            <div
+                class="absolute top-4 left-4 z-[800] w-[340px] lg:w-[380px] max-w-[calc(100vw-2rem)] mobile-sidebar"
+                :class="sidebarOpen ? 'mobile-sidebar-open' : 'mobile-sidebar-closed md:mobile-sidebar-open'"
+                @mouseenter="hideTitle"
+                @click="hideTitle"
+            >
+                <div class="glass-card shadow-2xl shadow-black/25 overflow-hidden flex flex-col max-h-[calc(100vh-7rem)]">
+                    
+                    <!-- Section 1: Recherche -->
+                    <div class="p-4 border-b border-arbor-glass-border animate-fade-in-up">
+                        <div class="relative">
+                            <svg
+                                class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-arbor-sage/60"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
                                 <path
-                                    class="opacity-75"
-                                    fill="currentColor"
-                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                                 />
                             </svg>
-                            Actualisation...
-                        </span>
+                            <input
+                                v-model="searchQuery"
+                                type="text"
+                                placeholder="Rechercher un son, un lieu..."
+                                class="w-full pl-10 pr-9 py-2.5 bg-arbor-charcoal/60 border border-arbor-fog/40 rounded-xl text-sm text-arbor-cream placeholder:text-arbor-sage/40 focus:outline-none focus:border-arbor-emerald/50 focus:ring-2 focus:ring-arbor-emerald/10 transition-all search-pulse"
+                                aria-label="Rechercher un son ou un lieu"
+                                @input="onSearchInput"
+                            />
+                            <button
+                                v-if="searchQuery"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-arbor-sage/50 hover:text-arbor-cream transition-colors"
+                                @click="clearSearch"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Empty state - elegant overlay -->
-                <div
-                    v-if="!loading && !hasSounds && !initialLoad"
-                    class="mt-3 glass-card p-5 text-center"
-                >
-                    <svg class="w-10 h-10 text-arbor-moss/40 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 7m0 13V7m0 0L9 7" />
-                    </svg>
-                    <p class="text-sm text-arbor-sage mb-2">Aucun enregistrement ici</p>
-                    <p class="text-xs text-arbor-sage/60">Essayez une autre recherche ou catégorie</p>
+                    <!-- Section 2: Catégories -->
+                    <div class="px-4 py-3 border-b border-arbor-glass-border animate-fade-in-up stagger-1">
+                        <div class="flex flex-wrap gap-1.5">
+                            <button
+                                :class="[
+                                    'px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200',
+                                    selectedCategory === ''
+                                        ? 'bg-arbor-emerald/15 text-arbor-emerald border border-arbor-emerald/30 shadow-sm shadow-arbor-emerald/5'
+                                        : 'bg-arbor-charcoal/60 text-arbor-sage border border-arbor-fog/40 hover:border-arbor-sage/50 hover:bg-arbor-charcoal',
+                                ]"
+                                @click="selectCategory('')"
+                            >
+                                Tous
+                            </button>
+                            <button
+                                v-for="category in categories"
+                                :key="category.id"
+                                :class="[
+                                    'px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 border',
+                                    selectedCategory == category.id
+                                        ? `${getCategoryStyle(category.name).bg} ${getCategoryStyle(category.name).text} ${getCategoryStyle(category.name).border} shadow-sm ${getCategoryStyle(category.name).glow}`
+                                        : 'bg-arbor-charcoal/60 text-arbor-sage border-arbor-fog/40 hover:border-arbor-sage/50 hover:bg-arbor-charcoal',
+                                ]"
+                                @click="selectCategory(category.id)"
+                            >
+                                {{ category.name }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Compteur & statut -->
+                    <div class="px-4 py-2.5 border-b border-arbor-glass-border flex items-center justify-between animate-fade-in-up stagger-2">
+                        <span class="text-xs">
+                            <span v-if="initialLoad" class="text-arbor-sage/70">Chargement...</span>
+                            <span v-else-if="hasSounds" class="text-arbor-sage">
+                                <span class="text-arbor-emerald font-semibold tabular-nums">{{ sounds.length }}</span>
+                                son{{ sounds.length > 1 ? 's' : '' }} trouvé{{ sounds.length > 1 ? 's' : '' }}
+                                <span v-if="activeCategoryName" class="text-arbor-sage/60"> dans <span class="text-arbor-sage">{{ activeCategoryName }}</span></span>
+                            </span>
+                            <span v-else class="text-arbor-sage/60">Aucun son trouvé</span>
+                        </span>
+
+                        <!-- Waveform loader -->
+                        <div v-if="loading && !initialLoad" class="waveform-loader">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+
+                    <!-- Section 4: Liste des sons -->
+                    <div class="flex-1 overflow-y-auto min-h-0 custom-scrollbar">
+                        <!-- Sound list -->
+                        <div v-if="hasSounds && !initialLoad" class="p-3 space-y-1.5">
+                            <div
+                                v-for="(sound, index) in sounds"
+                                :key="sound.properties.id"
+                                class="map-sound-item animate-sound-item-enter"
+                                :class="{ 'map-sound-item-active': activeSoundId == sound.properties.id }"
+                                :style="`animation-delay: ${index * 0.04}s; opacity: 0;`"
+                                @click="onSoundClick(sound)"
+                                @mouseenter="onSoundHover(sound)"
+                                @mouseleave="onSoundHoverLeave"
+                            >
+                                <!-- Cover thumbnail -->
+                                <div class="w-11 h-11 rounded-lg overflow-hidden shrink-0 bg-arbor-charcoal">
+                                    <img
+                                        v-if="sound.properties.cover_url"
+                                        :src="sound.properties.cover_url"
+                                        :alt="sound.properties.title"
+                                        class="w-full h-full object-cover"
+                                        loading="lazy"
+                                    />
+                                    <div v-else class="w-full h-full flex items-center justify-center text-arbor-sage/30">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                <!-- Info -->
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-1.5 mb-0.5">
+                                        <span
+                                            v-if="sound.properties.category"
+                                            class="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded"
+                                            :class="`${getCategoryStyle(sound.properties.category).bg} ${getCategoryStyle(sound.properties.category).text}`"
+                                        >
+                                            {{ sound.properties.category }}
+                                        </span>
+                                    </div>
+                                    <h4 class="text-sm font-medium text-arbor-cream truncate">{{ sound.properties.title }}</h4>
+                                    <div class="flex items-center gap-2 text-[11px] text-arbor-sage/70">
+                                        <span class="truncate">{{ sound.properties.user_name }}</span>
+                                        <span class="shrink-0">·</span>
+                                        <span class="tabular-nums shrink-0">{{ formatDuration(sound.properties.duration) }}</span>
+                                    </div>
+                                </div>
+
+                                <!-- Chevron -->
+                                <svg class="w-4 h-4 text-arbor-sage/30 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Empty state inside sidebar -->
+                        <div
+                            v-if="!loading && !hasSounds && !initialLoad"
+                            class="p-6 text-center animate-scale-in"
+                        >
+                            <svg class="w-12 h-12 text-arbor-moss/30 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 7m0 13V7m0 0L9 7" />
+                            </svg>
+                            <p class="text-sm text-arbor-sage mb-1">Aucun enregistrement ici</p>
+                            <p class="text-xs text-arbor-sage/50 mb-4">Essayez une autre recherche ou catégorie</p>
+                            <button
+                                class="text-xs text-arbor-emerald hover:text-arbor-emerald-dark transition-colors font-medium"
+                                @click="clearSearch(); selectedCategory = ''; fetchSounds();"
+                            >
+                                Réinitialiser les filtres →
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Map -->
-            <SoundMap :sounds="sounds" />
+            <SoundMap
+                ref="soundMapRef"
+                :sounds="sounds"
+                :active-sound-id="activeSoundId"
+                @marker-click="activeSoundId = $event"
+            />
         </div>
     </GuestLayout>
 </template>

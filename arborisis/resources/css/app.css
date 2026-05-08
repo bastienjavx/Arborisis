@@ -297,6 +297,16 @@
     to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes soundItemEnter {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes searchPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.1); }
+    50% { box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.05); }
+}
+
 /* Animation utility classes */
 .animate-fade-in-up {
     animation: fadeInUp 0.6s ease-out forwards;
@@ -314,11 +324,108 @@
     animation: countUp 0.5s ease-out forwards;
 }
 
+.animate-sound-item-enter {
+    animation: soundItemEnter 0.35s ease-out forwards;
+}
+
 /* Skeleton loading */
 .skeleton {
     background: linear-gradient(90deg, #1a1f2e 25%, #2a3142 50%, #1a1f2e 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* ============================================
+   Map-specific utilities
+   ============================================ */
+
+/* Map sidebar sound list item */
+.map-sound-item {
+    @apply flex items-center gap-3 p-2.5 rounded-xl border border-transparent transition-all duration-200 cursor-pointer;
+    background: rgba(255, 255, 255, 0.02);
+}
+.map-sound-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(52, 211, 153, 0.2);
+    transform: translateX(2px);
+}
+.map-sound-item-active {
+    background: rgba(52, 211, 153, 0.08) !important;
+    border-color: rgba(52, 211, 153, 0.35) !important;
+}
+
+/* Category color mapping for markers */
+.marker-forest { --marker-color: #34D399; }
+.marker-ocean { --marker-color: #60A5FA; }
+.marker-mountain { --marker-color: #A8A29E; }
+.marker-desert { --marker-color: #D4A574; }
+.marker-river { --marker-color: #22D3EE; }
+.marker-urban { --marker-color: #F472B6; }
+.marker-cave { --marker-color: #A78BFA; }
+.marker-default { --marker-color: #34D399; }
+
+/* Map ambient glow behind sidebar */
+.map-ambient-glow {
+    position: absolute;
+    pointer-events: none;
+    background: radial-gradient(ellipse 60% 40% at 15% 30%, rgba(52, 211, 153, 0.06), transparent 70%);
+}
+
+/* Title fade out */
+.map-title-fade {
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.map-title-hidden {
+    opacity: 0;
+    transform: translateY(-20px);
+    pointer-events: none;
+}
+
+/* Waveform loader */
+.waveform-loader {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    height: 16px;
+}
+.waveform-loader span {
+    width: 2px;
+    background: #34D399;
+    border-radius: 1px;
+    animation: wave 0.8s ease-in-out infinite;
+}
+.waveform-loader span:nth-child(1) { height: 6px; animation-delay: 0s; }
+.waveform-loader span:nth-child(2) { height: 12px; animation-delay: 0.1s; }
+.waveform-loader span:nth-child(3) { height: 8px; animation-delay: 0.2s; }
+.waveform-loader span:nth-child(4) { height: 14px; animation-delay: 0.15s; }
+.waveform-loader span:nth-child(5) { height: 10px; animation-delay: 0.05s; }
+
+/* Search pulse animation */
+.search-pulse:focus {
+    animation: searchPulse 2s ease-in-out infinite;
+}
+
+/* Grain overlay for map page */
+.map-grain::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.015;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    z-index: 2;
+}
+
+/* Mobile sidebar slide */
+.mobile-sidebar {
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.mobile-sidebar-closed {
+    transform: translateX(-110%);
+}
+.mobile-sidebar-open {
+    transform: translateX(0);
 }
 
 /* Leaflet base overrides */
