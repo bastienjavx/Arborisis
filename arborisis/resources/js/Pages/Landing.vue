@@ -109,9 +109,30 @@ const loadMapSounds = async () => {
     <GuestLayout>
         <!-- Hero Section -->
         <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
-            <!-- Background gradient -->
-            <div class="absolute inset-0 bg-gradient-to-b from-arbor-night via-arbor-deep to-arbor-night" />
-            <div class="absolute inset-0 bg-hero-glow opacity-60" />
+            <!-- Cinematic nature photograph background -->
+            <div
+                class="absolute inset-0 bg-cover bg-center bg-no-repeat animate-ken-burns"
+                style="background-image: url('/images/hero-leaf.jpg'); filter: brightness(0.55) contrast(1.15) saturate(0.8);"
+            />
+
+            <!-- Cinematic color grade overlay -->
+            <div class="absolute inset-0 bg-arbor-night/70" />
+            <div class="absolute inset-0 bg-gradient-to-t from-arbor-night via-transparent to-arbor-night/40" />
+            <div class="absolute inset-0 bg-gradient-to-br from-arbor-emerald/10 via-transparent to-arbor-night/60" />
+
+            <!-- Vignette effect -->
+            <div
+                class="absolute inset-0 pointer-events-none"
+                style="background: radial-gradient(ellipse at center, transparent 0%, transparent 40%, rgba(2, 15, 8, 0.7) 100%);"
+            />
+
+            <!-- Film grain texture -->
+            <div class="absolute inset-0 opacity-[0.04] pointer-events-none mix-blend-overlay"
+                style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 512 512%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.75%22 numOctaves=%225%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22/%3E%3C/svg%3E'); background-repeat: repeat;"
+            />
+
+            <!-- Hero glow -->
+            <div class="absolute inset-0 bg-hero-glow opacity-40" />
 
             <!-- Floating particles effect -->
             <div class="absolute inset-0 overflow-hidden">
@@ -131,9 +152,9 @@ const loadMapSounds = async () => {
                 />
             </div>
 
-            <!-- Subtle grain overlay -->
-            <div class="absolute inset-0 opacity-[0.015] pointer-events-none"
-                style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 256 256%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.9%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22/%3E%3C/svg%3E'); background-repeat: repeat;"
+            <!-- Subtle scan-line effect -->
+            <div class="absolute inset-0 opacity-[0.02] pointer-events-none"
+                style="background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);"
             />
 
             <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
