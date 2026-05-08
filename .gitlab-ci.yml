@@ -53,6 +53,12 @@ deploy_production:
           exit \$RC ; \
         fi
       "
+    # Fix permissions pour l'utilisateur de build
+    - |
+      ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 $DEPLOY_USER@$DEPLOY_HOST "
+        chown -R arborisis:arborisis $DEPLOY_PATH && \
+        echo '✅ Permissions corrigées'
+      "
     # Install + build des assets frontend
     - |
       ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 $DEPLOY_USER@$DEPLOY_HOST "
