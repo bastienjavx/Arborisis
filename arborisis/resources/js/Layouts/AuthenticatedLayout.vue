@@ -40,7 +40,7 @@ const showingExploreDropdown = ref(false);
                                         <button
                                             type="button"
                                             class="inline-flex items-center px-3 py-2 text-sm font-medium leading-5 text-arbor-sage hover:text-arbor-cream transition duration-150 ease-in-out"
-                                            :class="route().current('sounds.*') || route().current('map') || route().current('creators.*') ? 'text-arbor-cream' : ''"
+                                            :class="route().current('sounds.*') || route().current('map.index') || route().current('creators.*') ? 'text-arbor-cream' : ''"
                                         >
                                             Explorer
                                             <svg class="-me-0.5 ms-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -58,20 +58,12 @@ const showingExploreDropdown = ref(false);
                                                 Sons naturels
                                             </span>
                                         </DropdownLink>
-                                        <DropdownLink :href="route('map')">
+                                        <DropdownLink :href="route('map.index')">
                                             <span class="flex items-center gap-2">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 7m0 13V7m0 0L9 7" />
                                                 </svg>
                                                 Carte sonore
-                                            </span>
-                                        </DropdownLink>
-                                        <DropdownLink :href="route('creators.index')">
-                                            <span class="flex items-center gap-2">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                </svg>
-                                                Créateurs
                                             </span>
                                         </DropdownLink>
                                     </template>
@@ -182,16 +174,10 @@ const showingExploreDropdown = ref(false);
                         Sons naturels
                     </ResponsiveNavLink>
                     <ResponsiveNavLink
-                        :href="route('map')"
-                        :active="route().current('map')"
+                        :href="route('map.index')"
+                        :active="route().current('map.index')"
                     >
                         Carte sonore
-                    </ResponsiveNavLink>
-                    <ResponsiveNavLink
-                        :href="route('creators.index')"
-                        :active="route().current('creators.*')"
-                    >
-                        Créateurs
                     </ResponsiveNavLink>
                     <ResponsiveNavLink
                         :href="route('sounds.create')"
