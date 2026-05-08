@@ -170,35 +170,48 @@ class RadioStreamService
                 $sound = $this->getNextSound();
 
                 if (!$sound) {
+                    Log::warning('Radio stream: no sounds available, streaming silence');
                     $this->streamSilence($outputCallback);
                     sleep(5);
                     continue;
                 }
 
-                $this->streamSound($sound, $outputCallback);
+                $bytesStreamed = $this->streamSound($sound, $outputCallback);
+
+                if ($bytesStreamed === 0) {
+                    Log::warning('Radio stream: sound streamed 0 bytes, throttling', ['sound_id' => $sound->id]);
+                    sleep(1);
+                }
             }
         } finally {
             $this->decrementListeners();
         }
     }
 
-    private function streamSound(Sound $sound, callable $outputCallback): void
+    private function streamSound(Sound $sound, callable $outputCallback): int
     {
-        $url = $this->getAudioUrl($sound);
+        if (!$sound->soundFile) {
+            Log::warning('Radio stream: sound has no file', ['sound_id' => $sound->id]);
 
-        if (!$url) {
-            Log::warning('Radio stream: no audio URL for sound', ['sound_id' => $sound->id]);
-
-            return;
+            return 0;
         }
 
-        $handle = @fopen($url, 'r');
+        $disk = $sound->soundFile->disk;
+        $path = $sound->soundFile->path;
+
+        $handle = Storage::disk($disk)->readStream($path);
 
         if (!$handle) {
-            Log::warning('Radio stream: failed to open audio file', ['sound_id' => $sound->id, 'url' => $url]);
+            Log::warning('Radio stream: failed to open audio stream', [
+                'sound_id' => $sound->id,
+                'disk' => $disk,
+                'path' => $path,
+            ]);
 
-            return;
+            return 0;
         }
+
+        $totalBytes = 0;
 
         try {
             $bytesSinceMeta = 0;
@@ -213,7 +226,9 @@ class RadioStreamService
                 }
 
                 $outputCallback($chunk);
-                $bytesSinceMeta += strlen($chunk);
+                $chunkLen = strlen($chunk);
+                $totalBytes += $chunkLen;
+                $bytesSinceMeta += $chunkLen;
 
                 if ($bytesSinceMeta >= $this->icyMetaint) {
                     $meta = $this->generateIcyMetadata($title, $artist);
@@ -221,11 +236,16 @@ class RadioStreamService
                     $bytesSinceMeta = 0;
                 }
 
+                if (ob_get_level() > 0) {
+                    ob_flush();
+                }
                 flush();
             }
         } finally {
             fclose($handle);
         }
+
+        return $totalBytes;
     }
 
     private function streamSilence(callable $outputCallback): void
@@ -241,6 +261,9 @@ class RadioStreamService
                         break;
                     }
                     $outputCallback($chunk);
+                    if (ob_get_level() > 0) {
+                        ob_flush();
+                    }
                     flush();
                 }
                 fclose($handle);
@@ -252,6 +275,9 @@ class RadioStreamService
         $silence = str_repeat("\x00", $this->chunkSize);
         for ($i = 0; $i < 10 && !connection_aborted(); $i++) {
             $outputCallback($silence);
+            if (ob_get_level() > 0) {
+                ob_flush();
+            }
             flush();
             usleep(100000);
         }
