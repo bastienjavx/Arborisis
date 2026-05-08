@@ -5,28 +5,29 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\UserRole;
-use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    protected $fillable = ['name', 'slug', 'email', 'password', 'role'];
-    protected $hidden = ['password', 'remember_token'];
+    use HasFactory, Notifiable, SoftDeletes;
 
-    /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    protected $fillable = ['name', 'slug', 'email', 'password', 'role'];
+
+    protected $hidden = ['password', 'remember_token'];
 
     protected static function booted(): void
     {
         static::creating(function (User $user) {
             if (empty($user->slug)) {
-                $user->slug = \Illuminate\Support\Str::slug($user->name . '-' . uniqid());
+                $user->slug = Str::slug($user->name.'-'.uniqid());
             }
             if (empty($user->role)) {
                 $user->role = UserRole::User->value;
@@ -57,13 +58,15 @@ class User extends Authenticatable implements MustVerifyEmail
     public function following(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'follows', 'follower_id', 'followed_id')
-            ->withTimestamps();
+            ->withTimestamps()
+            ->wherePivotNull('deleted_at');
     }
 
     public function followers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'follows', 'followed_id', 'follower_id')
-            ->withTimestamps();
+            ->withTimestamps()
+            ->wherePivotNull('deleted_at');
     }
 
     public function isFollowing(User $user): bool

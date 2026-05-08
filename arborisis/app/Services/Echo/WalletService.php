@@ -7,6 +7,7 @@ namespace App\Services\Echo;
 use App\Models\User;
 use App\Models\Wallet;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class WalletService
 {
@@ -31,10 +32,19 @@ class WalletService
             throw new \InvalidArgumentException('Le montant doit être positif.');
         }
 
-        return DB::transaction(function () use ($user, $amount) {
+        return DB::transaction(function () use ($user, $amount, $description) {
             $wallet = $this->ensureWallet($user);
             $wallet->balance += $amount;
             $wallet->save();
+
+            if ($description !== null) {
+                Log::info('ECHO wallet credited', [
+                    'user_id' => $user->id,
+                    'amount' => $amount,
+                    'new_balance' => $wallet->balance,
+                    'description' => $description,
+                ]);
+            }
 
             return $wallet;
         });
@@ -46,7 +56,7 @@ class WalletService
             throw new \InvalidArgumentException('Le montant doit être positif.');
         }
 
-        return DB::transaction(function () use ($user, $amount) {
+        return DB::transaction(function () use ($user, $amount, $description) {
             $wallet = $this->ensureWallet($user);
 
             if ($wallet->balance < $amount) {
@@ -55,6 +65,15 @@ class WalletService
 
             $wallet->balance -= $amount;
             $wallet->save();
+
+            if ($description !== null) {
+                Log::info('ECHO wallet debited', [
+                    'user_id' => $user->id,
+                    'amount' => $amount,
+                    'new_balance' => $wallet->balance,
+                    'description' => $description,
+                ]);
+            }
 
             return $wallet;
         });

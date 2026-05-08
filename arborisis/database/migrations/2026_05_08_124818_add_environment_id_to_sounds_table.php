@@ -28,7 +28,7 @@ return new class extends Migration
 
         // Migrate existing data
         foreach ($environments as $value => $environment) {
-            \DB::table('sounds')
+            DB::table('sounds')
                 ->where('environment', $value)
                 ->update(['environment_id' => $environment->id]);
         }
@@ -47,7 +47,7 @@ return new class extends Migration
         // Restore data from environments table
         $environments = Environment::all()->keyBy('id');
         foreach ($environments as $id => $environment) {
-            \DB::table('sounds')
+            DB::table('sounds')
                 ->where('environment_id', $id)
                 ->update(['environment' => $environment->slug]);
         }

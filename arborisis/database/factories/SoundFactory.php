@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use App\Enums\LicenseType;
@@ -33,9 +35,7 @@ class SoundFactory extends Factory
             'license' => LicenseType::CcBy,
             'visibility' => SoundVisibility::Public,
             'status' => SoundStatus::Published,
-            'play_count' => fake()->numberBetween(0, 10000),
-            'like_count' => fake()->numberBetween(0, 500),
-            'comment_count' => fake()->numberBetween(0, 50),
+
         ];
     }
 

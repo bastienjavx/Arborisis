@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
-use App\Enums\SoundStatus;
-use App\Enums\SoundVisibility;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Map\SearchMapRequest;
 use App\Models\Sound;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,7 +18,7 @@ class MapController extends Controller
             ->with(['user:id,name', 'category:id,name,slug', 'soundLocation', 'soundFile'])
             ->whereHas('soundLocation', function ($q) {
                 $q->whereNotNull('public_latitude')
-                   ->whereNotNull('public_longitude');
+                    ->whereNotNull('public_longitude');
             });
 
         if ($request->filled('category')) {
@@ -67,26 +66,22 @@ class MapController extends Controller
         ]);
     }
 
-    public function search(Request $request): JsonResponse
+    public function search(SearchMapRequest $request): JsonResponse
     {
-        $request->validate([
-            'q' => ['required', 'string', 'min:2', 'max:100'],
-        ]);
-
-        $query = $request->input('q');
+        $query = $request->validated('q');
 
         $sounds = Sound::public()
             ->with(['user:id,name', 'category:id,name', 'soundLocation', 'soundFile'])
             ->whereHas('soundLocation', function ($q) {
                 $q->whereNotNull('public_latitude')
-                   ->whereNotNull('public_longitude');
+                    ->whereNotNull('public_longitude');
             })
             ->where(function ($q) use ($query) {
                 $q->where('title', 'ilike', "%{$query}%")
-                  ->orWhere('description', 'ilike', "%{$query}%")
-                  ->orWhereHas('soundLocation', function ($ql) use ($query) {
-                      $ql->where('location_name', 'ilike', "%{$query}%");
-                  });
+                    ->orWhere('description', 'ilike', "%{$query}%")
+                    ->orWhereHas('soundLocation', function ($ql) use ($query) {
+                        $ql->where('location_name', 'ilike', "%{$query}%");
+                    });
             })
             ->limit(20)
             ->get();

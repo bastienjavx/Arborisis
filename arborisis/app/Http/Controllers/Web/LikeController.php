@@ -18,14 +18,18 @@ class LikeController extends Controller
 
     public function store(Request $request, Sound $sound): JsonResponse
     {
-        $result = $this->likeService->toggle($request->user(), $sound);
+        $this->authorize('like', $sound);
+
+        $result = $this->likeService->like($request->user(), $sound);
 
         return response()->json($result);
     }
 
     public function destroy(Request $request, Sound $sound): JsonResponse
     {
-        $result = $this->likeService->toggle($request->user(), $sound);
+        $this->authorize('like', $sound);
+
+        $result = $this->likeService->unlike($request->user(), $sound);
 
         return response()->json($result);
     }

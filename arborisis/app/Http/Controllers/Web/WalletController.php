@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Wallet\StoreCheckoutRequest;
+use App\Models\Wallet;
 use App\Services\Echo\StripeCheckoutService;
 use App\Services\Echo\WalletService;
 use Illuminate\Http\RedirectResponse;
@@ -35,14 +37,12 @@ class WalletController extends Controller
         ]);
     }
 
-    public function checkout(Request $request): RedirectResponse
+    public function checkout(StoreCheckoutRequest $request): RedirectResponse
     {
-        $request->validate([
-            'amount' => ['required', 'numeric', 'min:1', 'max:500'],
-        ]);
+        $this->authorize('checkout', Wallet::class);
 
         $user = $request->user();
-        $amount = (float) $request->input('amount');
+        $amount = (float) $request->validated('amount');
 
         $session = $this->stripeService->createSession(
             $user,

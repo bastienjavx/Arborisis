@@ -6,33 +6,29 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Report\StoreReportRequest;
-use App\Models\Comment;
 use App\Models\Report;
-use App\Models\Sound;
+use App\Services\Report\ReportService;
 use Illuminate\Http\RedirectResponse;
 
 class ReportController extends Controller
 {
+    public function __construct(
+        private readonly ReportService $reportService
+    ) {}
+
     public function store(StoreReportRequest $request): RedirectResponse
     {
         $this->authorize('create', Report::class);
 
-        $reportableType = $request->input('reportable_type');
-        $reportableId = $request->input('reportable_id');
+        $validated = $request->validated();
 
-        $reportable = match ($reportableType) {
-            'sound' => Sound::findOrFail($reportableId),
-            'comment' => Comment::findOrFail($reportableId),
-            default => throw new \InvalidArgumentException('Type de signalement invalide.'),
-        };
-
-        Report::create([
-            'reporter_id' => $request->user()->id,
-            'reportable_type' => get_class($reportable),
-            'reportable_id' => $reportable->id,
-            'reason' => $request->input('reason'),
-            'description' => $request->input('description'),
-        ]);
+        $this->reportService->create(
+            $request->user()->id,
+            $validated['reportable_type'],
+            $validated['reportable_id'],
+            $validated['reason'],
+            $validated['description'] ?? null
+        );
 
         return back()->with('success', 'Signalement envoyé. Notre équipe de modération l\'examinera sous peu.');
     }

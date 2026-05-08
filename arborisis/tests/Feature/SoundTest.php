@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\SoundStatus;
 use App\Models\Sound;
 use App\Models\User;
 
@@ -62,7 +63,7 @@ it('displays the transparency page', function () {
 });
 
 it('does not show unpublished sounds', function () {
-    $published = Sound::factory()->create(['status' => \App\Enums\SoundStatus::Published]);
+    $published = Sound::factory()->create(['status' => SoundStatus::Published]);
     $draft = Sound::factory()->unpublished()->create();
 
     $response = $this->get('/sounds');
