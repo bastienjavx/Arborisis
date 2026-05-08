@@ -118,13 +118,19 @@ async function networkFirst(request) {
 // StaleWhileRevalidate strategy
 async function staleWhileRevalidate(request) {
   const cached = await caches.match(request);
-  const fetchPromise = fetch(request).then((networkResponse) => {
+
+  const fetchPromise = fetch(request).then(async (networkResponse) => {
     if (networkResponse.ok) {
-      const cache = caches.open(CACHE_NAME);
-      cache.then((c) => c.put(request, networkResponse.clone()));
+      const cache = await caches.open(CACHE_NAME);
+      await cache.put(request, networkResponse.clone());
     }
     return networkResponse;
-  }).catch(() => cached);
+  });
 
-  return cached || fetchPromise;
+  if (cached) {
+    fetchPromise.catch(() => {});
+    return cached;
+  }
+
+  return await fetchPromise;
 }
