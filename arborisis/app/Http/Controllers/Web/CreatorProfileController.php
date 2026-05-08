@@ -17,14 +17,14 @@ class CreatorProfileController extends Controller
         $user = User::where('slug', $slug)
             ->with(['profile', 'sounds' => function ($query) {
                 $query->public()
-                    ->with(['category', 'tags'])
+                    ->with(['category', 'tags', 'soundFile'])
                     ->latest();
             }])
             ->firstOrFail();
 
         $sounds = $user->sounds()
             ->public()
-            ->with(['category', 'tags'])
+            ->with(['category', 'tags', 'soundFile'])
             ->latest()
             ->paginate(12);
 

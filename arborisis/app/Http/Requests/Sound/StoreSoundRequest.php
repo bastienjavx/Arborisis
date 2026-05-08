@@ -23,7 +23,7 @@ class StoreSoundRequest extends FormRequest
             'audio_file' => [
                 'required',
                 'file',
-                'mimetypes:audio/mpeg,audio/wav,audio/flac,audio/mp4,audio/x-m4a',
+                'mimetypes:audio/mpeg,audio/wav,audio/x-wav,audio/wave,audio/vnd.wave,audio/flac,audio/x-flac,audio/mp4,audio/x-m4a,audio/m4a',
                 'max:512000', // 500 MB
             ],
             'title' => ['required', 'string', 'min:3', 'max:255'],

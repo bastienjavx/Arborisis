@@ -49,8 +49,8 @@ const createCustomIcon = () => {
 
 const buildPopupContent = (sound) => {
     const p = sound.properties;
-    const coverHtml = p.cover_image
-        ? `<div class="map-popup-cover" style="background-image: url('${p.cover_image}')"></div>`
+    const coverHtml = p.cover_url
+        ? `<div class="map-popup-cover" style="background-image: url('${p.cover_url}')"></div>`
         : `<div class="map-popup-cover map-popup-cover-empty">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
                 <path d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />

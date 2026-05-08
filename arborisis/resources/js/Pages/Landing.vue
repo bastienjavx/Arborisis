@@ -2,7 +2,7 @@
 import { Head, Link } from '@inertiajs/vue3';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import SoundMap from '@/Components/Map/SoundMap.vue';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 
 const props = defineProps({
     stats: Object,
@@ -35,12 +35,59 @@ const categories = ref([
     { name: 'Crépuscule', count: 0, color: 'bg-amber-500/20 text-amber-400' },
 ]);
 
+const particles = ref(Array.from({ length: 12 }, (_, i) => ({
+    id: i,
+    size: 1 + Math.random() * 2,
+    left: 10 + Math.random() * 80,
+    top: 5 + Math.random() * 90,
+    delay: Math.random() * 5,
+    duration: 3 + Math.random() * 4,
+    color: ['arbor-emerald', 'arbor-moss', 'arbor-sage', 'arbor-amber'][Math.floor(Math.random() * 4)],
+})));
+
 const mapSounds = ref([]);
 const mapLoading = ref(true);
 const mapError = ref(false);
 
+const animatedStats = ref({ sounds: 0, creators: 0, countries: 0 });
+const statsVisible = ref(false);
+let statsObserver = null;
+
+const animateCount = (target, key, duration = 1500) => {
+    const start = performance.now();
+    const from = 0;
+    const to = target;
+
+    const step = (now) => {
+        const progress = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        animatedStats.value[key] = Math.floor(from + (to - from) * eased);
+        if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+};
+
 onMounted(() => {
     loadMapSounds();
+
+    const statsEl = document.getElementById('stats-section');
+    if (statsEl) {
+        statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting && !statsVisible.value) {
+                    statsVisible.value = true;
+                    animateCount(props.stats.sounds, 'sounds');
+                    animateCount(props.stats.creators, 'creators');
+                    animateCount(props.stats.countries, 'countries');
+                }
+            });
+        }, { threshold: 0.3 });
+        statsObserver.observe(statsEl);
+    }
+});
+
+onUnmounted(() => {
+    if (statsObserver) statsObserver.disconnect();
 });
 
 const loadMapSounds = async () => {
@@ -66,16 +113,32 @@ const loadMapSounds = async () => {
             <div class="absolute inset-0 bg-gradient-to-b from-arbor-night via-arbor-deep to-arbor-night" />
             <div class="absolute inset-0 bg-hero-glow opacity-60" />
 
-            <!-- Floating particles effect (CSS) -->
+            <!-- Floating particles effect -->
             <div class="absolute inset-0 overflow-hidden">
-                <div class="absolute top-1/4 left-1/4 w-2 h-2 bg-arbor-emerald/30 rounded-full animate-pulse-slow" />
-                <div class="absolute top-1/3 right-1/3 w-1 h-1 bg-arbor-moss/40 rounded-full animate-pulse-slow" style="animation-delay: 1s" />
-                <div class="absolute bottom-1/3 left-1/2 w-1.5 h-1.5 bg-arbor-sage/20 rounded-full animate-pulse-slow" style="animation-delay: 2s" />
+                <div
+                    v-for="particle in particles"
+                    :key="particle.id"
+                    class="absolute rounded-full animate-pulse-slow"
+                    :class="`bg-${particle.color}/${particle.color === 'arbor-sage' ? '20' : '30'}`"
+                    :style="{
+                        width: `${particle.size}px`,
+                        height: `${particle.size}px`,
+                        left: `${particle.left}%`,
+                        top: `${particle.top}%`,
+                        animationDelay: `${particle.delay}s`,
+                        animationDuration: `${particle.duration}s`,
+                    }"
+                />
             </div>
+
+            <!-- Subtle grain overlay -->
+            <div class="absolute inset-0 opacity-[0.015] pointer-events-none"
+                style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 256 256%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.9%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22/%3E%3C/svg%3E'); background-repeat: repeat;"
+            />
 
             <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                 <div class="animate-fade-in">
-                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-arbor-glass border border-arbor-glass-border text-arbor-emerald text-sm font-medium mb-8">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-arbor-glass border border-arbor-glass-border text-arbor-emerald text-sm font-medium mb-8 hover:bg-arbor-emerald/5 transition-colors">
                         <span class="w-2 h-2 bg-arbor-emerald rounded-full animate-pulse" />
                         Bientôt disponible
                     </div>
@@ -92,14 +155,14 @@ const loadMapSounds = async () => {
                 </p>
 
                 <div class="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up" style="animation-delay: 0.2s">
-                    <Link href="/map" class="btn-primary text-base px-8 py-4 w-full sm:w-auto">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <Link href="/map" class="btn-primary text-base px-8 py-4 w-full sm:w-auto group">
+                        <svg class="w-5 h-5 mr-2 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 7m0 13V7m0 0L9 7" />
                         </svg>
                         Explorer la carte
                     </Link>
-                    <Link href="/register" class="btn-secondary text-base px-8 py-4 w-full sm:w-auto">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <Link href="/register" class="btn-secondary text-base px-8 py-4 w-full sm:w-auto group">
+                        <svg class="w-5 h-5 mr-2 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                         </svg>
                         Publier un son
@@ -116,19 +179,25 @@ const loadMapSounds = async () => {
         </section>
 
         <!-- Stats Section -->
-        <section class="py-20 border-y border-arbor-glass-border bg-arbor-deep/50">
+        <section id="stats-section" class="py-20 border-y border-arbor-glass-border bg-arbor-deep/50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-8">
-                    <div class="text-center">
-                        <div class="font-display text-4xl font-bold text-arbor-emerald mb-2">{{ stats.sounds }}+</div>
+                    <div class="text-center group">
+                        <div class="font-display text-4xl font-bold text-arbor-emerald mb-2 transition-transform duration-300 group-hover:scale-110">
+                            {{ animatedStats.sounds }}+
+                        </div>
                         <div class="text-arbor-sage text-sm">Sons naturels</div>
                     </div>
-                    <div class="text-center">
-                        <div class="font-display text-4xl font-bold text-arbor-emerald mb-2">{{ stats.creators }}+</div>
+                    <div class="text-center group">
+                        <div class="font-display text-4xl font-bold text-arbor-emerald mb-2 transition-transform duration-300 group-hover:scale-110">
+                            {{ animatedStats.creators }}+
+                        </div>
                         <div class="text-arbor-sage text-sm">Créateurs</div>
                     </div>
-                    <div class="text-center">
-                        <div class="font-display text-4xl font-bold text-arbor-emerald mb-2">{{ stats.countries }}+</div>
+                    <div class="text-center group">
+                        <div class="font-display text-4xl font-bold text-arbor-emerald mb-2 transition-transform duration-300 group-hover:scale-110">
+                            {{ animatedStats.countries }}+
+                        </div>
                         <div class="text-arbor-sage text-sm">Pays</div>
                     </div>
                 </div>
@@ -148,8 +217,12 @@ const loadMapSounds = async () => {
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div v-for="feature in features" :key="feature.title" class="glass-card p-8 hover:bg-arbor-glass/50 transition-all duration-300 group">
-                        <div class="w-12 h-12 rounded-xl bg-arbor-moss/20 flex items-center justify-center mb-6 group-hover:bg-arbor-moss/30 transition-colors">
+                    <div v-for="(feature, index) in features" :key="feature.title"
+                        class="glass-card p-8 hover:bg-arbor-glass/50 transition-all duration-300 group hover-lift"
+                        :class="`stagger-${index + 1}`"
+                        style="animation: fadeInUp 0.6s ease-out forwards; animation-delay: ${index * 0.15}s; opacity: 0;"
+                    >
+                        <div class="w-12 h-12 rounded-xl bg-arbor-moss/20 flex items-center justify-center mb-6 group-hover:bg-arbor-moss/30 transition-colors group-hover:scale-110 duration-300">
                             <svg class="w-6 h-6 text-arbor-emerald" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" :d="feature.icon" />
                             </svg>
@@ -175,18 +248,18 @@ const loadMapSounds = async () => {
                             Naviguez, filtrez et plongez dans l'acoustique des paysages.
                         </p>
                         <div class="flex flex-wrap gap-3 mb-8">
-                            <span v-for="cat in categories" :key="cat.name" class="px-3 py-1.5 rounded-lg text-xs font-medium" :class="cat.color">
+                            <span v-for="cat in categories" :key="cat.name" class="px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 hover:scale-105 cursor-default" :class="cat.color">
                                 {{ cat.name }}
                             </span>
                         </div>
-                        <Link href="/map" class="btn-primary">
+                        <Link href="/map" class="btn-primary group">
                             Ouvrir la carte
-                            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                             </svg>
                         </Link>
                     </div>
-                    <div class="glass-card aspect-[4/3] relative overflow-hidden rounded-2xl border border-arbor-glass-border">
+                    <div class="glass-card aspect-[4/3] relative overflow-hidden rounded-2xl border border-arbor-glass-border hover-lift">
                         <div v-if="mapLoading" class="absolute inset-0 flex flex-col items-center justify-center bg-arbor-deep/80 z-10">
                             <div class="w-10 h-10 border-2 border-arbor-emerald/30 border-t-arbor-emerald rounded-full animate-spin mb-4"></div>
                             <p class="text-arbor-sage text-sm">Chargement de la carte...</p>
@@ -207,10 +280,10 @@ const loadMapSounds = async () => {
         <!-- ECHO Section -->
         <section class="py-24">
             <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <div class="glass-card p-12 relative overflow-hidden">
+                <div class="glass-card p-12 relative overflow-hidden hover-lift">
                     <div class="absolute top-0 right-0 w-64 h-64 bg-arbor-moss/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
                     <div class="relative z-10">
-                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-arbor-emerald/20 mb-6">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-arbor-emerald/20 mb-6 animate-glow-pulse">
                             <span class="text-2xl font-display font-bold text-arbor-emerald">E</span>
                         </div>
                         <h2 class="font-display text-3xl font-bold text-arbor-cream mb-4">
