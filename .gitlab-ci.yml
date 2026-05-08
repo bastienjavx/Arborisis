@@ -11,7 +11,7 @@ workflow:
 
 variables:
   APP_DIR: <redacted>
-  PHP_VERSION: "8.3"
+  PHP_VERSION: "8.4"
   NODE_VERSION: "22"
   COMPOSER_CACHE_DIR: "$CI_PROJECT_DIR/.cache/composer"
   NPM_CONFIG_CACHE: "$CI_PROJECT_DIR/.cache/npm"
