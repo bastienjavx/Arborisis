@@ -162,7 +162,7 @@ onMounted(() => {
 <template>
     <Head title="Carte sonore" />
     <GuestLayout>
-        <div class="relative h-[calc(100vh-4rem)] min-h-[600px] overflow-hidden">
+        <div class="relative isolate h-[calc(100vh-4rem)] min-h-[600px] overflow-hidden">
             <!-- Ambient gradient overlay -->
             <div class="absolute inset-0 z-[5] pointer-events-none bg-gradient-radial from-arbor-moss/10 via-transparent to-transparent"></div>
 
