@@ -1,13 +1,37 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
+
+const STORAGE_KEY = '<redacted>-player-state';
+
+function loadState() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+            return JSON.parse(raw);
+        }
+    } catch {
+        // ignore
+    }
+    return null;
+}
+
+function saveState(state) {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch {
+        // ignore
+    }
+}
 
 export const usePlayerStore = defineStore('player', () => {
-    const currentSound = ref(null);
-    const isPlaying = ref(false);
-    const currentTime = ref(0);
-    const duration = ref(0);
-    const volume = ref(1);
-    const isMuted = ref(false);
+    const saved = loadState();
+
+    const currentSound = ref(saved?.currentSound || null);
+    const isPlaying = ref(false); // never auto-play on load
+    const currentTime = ref(saved?.currentTime || 0);
+    const duration = ref(saved?.duration || 0);
+    const volume = ref(saved?.volume ?? 1);
+    const isMuted = ref(saved?.isMuted || false);
 
     const hasActiveTrack = computed(() => currentSound.value !== null);
 
@@ -58,6 +82,19 @@ export const usePlayerStore = defineStore('player', () => {
         currentTime.value = 0;
         duration.value = 0;
     }
+
+    // Persist state (excluding isPlaying)
+    watch(
+        () => ({
+            currentSound: currentSound.value,
+            currentTime: currentTime.value,
+            duration: duration.value,
+            volume: volume.value,
+            isMuted: isMuted.value,
+        }),
+        (state) => saveState(state),
+        { deep: true },
+    );
 
     return {
         currentSound,

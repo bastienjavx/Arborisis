@@ -2,7 +2,6 @@
 import { ref } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
-import MiniPlayer from '@/Components/Audio/MiniPlayer.vue';
 
 const showingMobileMenu = ref(false);
 </script>
@@ -137,8 +136,6 @@ const showingMobileMenu = ref(false);
         <main>
             <slot />
         </main>
-
-        <MiniPlayer />
 
         <footer class="border-t border-arbor-glass-border bg-arbor-deep">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

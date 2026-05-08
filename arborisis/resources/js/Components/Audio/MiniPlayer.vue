@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, onMounted, nextTick } from 'vue';
 import { usePlayerStore } from '@/Stores/player';
 import { Link } from '@inertiajs/vue3';
 
@@ -27,12 +27,21 @@ watch(() => player.isPlaying, (playing) => {
     }
 });
 
-watch(() => player.currentSound, (sound) => {
+watch(() => player.currentSound, async (sound) => {
     if (sound && audioRef.value) {
-        audioRef.value.currentTime = 0;
+        await nextTick();
+        audioRef.value.currentTime = player.currentTime || 0;
         if (player.isPlaying) {
             audioRef.value.play().catch(() => {});
         }
+    }
+});
+
+onMounted(() => {
+    if (audioRef.value && player.currentSound) {
+        audioRef.value.currentTime = player.currentTime || 0;
+        audioRef.value.volume = player.isMuted ? 0 : player.volume;
+        audioRef.value.muted = player.isMuted;
     }
 });
 
