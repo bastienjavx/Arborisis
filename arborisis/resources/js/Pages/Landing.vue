@@ -137,13 +137,6 @@ const loadMapSounds = async () => {
             />
 
             <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <div class="animate-fade-in">
-                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-arbor-glass border border-arbor-glass-border text-arbor-emerald text-sm font-medium mb-8 hover:bg-arbor-emerald/5 transition-colors">
-                        <span class="w-2 h-2 bg-arbor-emerald rounded-full animate-pulse" />
-                        Bientôt disponible
-                    </div>
-                </div>
-
                 <h1 class="font-display text-5xl sm:text-6xl lg:text-7xl font-bold text-arbor-cream leading-tight mb-6 animate-slide-up">
                     L'archive sonore<br />
                     <span class="text-transparent bg-clip-text bg-gradient-to-r from-arbor-emerald to-arbor-moss">de la nature</span>
@@ -157,7 +150,8 @@ const loadMapSounds = async () => {
                 <div class="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up" style="animation-delay: 0.2s">
                     <Link href="/map" class="btn-primary text-base px-8 py-4 w-full sm:w-auto group">
                         <svg class="w-5 h-5 mr-2 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 7m0 13V7m0 0L9 7" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
                         </svg>
                         Explorer la carte
                     </Link>

@@ -53,7 +53,7 @@ const sections = [
 
             <div class="relative z-10">
                 <!-- Hero -->
-                <section class="pt-32 pb-16 section-padding">
+                <section class="pt-24 pb-16 section-padding">
                     <div class="max-w-4xl mx-auto text-center">
                         <h1 class="font-display text-5xl sm:text-6xl font-bold text-arbor-cream leading-tight mb-6">
                             Charte <span class="text-transparent bg-clip-text bg-gradient-to-r from-arbor-emerald to-arbor-moss">Arborisis</span>
@@ -66,7 +66,7 @@ const sections = [
                 </section>
 
                 <!-- Sections -->
-                <section class="pb-24 section-padding">
+                <section class="py-20 section-padding">
                     <div class="max-w-4xl mx-auto space-y-6">
                         <div
                             v-for="(section, index) in sections"
@@ -95,7 +95,7 @@ const sections = [
                 </section>
 
                 <!-- Footer note -->
-                <section class="pb-24 section-padding border-t border-arbor-glass-border">
+                <section class="py-20 section-padding border-t border-arbor-glass-border">
                     <div class="max-w-2xl mx-auto text-center">
                         <div class="w-12 h-12 rounded-xl bg-arbor-emerald/15 flex items-center justify-center mx-auto mb-4">
                             <svg class="w-6 h-6 text-arbor-emerald" fill="none" stroke="currentColor" viewBox="0 0 24 24">
