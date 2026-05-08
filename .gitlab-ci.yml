@@ -35,6 +35,19 @@ deploy_production:
         git reset --hard origin/main && \
         echo '✅ Code mis à jour'
       "
+    # Synchroniser arborisis/ vers la racine (nginx sert la racine, pas le sous-dossier)
+    - |
+      ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 $DEPLOY_USER@$DEPLOY_HOST "
+        cd $DEPLOY_PATH && \
+        rsync -av --delete \
+          --exclude='.env' \
+          --exclude='storage/' \
+          --exclude='.git/' \
+          --exclude='node_modules/' \
+          --exclude='vendor/' \
+          arborisis/ ./ && \
+        echo '✅ Code synchronisé vers la racine'
+      "
     # Install + build des assets frontend
     - |
       ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 $DEPLOY_USER@$DEPLOY_HOST "
