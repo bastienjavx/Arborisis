@@ -1,17 +1,25 @@
 <?php
 
+declare(strict_types=1);
+
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\Web\CommentController;
 use App\Http\Controllers\Web\CreatorController;
 use App\Http\Controllers\Web\CreatorProfileController;
 use App\Http\Controllers\Web\DashboardController;
+use App\Http\Controllers\Web\EchoDonationController;
 use App\Http\Controllers\Web\FollowController;
 use App\Http\Controllers\Web\LandingController;
 use App\Http\Controllers\Web\LikeController;
+use App\Http\Controllers\Web\MapController;
+use App\Http\Controllers\Web\PageController;
 use App\Http\Controllers\Web\ReportController;
+use App\Http\Controllers\Web\AudioAnalysisController;
 use App\Http\Controllers\Web\SoundController;
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Web\WalletController;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 Route::get('/', [LandingController::class, 'index'])->name('landing');
 
@@ -24,30 +32,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 Route::get('/sounds/{slug}', [SoundController::class, 'show'])->name('sounds.show');
 
-Route::get('/map', [\App\Http\Controllers\Web\MapController::class, 'index'])->name('map.index');
+Route::get('/sounds/{sound}/analysis', [AudioAnalysisController::class, 'show'])->name('sounds.analysis.show');
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::post('/sounds/{sound}/analysis', [AudioAnalysisController::class, 'analyze'])->name('sounds.analysis.store');
+    Route::get('/sounds/{sound}/analysis/export/{format}', [AudioAnalysisController::class, 'export'])->name('sounds.analysis.export');
+});
+
+Route::get('/api/sounds/{sound}/analysis', [AudioAnalysisController::class, 'show'])->name('api.sounds.analysis.show');
+Route::get('/api/sounds/{sound}/analysis/realtime', [AudioAnalysisController::class, 'realtimeData'])->name('api.sounds.analysis.realtime');
+
+Route::get('/map', [MapController::class, 'index'])->name('map.index');
 
 Route::get('/creators', [CreatorController::class, 'index'])->name('creators.index');
 Route::get('/creators/{slug}', [CreatorProfileController::class, 'show'])->name('creators.show');
 
-Route::get('/transparency', function () {
-    return Inertia::render('Transparency');
-})->name('transparency');
-
-Route::get('/echo', function () {
-    return Inertia::render('Echo/Info');
-})->name('echo.info');
-
-Route::get('/mission', function () {
-    return Inertia::render('Mission');
-})->name('mission');
-
-Route::get('/charte', function () {
-    return Inertia::render('Charte');
-})->name('charte');
-
-Route::get('/offline', function () {
-    return response()->view('offline');
-})->name('offline');
+Route::get('/transparency', [PageController::class, 'transparency'])->name('transparency');
+Route::get('/echo', [PageController::class, 'echoInfo'])->name('echo.info');
+Route::get('/mission', [PageController::class, 'mission'])->name('mission');
+Route::get('/charte', [PageController::class, 'charte'])->name('charte');
+Route::get('/offline', [PageController::class, 'offline'])->name('offline');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -69,21 +73,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/reports', [ReportController::class, 'store'])->name('reports.store');
 
     // ECHO Wallet
-    Route::get('/wallet', [\App\Http\Controllers\Web\WalletController::class, 'show'])->name('wallet.show');
-    Route::post('/wallet/checkout', [\App\Http\Controllers\Web\WalletController::class, 'checkout'])->name('wallet.checkout');
-    Route::get('/wallet/success', [\App\Http\Controllers\Web\WalletController::class, 'success'])->name('wallet.success');
-    Route::get('/wallet/cancel', [\App\Http\Controllers\Web\WalletController::class, 'cancel'])->name('wallet.cancel');
+    Route::get('/wallet', [WalletController::class, 'show'])->name('wallet.show');
+    Route::post('/wallet/checkout', [WalletController::class, 'checkout'])->name('wallet.checkout');
+    Route::get('/wallet/success', [WalletController::class, 'success'])->name('wallet.success');
+    Route::get('/wallet/cancel', [WalletController::class, 'cancel'])->name('wallet.cancel');
 
     // ECHO Donations
-    Route::post('/donations', [\App\Http\Controllers\Web\EchoDonationController::class, 'store'])->name('donations.store');
-    Route::get('/donations/history', [\App\Http\Controllers\Web\EchoDonationController::class, 'history'])->name('donations.history');
+    Route::post('/donations', [EchoDonationController::class, 'store'])->name('donations.store');
+    Route::get('/donations/history', [EchoDonationController::class, 'history'])->name('donations.history');
 });
 
 // Stripe Webhook (no auth, signed by Stripe)
-Route::post('/webhooks/stripe', \App\Http\Controllers\StripeWebhookController::class)
+Route::post('/webhooks/stripe', StripeWebhookController::class)
     ->name('webhooks.stripe')
     ->withoutMiddleware([
-        \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+        VerifyCsrfToken::class,
     ]);
 
 require __DIR__.'/auth.php';
