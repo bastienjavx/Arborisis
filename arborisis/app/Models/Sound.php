@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Enums\EnvironmentType;
 use App\Enums\LicenseType;
 use App\Enums\SoundStatus;
 use App\Enums\SoundVisibility;
@@ -28,12 +27,12 @@ class Sound extends Model
     protected $fillable = [
         'user_id',
         'category_id',
+        'environment_id',
         'title',
         'slug',
         'description',
         'recorded_at',
         'duration',
-        'environment',
         'equipment',
         'license',
         'visibility',
@@ -46,7 +45,6 @@ class Sound extends Model
         'status' => SoundStatus::class,
         'visibility' => SoundVisibility::class,
         'license' => LicenseType::class,
-        'environment' => EnvironmentType::class,
     ];
 
     protected static function booted(): void
@@ -66,6 +64,11 @@ class Sound extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function environment(): BelongsTo
+    {
+        return $this->belongsTo(Environment::class);
     }
 
     public function tags(): BelongsToMany

@@ -35,8 +35,7 @@ const values = [
                 <section class="pt-32 pb-20 section-padding">
                     <div class="max-w-4xl mx-auto text-center">
                         <h1 class="font-display text-5xl sm:text-6xl font-bold text-arbor-cream leading-tight mb-6">
-                            Préserver l'écoute<br />
-                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-arbor-emerald to-arbor-moss">du monde vivant</span>
+                            Préserver l'écoute <span class="text-transparent bg-clip-text bg-gradient-to-r from-arbor-emerald to-arbor-moss">du monde vivant</span>
                         </h1>
                         <p class="text-arbor-sage text-lg max-w-2xl mx-auto leading-relaxed">
                             Arborisis naît d'une conviction : les paysages sonores naturels sont un patrimoine fragile
@@ -96,7 +95,7 @@ const values = [
                             <div
                                 v-for="(value, index) in values"
                                 :key="value.title"
-                                class="glass-card p-8 hover:bg-arbor-glass/50 transition-all duration-300 hover-lift"
+                                class="glass-card p-8 hover:bg-arbor-glass/50 transition-all duration-300 hover-lift group"
                                 :style="`animation: fadeInUp 0.6s ease-out forwards; animation-delay: ${index * 0.15}s; opacity: 0;`"
                             >
                                 <div class="w-12 h-12 rounded-xl bg-arbor-moss/20 flex items-center justify-center mb-6 group-hover:bg-arbor-moss/30 transition-colors group-hover:scale-110 duration-300">

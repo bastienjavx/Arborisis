@@ -96,7 +96,7 @@ const getInitials = (name) => {
                                     <h3 class="text-arbor-cream font-semibold text-lg group-hover:text-arbor-emerald transition-colors truncate">
                                         {{ creator.name }}
                                     </h3>
-                                    <p class="text-arbor-sage text-sm">{{ creator.sounds_count }} son{{ creator.sounds_count > 1 ? 's' : '' }}</p>
+                                    <p class="text-arbor-sage text-sm">{{ creator.public_sounds_count }} son{{ creator.public_sounds_count > 1 ? 's' : '' }}</p>
                                 </div>
                             </div>
                             <p class="text-arbor-sage text-sm leading-relaxed line-clamp-2">

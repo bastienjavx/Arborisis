@@ -29,10 +29,10 @@ class SoundUploadService
             $sound = Sound::create([
                 'user_id' => $userId,
                 'category_id' => $data['category_id'] ?? null,
+                'environment_id' => $data['environment_id'] ?? null,
                 'title' => $data['title'],
                 'description' => $data['description'] ?? null,
                 'recorded_at' => $this->combineDateTime($data['recorded_at'] ?? null, $data['recorded_time'] ?? null),
-                'environment' => $data['environment'] ?? null,
                 'equipment' => $data['equipment'] ?? null,
                 'license' => $data['license'],
                 'visibility' => $data['visibility'],

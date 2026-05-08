@@ -27,7 +27,7 @@ class MapController extends Controller
         }
 
         if ($request->filled('environment')) {
-            $query->where('environment->value', $request->input('environment'));
+            $query->where('environment_id', $request->integer('environment'));
         }
 
         $sounds = $query->get();

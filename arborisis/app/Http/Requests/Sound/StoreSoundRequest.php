@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Sound;
 
-use App\Enums\EnvironmentType;
 use App\Enums\LicenseType;
 use App\Enums\SoundVisibility;
 use Illuminate\Foundation\Http\FormRequest;
@@ -36,7 +35,7 @@ class StoreSoundRequest extends FormRequest
             'is_sensitive_location' => ['boolean'],
             'tags' => ['nullable', 'string', 'max:500'],
             'category_id' => ['nullable', 'integer', 'exists:categories,id'],
-            'environment' => ['nullable', Rule::enum(EnvironmentType::class)],
+            'environment_id' => ['nullable', 'integer', 'exists:environments,id'],
             'equipment' => ['nullable', 'string', 'max:500'],
             'license' => ['required', Rule::enum(LicenseType::class)],
             'visibility' => ['required', Rule::enum(SoundVisibility::class)],
