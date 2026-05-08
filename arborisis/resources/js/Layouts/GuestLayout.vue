@@ -27,6 +27,9 @@ const showingMobileMenu = ref(false);
                         <Link href="/creators" class="text-sm text-arbor-sage hover:text-arbor-cream transition-colors">
                             Créateurs
                         </Link>
+                        <Link href="/radio" class="text-sm text-arbor-sage hover:text-arbor-cream transition-colors">
+                            Radio
+                        </Link>
                         <div class="w-px h-5 bg-arbor-glass-border"></div>
                         <Link
                             v-if="$page.props.auth.user"
@@ -104,6 +107,13 @@ const showingMobileMenu = ref(false);
                         :class="route().current('creators.*') ? 'text-arbor-emerald bg-arbor-emerald/10' : ''"
                     >
                         Créateurs
+                    </Link>
+                    <Link
+                        href="/radio"
+                        class="block px-3 py-2 rounded-lg text-arbor-sage hover:text-arbor-cream hover:bg-arbor-glass transition-colors"
+                        :class="route().current('radio.*') ? 'text-arbor-emerald bg-arbor-emerald/10' : ''"
+                    >
+                        Radio
                     </Link>
                 </div>
                 <div class="border-t border-arbor-glass-border pb-3 pt-2 px-4">
