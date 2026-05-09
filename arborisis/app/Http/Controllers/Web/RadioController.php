@@ -43,20 +43,23 @@ class RadioController extends Controller
         set_time_limit(0);
         ignore_user_abort(true);
 
-        $icyMetaint = config('radio.icy_metaint', 8192);
+        $mimeType = $this->streamService->getPlaylistMimeType();
 
         $headers = [
-            'Content-Type' => 'audio/mpeg',
+            'Content-Type' => $mimeType,
             'Cache-Control' => 'no-cache, no-store, must-revalidate',
             'Pragma' => 'no-cache',
             'Expires' => '0',
-            'Connection' => 'close',
-            'icy-name' => 'Arborisis Radio',
-            'icy-genre' => 'Nature / Field Recording',
-            'icy-metaint' => (string) $icyMetaint,
-            'icy-url' => route('radio.index'),
             'Access-Control-Allow-Origin' => '*',
+            'X-Accel-Buffering' => 'no',
         ];
+
+        if ($this->streamService->supportsIcyMetadata()) {
+            $headers['icy-metaint'] = (string) config('radio.icy_metaint', 8192);
+            $headers['icy-name'] = 'Arborisis Radio';
+            $headers['icy-genre'] = 'Field Recording / Nature';
+            $headers['icy-url'] = config('app.url');
+        }
 
         return response()->stream(function () {
             if (app()->environment('testing')) {
@@ -90,46 +93,20 @@ class RadioController extends Controller
     {
         $metadata = $this->streamService->getCurrentMetadata();
         $listenerCount = $this->streamService->getListenerCount();
-        $nextSound = $this->getNextInQueue();
+        $nextSound = $this->streamService->resolveNextSound();
 
         return response()->json([
             'now_playing' => $metadata,
-            'next_up' => $nextSound,
+            'next_up' => $nextSound ? [
+                'id' => $nextSound->id,
+                'title' => $nextSound->title,
+                'slug' => $nextSound->slug,
+                'user_name' => $nextSound->user?->name,
+                'cover_url' => $nextSound->cover_url,
+                'duration' => $nextSound->duration,
+            ] : null,
             'listener_count' => $listenerCount,
             'updated_at' => now()->toIso8601String(),
         ]);
-    }
-
-    private function getNextInQueue(): ?array
-    {
-        $history = $this->streamService->getHistory();
-        $playlist = $this->streamService->getPlaylist();
-
-        if ($playlist->isEmpty()) {
-            return null;
-        }
-
-        $available = $playlist->filter(function ($sound) use ($history) {
-            return !in_array($sound->id, $history, true);
-        });
-
-        if ($available->isEmpty()) {
-            $available = $playlist;
-        }
-
-        $next = $available->first();
-
-        if (!$next) {
-            return null;
-        }
-
-        return [
-            'id' => $next->id,
-            'title' => $next->title,
-            'slug' => $next->slug,
-            'user_name' => $next->user?->name,
-            'cover_url' => $next->cover_url,
-            'duration' => $next->duration,
-        ];
     }
 }

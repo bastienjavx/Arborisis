@@ -1,4 +1,4 @@
-const CACHE_NAME = '<redacted>-v1';
+const CACHE_NAME = '<redacted>-v2';
 const STATIC_ASSETS = [
   '/',
   '/offline',
@@ -50,6 +50,11 @@ self.addEventListener('fetch', (event) => {
   // API routes: NetworkFirst
   if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/build/') || url.pathname.startsWith('/admin/')) {
     event.respondWith(networkFirst(request));
+    return;
+  }
+
+  // Never cache radio stream or playlist
+  if (url.pathname === '/radio/stream' || url.pathname === '/radio/stream.m3u') {
     return;
   }
 

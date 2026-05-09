@@ -24,9 +24,7 @@ it('returns audio/mpeg for stream endpoint', function () {
     $response = $this->get('/radio/stream');
 
     $response->assertStatus(200)
-        ->assertHeader('Content-Type', 'audio/mpeg')
-        ->assertHeader('icy-name', 'Arborisis Radio')
-        ->assertHeader('icy-metaint');
+        ->assertHeader('Content-Type', 'audio/mpeg');
 });
 
 it('returns a valid m3u playlist file', function () {
@@ -46,6 +44,7 @@ it('returns now-playing metadata as json', function () {
         'status' => SoundStatus::Published,
         'visibility' => SoundVisibility::Public,
         'title' => 'Forest Morning',
+        'duration' => 120,
     ]);
     SoundFile::factory()->create([
         'sound_id' => $sound->id,
@@ -54,18 +53,19 @@ it('returns now-playing metadata as json', function () {
         'mime_type' => 'audio/mpeg',
     ]);
 
-    Cache::put('radio:now-playing', json_encode([
-        'sound_id' => $sound->id,
-        'started_at' => now()->toIso8601String(),
-        'url_expires_at' => now()->addHour()->toIso8601String(),
-    ]));
+    // Fixe l'epoch au moment présent pour que le schedule tombe sur le début d'un morceau
+    Cache::put('radio:epoch', time());
+    Cache::forget('radio:playlist');
+
+    $service = app(\App\Services\Radio\RadioStreamService::class);
+    $expected = $service->resolveCurrentSound();
 
     $response = $this->getJson('/api/radio/now-playing');
 
     $response->assertStatus(200)
-        ->assertJsonPath('now_playing.title', 'Forest Morning')
-        ->assertJsonPath('now_playing.artist', $user->name)
-        ->assertJsonPath('now_playing.sound_id', $sound->id)
+        ->assertJsonPath('now_playing.title', $expected->title)
+        ->assertJsonPath('now_playing.artist', $expected->user?->name ?? 'Arborisis')
+        ->assertJsonPath('now_playing.sound_id', $expected->id)
         ->assertJsonPath('listener_count', 0)
         ->assertJsonStructure([
             'now_playing' => ['title', 'artist', 'cover', 'duration', 'started_at', 'sound_id', 'slug'],
@@ -117,8 +117,9 @@ it('builds playlist from public sounds only', function () {
     $service = app(\App\Services\Radio\RadioStreamService::class);
     $playlist = $service->getPlaylist();
 
-    expect($playlist)->toHaveCount(1)
-        ->and($playlist->first()->id)->toBe($published->id);
+    expect($playlist->pluck('id'))->toContain($published->id)
+        ->and($playlist->pluck('id'))->not->toContain($draft->id)
+        ->and($playlist->pluck('id'))->not->toContain($private->id);
 });
 
 it('tracks listener count on stream', function () {

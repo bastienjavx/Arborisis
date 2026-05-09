@@ -21,6 +21,10 @@ class SoundFile extends Model
         'mime_type',
         'size_bytes',
         'disk',
+        'radio_path',
+        'radio_mime_type',
+        'radio_size_bytes',
+        'radio_converted_at',
     ];
 
     public function sound(): BelongsTo
