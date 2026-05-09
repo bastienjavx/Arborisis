@@ -41,4 +41,9 @@ return [
         'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
     ],
 
+    'python' => [
+        'path' => env('PYTHON_PATH', 'python3'),
+        'timeout' => env('PYTHON_TIMEOUT', 300),
+    ],
+
 ];

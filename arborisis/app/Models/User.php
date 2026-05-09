@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\UserRole;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -15,7 +17,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable implements MustVerifyEmail, FilamentUser
 {
     use HasFactory, Notifiable, SoftDeletes;
 
@@ -121,5 +123,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isCreator(): bool
     {
         return $this->role === UserRole::Creator || $this->isModerator() || $this->isAdmin();
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->isModerator();
     }
 }

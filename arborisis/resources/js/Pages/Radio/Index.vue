@@ -30,6 +30,9 @@ const effectiveVolume = computed(() => {
     return volume.value;
 });
 
+// Anti-cache: unique URL per mount so the browser never reuses a cached stream
+const streamUrl = computed(() => `/radio/stream?_=${Date.now()}`);
+
 onMounted(() => {
     if (player.isPlaying) {
         player.pause();
@@ -45,6 +48,8 @@ onUnmounted(() => {
     }
     if (audioRef.value) {
         audioRef.value.pause();
+        audioRef.value.src = '';
+        audioRef.value.load();
     }
 });
 
@@ -175,7 +180,7 @@ const copyM3uUrl = () => {
                         <div class="glass-card p-6">
                             <audio
                                 ref="audioRef"
-                                :src="'/radio/stream'"
+                                :src="streamUrl"
                                 @play="onAudioPlay"
                                 @pause="onAudioPause"
                                 crossorigin="anonymous"
