@@ -310,7 +310,7 @@ class RadioStreamService
         return (int) Cache::get(self::CACHE_KEY_LISTENERS, 0);
     }
 
-    public function streamToOutput(callable $outputCallback): void
+    public function streamToOutput(callable $outputCallback, bool $injectIcy = false): void
     {
         $this->incrementListeners();
 
@@ -329,7 +329,6 @@ class RadioStreamService
 
             $startIndex = $this->resolveCurrentIndex();
             $index = $startIndex;
-            $icyEnabled = $this->supportsIcyMetadata();
 
             while (! connection_aborted()) {
                 $sound = $playlist[$index] ?? null;
@@ -343,7 +342,7 @@ class RadioStreamService
                     $sound = $playlist[0];
                 }
 
-                $bytesStreamed = $this->streamSound($sound, $outputCallback, $icyEnabled);
+                $bytesStreamed = $this->streamSound($sound, $outputCallback, $injectIcy);
 
                 if ($bytesStreamed === 0) {
                     Log::warning('Radio stream: sound streamed 0 bytes, throttling', ['sound_id' => $sound->id]);
