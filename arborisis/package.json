@@ -3,7 +3,7 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build",
+        "build": "vite build && vite build --ssr",
         "dev": "vite"
     },
     "devDependencies": {
@@ -16,11 +16,18 @@
         "concurrently": "^9.0.1",
         "laravel-vite-plugin": "^3.0.0",
         "postcss": "^8.4.31",
+        "sharp": "^0.34.5",
         "tailwindcss": "^3.2.1",
         "vite": "^8.0.0",
         "vue": "^3.4.0"
     },
     "dependencies": {
+        "@fontsource-variable/cormorant": "^5.2.8",
+        "@fontsource-variable/dm-sans": "^5.2.8",
+        "@fontsource-variable/jetbrains-mono": "^5.2.8",
+        "@fontsource/cormorant": "^5.2.8",
+        "@fontsource/dm-sans": "^5.2.8",
+        "@fontsource/jetbrains-mono": "^5.2.8",
         "@vue-leaflet/vue-leaflet": "^0.10.1",
         "leaflet": "^1.9.4",
         "leaflet.markercluster": "^1.5.3",

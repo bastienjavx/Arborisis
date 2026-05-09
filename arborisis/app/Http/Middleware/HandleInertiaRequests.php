@@ -39,6 +39,10 @@ class HandleInertiaRequests extends Middleware
                     'is_moderator' => $user->isModerator(),
                 ] : null,
             ],
+            'ziggy' => fn () => [
+                ...(new \Tighten\Ziggy\Ziggy())->toArray(),
+                'location' => $request->url(),
+            ],
         ];
     }
 }

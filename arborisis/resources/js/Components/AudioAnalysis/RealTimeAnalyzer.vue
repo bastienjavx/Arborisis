@@ -160,6 +160,7 @@ const formatTime = (seconds) => {
         <div class="flex items-center justify-between mb-4">
             <h3 class="font-semibold text-arbor-cream text-sm">Analyse temps réel</h3>
             <button @click="togglePlay"
+                :aria-label="isPlaying ? 'Pause' : 'Lecture'"
                 class="w-10 h-10 rounded-full bg-arbor-emerald flex items-center justify-center hover:bg-arbor-emerald-dark transition-colors">
                 <svg v-if="!isPlaying" class="w-4 h-4 text-arbor-night ml-0.5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M8 5v14l11-7z" />

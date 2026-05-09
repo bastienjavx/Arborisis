@@ -58,6 +58,8 @@ const showingMobileMenu = ref(false);
                     <div class="flex items-center md:hidden">
                         <button
                             @click="showingMobileMenu = !showingMobileMenu"
+                            :aria-label="showingMobileMenu ? 'Fermer le menu' : 'Ouvrir le menu'"
+                            :aria-expanded="showingMobileMenu"
                             class="inline-flex items-center justify-center rounded-xl p-2 text-arbor-sage transition duration-150 ease-in-out hover:bg-arbor-glass hover:text-arbor-cream focus:outline-none"
                         >
                             <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
@@ -160,7 +162,7 @@ const showingMobileMenu = ref(false);
                         </p>
                     </div>
                     <div>
-                        <h4 class="font-medium text-arbor-cream mb-4 text-sm">Explorer</h4>
+                        <h3 class="font-medium text-arbor-cream mb-4 text-sm">Explorer</h3>
                         <ul class="space-y-2 text-sm text-arbor-sage">
                             <li><Link href="/map" class="hover:text-arbor-emerald transition-colors">Carte sonore</Link></li>
                             <li><Link href="/sounds" class="hover:text-arbor-emerald transition-colors">Tous les sons</Link></li>
@@ -168,7 +170,7 @@ const showingMobileMenu = ref(false);
                         </ul>
                     </div>
                     <div>
-                        <h4 class="font-medium text-arbor-cream mb-4 text-sm">Communauté</h4>
+                        <h3 class="font-medium text-arbor-cream mb-4 text-sm">Communauté</h3>
                         <ul class="space-y-2 text-sm text-arbor-sage">
                             <li><Link href="/transparency" class="hover:text-arbor-emerald transition-colors">Crédits ECHO</Link></li>
                             <li><Link href="/mission" class="hover:text-arbor-emerald transition-colors">Notre mission</Link></li>
