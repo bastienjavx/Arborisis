@@ -131,6 +131,8 @@ const showingExploreDropdown = ref(false);
                     <div class="-me-2 flex items-center sm:hidden">
                         <button
                             @click="showingNavigationDropdown = !showingNavigationDropdown"
+                            :aria-label="showingNavigationDropdown ? 'Fermer le menu' : 'Ouvrir le menu'"
+                            :aria-expanded="showingNavigationDropdown"
                             class="inline-flex items-center justify-center rounded-xl p-2 text-arbor-sage transition duration-150 ease-in-out hover:bg-arbor-glass hover:text-arbor-cream focus:bg-arbor-glass focus:text-arbor-cream focus:outline-none"
                         >
                             <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">

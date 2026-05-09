@@ -1,8 +1,9 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
-import SoundMap from '@/Components/Map/SoundMap.vue';
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, defineAsyncComponent } from 'vue';
+
+const SoundMap = defineAsyncComponent(() => import('@/Components/Map/SoundMap.vue'));
 
 const props = defineProps({
     stats: Object,
@@ -109,10 +110,14 @@ const loadMapSounds = async () => {
     <GuestLayout>
         <!-- Hero Section -->
         <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
-            <!-- Cinematic nature photograph background -->
-            <div
-                class="absolute inset-0 bg-cover bg-center bg-no-repeat animate-ken-burns"
-                style="background-image: url('/images/hero-leaf.jpg'); filter: brightness(0.55) contrast(1.15) saturate(0.8);"
+            <!-- Cinematic nature photograph background (img tag for earlier discovery & fetchpriority) -->
+            <img
+                src="/images/hero-leaf.webp"
+                alt=""
+                class="absolute inset-0 w-full h-full object-cover animate-ken-burns"
+                style="filter: brightness(0.55) contrast(1.15) saturate(0.8);"
+                fetchpriority="high"
+                decoding="async"
             />
 
             <!-- Cinematic color grade overlay -->

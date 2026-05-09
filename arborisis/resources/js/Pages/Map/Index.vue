@@ -1,8 +1,10 @@
 <script setup>
-import { ref, onMounted, watch, computed, nextTick } from 'vue';
+import { ref, onMounted, watch, computed, nextTick, defineAsyncComponent } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
-import SoundMap from '@/Components/Map/SoundMap.vue';
+import '@css/map.css';
+
+const SoundMap = defineAsyncComponent(() => import('@/Components/Map/SoundMap.vue'));
 
 const props = defineProps({
     categories: Array,
@@ -233,6 +235,7 @@ onMounted(() => {
                             <button
                                 v-if="searchQuery"
                                 class="absolute right-3 top-1/2 -translate-y-1/2 text-arbor-sage/50 hover:text-arbor-cream transition-colors"
+                                aria-label="Effacer la recherche"
                                 @click="clearSearch"
                             >
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

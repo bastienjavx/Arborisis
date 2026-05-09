@@ -110,6 +110,7 @@ function seek(event) {
                     <!-- Play/Pause -->
                     <button
                         @click="player.togglePlay"
+                        :aria-label="player.isPlaying ? 'Pause' : 'Lecture'"
                         class="w-10 h-10 rounded-full bg-arbor-emerald flex items-center justify-center hover:bg-arbor-emerald-dark transition-colors shrink-0"
                     >
                         <svg v-if="!player.isPlaying" class="w-5 h-5 text-arbor-night ml-0.5" fill="currentColor" viewBox="0 0 24 24">
@@ -154,7 +155,7 @@ function seek(event) {
 
                     <!-- Volume -->
                     <div class="hidden md:flex items-center gap-2">
-                        <button @click="player.toggleMute" class="text-arbor-sage hover:text-arbor-cream">
+                        <button @click="player.toggleMute" :aria-label="player.isMuted ? 'Activer le son' : 'Couper le son'" class="text-arbor-sage hover:text-arbor-cream">
                             <svg v-if="player.isMuted || player.volume === 0" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
@@ -175,7 +176,7 @@ function seek(event) {
                     </div>
 
                     <!-- Close -->
-                    <button @click="player.close" class="text-arbor-sage hover:text-arbor-cream p-1">
+                    <button @click="player.close" aria-label="Fermer le lecteur" class="text-arbor-sage hover:text-arbor-cream p-1">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>

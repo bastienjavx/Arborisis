@@ -22,10 +22,14 @@
 
         <title inertia>{{ config('app.name', 'Arborisis') }}</title>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+        <!-- Preload critical font files (self-hosted, no external blocking request) -->
+        <link rel="preload" as="font" href="/fonts/dm-sans-latin-400-normal.woff2" type="font/woff2" crossorigin>
+        <link rel="preload" as="font" href="/fonts/dm-sans-latin-700-normal.woff2" type="font/woff2" crossorigin>
+        <link rel="preload" as="font" href="/fonts/cormorant-latin-400-normal.woff2" type="font/woff2" crossorigin>
+        <link rel="preload" as="font" href="/fonts/cormorant-latin-700-normal.woff2" type="font/woff2" crossorigin>
+
+        <!-- Preload LCP image -->
+        <link rel="preload" as="image" href="/images/hero-leaf.webp" type="image/webp" fetchpriority="high">
 
         <!-- Scripts -->
         @routes

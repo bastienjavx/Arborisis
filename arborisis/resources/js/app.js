@@ -13,7 +13,9 @@ const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 const pinia = createPinia();
 
-registerServiceWorker();
+if (typeof window !== 'undefined') {
+    registerServiceWorker();
+}
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
