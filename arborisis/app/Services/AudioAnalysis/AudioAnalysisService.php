@@ -63,6 +63,10 @@ class AudioAnalysisService
 
             $result = $this->pythonRunner->runAnalysisPipeline($localPath, $outputDir, $config);
 
+            if (empty($sound->duration) && ! empty($result['audio_info']['duration'])) {
+                $sound->update(['duration' => (int) round($result['audio_info']['duration'])]);
+            }
+
             $analysis->update([
                 'features_json' => $result['features'] ?? null,
                 'features_detailed_json' => null,

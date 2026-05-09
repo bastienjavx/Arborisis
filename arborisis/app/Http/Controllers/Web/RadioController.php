@@ -54,14 +54,16 @@ class RadioController extends Controller
             'X-Accel-Buffering' => 'no',
         ];
 
-        if ($this->streamService->supportsIcyMetadata()) {
+        $icyRequested = $request->headers->get('Icy-MetaData') === '1';
+
+        if ($icyRequested && $this->streamService->supportsIcyMetadata()) {
             $headers['icy-metaint'] = (string) config('radio.icy_metaint', 8192);
             $headers['icy-name'] = 'Arborisis Radio';
             $headers['icy-genre'] = 'Field Recording / Nature';
             $headers['icy-url'] = config('app.url');
         }
 
-        return response()->stream(function () {
+        return response()->stream(function () use ($icyRequested) {
             if (app()->environment('testing')) {
                 echo 'test-stream';
 
@@ -71,7 +73,7 @@ class RadioController extends Controller
             try {
                 $this->streamService->streamToOutput(function (string $chunk): void {
                     echo $chunk;
-                });
+                }, $icyRequested);
             } catch (\Throwable $e) {
                 Log::error('Radio stream error', ['exception' => $e]);
             }

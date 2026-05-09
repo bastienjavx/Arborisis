@@ -7,6 +7,7 @@ namespace App\Services\Sound;
 use App\Enums\SoundStatus;
 use App\Jobs\ProcessAudioAnalysis;
 use App\Models\Sound;
+use App\Services\Audio\AudioDurationService;
 use App\Models\SoundFile;
 use App\Models\SoundLocation;
 use App\Models\Tag;
@@ -17,6 +18,10 @@ use Illuminate\Support\Str;
 
 class SoundUploadService
 {
+    public function __construct(
+        private readonly AudioDurationService $durationService,
+    ) {}
+
     /**
      * @throws \Exception
      */
@@ -29,6 +34,8 @@ class SoundUploadService
                 /** @var UploadedFile $audioFile */
                 $audioFile = $data['audio_file'];
 
+                $duration = $this->durationService->getDuration($audioFile->getRealPath());
+
                 // 1. Create sound record
                 $sound = Sound::create([
                     'user_id' => $userId,
@@ -37,6 +44,7 @@ class SoundUploadService
                     'title' => $data['title'],
                     'description' => $data['description'] ?? null,
                     'recorded_at' => $this->combineDateTime($data['recorded_at'] ?? null, $data['recorded_time'] ?? null),
+                    'duration' => $duration ? (int) round($duration) : null,
                     'equipment' => $data['equipment'] ?? null,
                     'license' => $data['license'],
                     'visibility' => $data['visibility'],
