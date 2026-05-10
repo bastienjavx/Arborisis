@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Services\Sound;
 
 use App\Enums\SoundStatus;
+use App\Events\SoundPublished;
 use App\Jobs\ProcessAudioAnalysis;
 use App\Models\Sound;
 use App\Services\Audio\AudioDurationService;
+use App\Services\Discord\DiscordNotificationService;
 use App\Models\SoundFile;
 use App\Models\SoundLocation;
 use App\Models\Tag;
@@ -20,6 +22,7 @@ class SoundUploadService
 {
     public function __construct(
         private readonly AudioDurationService $durationService,
+        private readonly DiscordNotificationService $discordNotification,
     ) {}
 
     /**
@@ -127,6 +130,12 @@ class SoundUploadService
                 if ($analysisOnUpload) {
                     ProcessAudioAnalysis::dispatch($sound->id);
                 }
+
+                // 7. Notify subscribers
+                SoundPublished::dispatch($sound);
+
+                // 8. Notify Discord
+                $this->discordNotification->notifySoundPublished($sound);
 
                 return $sound->fresh(['soundFile', 'soundLocation', 'tags', 'category', 'user']);
             });

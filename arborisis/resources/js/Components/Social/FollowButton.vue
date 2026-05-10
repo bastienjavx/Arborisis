@@ -17,9 +17,14 @@ const toggle = async () => {
     if (loading.value) return;
     loading.value = true;
 
+    const isFollowing = following.value;
+    const url = isFollowing
+        ? route('follows.destroy', props.userId)
+        : route('follows.store', props.userId);
+
     try {
-        const response = await fetch(route('follows.store', props.userId), {
-            method: 'POST',
+        const response = await fetch(url, {
+            method: isFollowing ? 'DELETE' : 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
@@ -53,7 +58,7 @@ const sizeClasses = {
         :class="[
             sizeClasses[size],
             following
-                ? 'bg-arbor-glass text-arbor-sage hover:bg-arbor-glass/50 border border-arbor-glass'
+                ? 'bg-arbor-glass text-arbor-sage hover:bg-white/10 border border-arbor-glass'
                 : 'bg-arbor-emerald text-arbor-night hover:bg-arbor-emerald-dark',
         ]"
     >

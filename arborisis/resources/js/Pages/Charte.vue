@@ -71,7 +71,7 @@ const sections = [
                         <div
                             v-for="(section, index) in sections"
                             :key="section.num"
-                            class="glass-card p-8 lg:p-10 flex items-start gap-6 hover:bg-arbor-glass/50 transition-all duration-300"
+                            class="glass-card p-8 lg:p-10 flex items-start gap-6 hover:bg-white/10 transition-all duration-300"
                             :style="`animation: slideUp 0.5s ease-out forwards; animation-delay: ${index * 0.08}s; opacity: 0;`"
                         >
                             <div class="shrink-0 hidden sm:block">

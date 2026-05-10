@@ -51,7 +51,7 @@ const formatDuration = (seconds) => {
                     <button
                         @click="selectedCategory = ''"
                         class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
-                        :class="selectedCategory === '' ? 'bg-arbor-emerald/15 text-arbor-emerald border border-arbor-emerald/30 shadow-sm shadow-arbor-emerald/5' : 'bg-arbor-glass text-arbor-sage hover:bg-arbor-glass/50 border border-transparent'"
+                        :class="selectedCategory === '' ? 'bg-arbor-emerald/15 text-arbor-emerald border border-arbor-emerald/30 shadow-sm shadow-arbor-emerald/5' : 'bg-arbor-glass text-arbor-sage hover:bg-white/10 border border-transparent'"
                     >
                         Tous
                     </button>
@@ -60,7 +60,7 @@ const formatDuration = (seconds) => {
                         :key="category.id"
                         @click="selectedCategory = selectedCategory === category.id ? '' : category.id"
                         class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
-                        :class="selectedCategory === category.id ? 'bg-arbor-emerald/15 text-arbor-emerald border border-arbor-emerald/30 shadow-sm shadow-arbor-emerald/5' : 'bg-arbor-glass text-arbor-sage hover:bg-arbor-glass/50 border border-transparent'"
+                        :class="selectedCategory === category.id ? 'bg-arbor-emerald/15 text-arbor-emerald border border-arbor-emerald/30 shadow-sm shadow-arbor-emerald/5' : 'bg-arbor-glass text-arbor-sage hover:bg-white/10 border border-transparent'"
                     >
                         {{ category.name }}
                     </button>
@@ -78,7 +78,7 @@ const formatDuration = (seconds) => {
                         v-for="(sound, index) in filteredSounds"
                         :key="sound.id"
                         :href="route('sounds.show', sound.slug)"
-                        class="glass-card overflow-hidden hover:bg-arbor-glass/50 transition-all duration-300 group hover-lift"
+                        class="glass-card overflow-hidden hover:bg-white/10 transition-all duration-300 group hover-lift"
                         :style="`animation: fadeInUp 0.5s ease-out forwards; animation-delay: ${index * 0.06}s; opacity: 0;`"
                     >
                         <div class="aspect-[16/9] bg-arbor-deep relative overflow-hidden">

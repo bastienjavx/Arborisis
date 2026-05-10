@@ -1,6 +1,7 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import DeleteUserForm from './Partials/DeleteUserForm.vue';
+import DiscordConnectionForm from './Partials/DiscordConnectionForm.vue';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm.vue';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm.vue';
 import { Head } from '@inertiajs/vue3';
@@ -11,6 +12,10 @@ defineProps({
     },
     status: {
         type: String,
+    },
+    discord: {
+        type: Object,
+        default: null,
     },
 });
 </script>
@@ -33,6 +38,10 @@ defineProps({
                         :status="status"
                         class="max-w-xl"
                     />
+                </div>
+
+                <div class="glass-card p-6 sm:p-8">
+                    <DiscordConnectionForm :discord="discord" />
                 </div>
 
                 <div class="glass-card p-6 sm:p-8">

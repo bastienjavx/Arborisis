@@ -26,12 +26,14 @@ class DashboardController extends Controller
         $recentSounds = $this->dashboardService->getRecentSounds($user);
         $activities = $this->dashboardService->getActivities($user);
         $echoBalance = $this->walletService->getBalance($user);
+        $gamification = $this->dashboardService->getGamificationData($user);
 
         return Inertia::render('Dashboard', [
             'stats' => $stats,
             'recentSounds' => $recentSounds,
             'activities' => $activities,
             'echoBalance' => $echoBalance,
+            'gamification' => $gamification,
         ]);
     }
 }

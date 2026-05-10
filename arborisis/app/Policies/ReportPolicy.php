@@ -9,6 +9,11 @@ use App\Models\User;
 
 class ReportPolicy
 {
+    public function viewAny(User $user): bool
+    {
+        return $user->isModerator();
+    }
+
     public function create(User $user): bool
     {
         return true;

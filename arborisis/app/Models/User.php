@@ -21,7 +21,7 @@ class User extends Authenticatable implements MustVerifyEmail, FilamentUser
 {
     use HasFactory, Notifiable, SoftDeletes;
 
-    protected $fillable = ['name', 'slug', 'email', 'password', 'role'];
+    protected $fillable = ['name', 'slug', 'email', 'password', 'role', 'xp_total', 'level', 'current_streak', 'longest_streak', 'last_activity_at', 'geo_consent_given_at'];
 
     protected $hidden = ['password', 'remember_token'];
 
@@ -45,6 +45,16 @@ class User extends Authenticatable implements MustVerifyEmail, FilamentUser
     public function sounds(): HasMany
     {
         return $this->hasMany(Sound::class);
+    }
+
+    public function soundListens(): HasMany
+    {
+        return $this->hasMany(SoundListen::class);
+    }
+
+    public function pointReports(): HasMany
+    {
+        return $this->hasMany(PointReport::class);
     }
 
     public function likes(): HasMany
@@ -101,12 +111,31 @@ class User extends Authenticatable implements MustVerifyEmail, FilamentUser
         return $this->hasMany(EchoDonation::class, 'recipient_id');
     }
 
+    public function chatRooms(): BelongsToMany
+    {
+        return $this->belongsToMany(ChatRoom::class, 'chat_room_user')
+            ->withPivot(['banned_at', 'joined_at'])
+            ->withTimestamps();
+    }
+
+    public function chatConversations(): BelongsToMany
+    {
+        return $this->belongsToMany(ChatConversation::class, 'chat_conversation_user')
+            ->withTimestamps();
+    }
+
     public function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'role' => UserRole::class,
+            'xp_total' => 'integer',
+            'level' => 'integer',
+            'current_streak' => 'integer',
+            'longest_streak' => 'integer',
+            'last_activity_at' => 'datetime',
+            'geo_consent_given_at' => 'datetime',
         ];
     }
 
@@ -125,8 +154,52 @@ class User extends Authenticatable implements MustVerifyEmail, FilamentUser
         return $this->role === UserRole::Creator || $this->isModerator() || $this->isAdmin();
     }
 
+    public function discordAccount(): HasOne
+    {
+        return $this->hasOne(UserDiscordAccount::class);
+    }
+
+    public function isLinkedToDiscord(): bool
+    {
+        return $this->discordAccount()->exists();
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
         return $this->isModerator();
+    }
+
+    public function <redacted>Points(): HasMany
+    {
+        return $this->hasMany(ArborisisPoint::class);
+    }
+
+    public function <redacted>Visits(): HasMany
+    {
+        return $this->hasMany(ArborisisVisit::class);
+    }
+
+    public function questProgress(): HasMany
+    {
+        return $this->hasMany(QuestProgress::class);
+    }
+
+    public function achievements(): BelongsToMany
+    {
+        return $this->belongsToMany(Achievement::class, 'user_achievements')
+            ->withPivot('unlocked_at', 'progress_snapshot')
+            ->withTimestamps();
+    }
+
+    public function medals(): BelongsToMany
+    {
+        return $this->belongsToMany(Medal::class, 'user_medals')
+            ->withPivot('unlocked_at', 'source_type', 'source_id')
+            ->withTimestamps();
+    }
+
+    public function xpEvents(): HasMany
+    {
+        return $this->hasMany(XpEvent::class);
     }
 }

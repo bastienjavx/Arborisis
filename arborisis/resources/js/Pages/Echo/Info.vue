@@ -85,7 +85,7 @@ const principles = [
                             <div
                                 v-for="(split, index) in splits"
                                 :key="split.label"
-                                class="glass-card p-8 text-center hover:bg-arbor-glass/50 transition-all duration-300 hover-lift"
+                                class="glass-card p-8 text-center hover:bg-white/10 transition-all duration-300 hover-lift"
                                 :style="`animation: fadeInUp 0.6s ease-out forwards; animation-delay: ${index * 0.15}s; opacity: 0;`"
                             >
                                 <div class="font-mono text-5xl font-medium mb-3" :class="split.color.replace('bg-', 'text-')">

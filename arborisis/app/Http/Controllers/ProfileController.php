@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Events\Gamification\ProfileUpdated;
 use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
@@ -23,6 +24,11 @@ class ProfileController extends Controller
         return Inertia::render('Profile/Edit', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => session('status'),
+            'discord' => $request->user()->discordAccount ? [
+                'discord_username' => $request->user()->discordAccount->discord_username,
+                'discord_avatar' => $request->user()->discordAccount->discord_avatar,
+                'linked_at' => $request->user()->discordAccount->linked_at?->toISOString(),
+            ] : null,
         ]);
     }
 
@@ -40,6 +46,8 @@ class ProfileController extends Controller
         }
 
         $request->user()->save();
+
+        ProfileUpdated::dispatch($request->user());
 
         return Redirect::route('profile.edit');
     }

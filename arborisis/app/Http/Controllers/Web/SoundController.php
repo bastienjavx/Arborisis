@@ -47,6 +47,20 @@ class SoundController extends Controller
         // Increment play count (can be optimized with cache/queue later)
         $sound->increment('play_count');
 
+        // Track listen for gamification
+        if (auth()->check()) {
+            $user = auth()->user();
+            $listenedSeconds = $sound->duration ?? 0;
+
+            \App\Models\SoundListen::create([
+                'user_id' => $user->id,
+                'sound_id' => $sound->id,
+                'listened_seconds' => $listenedSeconds,
+            ]);
+
+            \App\Events\Gamification\SoundListened::dispatch($user, $sound, $listenedSeconds);
+        }
+
         // Get audio URL
         $audioUrl = null;
         if ($sound->soundFile) {

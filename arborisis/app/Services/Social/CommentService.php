@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Social;
 
+use App\Events\Gamification\CommentPosted;
 use App\Models\Comment;
 use App\Models\Sound;
 use App\Models\User;
@@ -22,6 +23,8 @@ class CommentService
             ]);
 
             $sound->increment('comment_count');
+
+            CommentPosted::dispatch($user, $comment);
 
             return $comment;
         });

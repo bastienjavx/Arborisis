@@ -98,7 +98,7 @@ const isNew = (createdAt) => {
                             v-for="(sound, index) in sounds.data"
                             :key="sound.id"
                             :href="route('sounds.show', sound.slug)"
-                            class="glass-card overflow-hidden hover:bg-arbor-glass/50 transition-all duration-300 group hover-lift"
+                            class="glass-card overflow-hidden hover:bg-white/10 transition-all duration-300 group hover-lift"
                             :style="`animation: fadeInUp 0.5s ease-out forwards; animation-delay: ${index * 0.06}s; opacity: 0;`"
                         >
                             <div class="aspect-[16/9] bg-arbor-deep relative overflow-hidden">

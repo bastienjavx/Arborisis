@@ -5,6 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="description" content="Arborisis — L'archive sonore de la nature. Découvrez, partagez et préservez les sons du monde vivant.">
         <meta name="theme-color" content="#0B1220">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <!-- Favicon -->
         <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -30,6 +31,24 @@
 
         <!-- Preload LCP image -->
         <link rel="preload" as="image" href="/images/hero-leaf.webp" type="image/webp" fetchpriority="high">
+
+        <!-- Google tag (gtag.js) with Consent Mode v2 -->
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+
+            // Default consent: denied until user choice
+            gtag('consent', 'default', {
+                'analytics_storage': 'denied',
+                'ad_storage': 'denied',
+                'ad_user_data': 'denied',
+                'ad_personalization': 'denied'
+            });
+
+            gtag('js', new Date());
+            gtag('config', 'G-TFNYXFKRZW');
+        </script>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-TFNYXFKRZW"></script>
 
         <!-- Scripts -->
         @routes

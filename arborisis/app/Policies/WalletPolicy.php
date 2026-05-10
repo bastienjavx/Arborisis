@@ -9,6 +9,11 @@ use App\Models\Wallet;
 
 class WalletPolicy
 {
+    public function viewAny(User $user): bool
+    {
+        return $user->isModerator();
+    }
+
     public function view(User $user, Wallet $wallet): bool
     {
         return $user->id === $wallet->user_id;

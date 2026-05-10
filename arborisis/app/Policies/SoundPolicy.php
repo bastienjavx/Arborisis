@@ -9,6 +9,11 @@ use App\Models\User;
 
 class SoundPolicy
 {
+    public function viewAny(User $user): bool
+    {
+        return $user->isModerator();
+    }
+
     public function view(?User $user, Sound $sound): bool
     {
         if ($sound->isPublic()) {
