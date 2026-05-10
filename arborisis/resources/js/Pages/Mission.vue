@@ -95,7 +95,7 @@ const values = [
                             <div
                                 v-for="(value, index) in values"
                                 :key="value.title"
-                                class="glass-card p-8 hover:bg-arbor-glass/50 transition-all duration-300 hover-lift group"
+                                class="glass-card p-8 hover:bg-white/10 transition-all duration-300 hover-lift group"
                                 :style="`animation: fadeInUp 0.6s ease-out forwards; animation-delay: ${index * 0.15}s; opacity: 0;`"
                             >
                                 <div class="w-12 h-12 rounded-xl bg-arbor-moss/20 flex items-center justify-center mb-6 group-hover:bg-arbor-moss/30 transition-colors group-hover:scale-110 duration-300">

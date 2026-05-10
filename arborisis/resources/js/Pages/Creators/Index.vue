@@ -75,7 +75,7 @@ const getInitials = (name) => {
                             v-for="(creator, index) in creators.data"
                             :key="creator.id"
                             :href="route('creators.show', creator.slug)"
-                            class="glass-card p-6 group hover:bg-arbor-glass/50 transition-all duration-300 hover-lift"
+                            class="glass-card p-6 group hover:bg-white/10 transition-all duration-300 hover-lift"
                             :style="`animation: fadeInUp 0.5s ease-out forwards; animation-delay: ${index * 0.06}s; opacity: 0;`"
                         >
                             <div class="flex items-center gap-4 mb-4">

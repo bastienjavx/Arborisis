@@ -11,12 +11,14 @@ use App\Models\EchoDonation;
 use App\Models\EchoTransaction;
 use App\Models\Sound;
 use App\Models\User;
+use App\Services\Discord\DiscordNotificationService;
 use Illuminate\Support\Facades\DB;
 
 class DonationService
 {
     public function __construct(
-        private readonly WalletService $walletService
+        private readonly WalletService $walletService,
+        private readonly DiscordNotificationService $discordNotification,
     ) {}
 
     public function donate(
@@ -110,7 +112,7 @@ class DonationService
                 ],
             ]);
 
-            return EchoDonation::create([
+            $donation = EchoDonation::create([
                 'donor_id' => $donor->id,
                 'recipient_id' => $recipient->id,
                 'sound_id' => $sound?->id,
@@ -122,6 +124,10 @@ class DonationService
                 'message' => $message,
                 'transaction_id' => $transaction->id,
             ]);
+
+            $this->discordNotification->notifyDonation($donation);
+
+            return $donation;
         });
     }
 

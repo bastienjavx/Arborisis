@@ -16,9 +16,14 @@ const toggle = async () => {
     if (loading.value) return;
     loading.value = true;
 
+    const isLiked = liked.value;
+    const url = isLiked
+        ? route('likes.destroy', props.soundId)
+        : route('likes.store', props.soundId);
+
     try {
-        const response = await fetch(route('likes.store', props.soundId), {
-            method: 'POST',
+        const response = await fetch(url, {
+            method: isLiked ? 'DELETE' : 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
@@ -46,7 +51,7 @@ const toggle = async () => {
         class="inline-flex items-center gap-2 px-4 py-2 rounded-lg transition-colors"
         :class="liked
             ? 'bg-arbor-emerald/20 text-arbor-emerald'
-            : 'bg-arbor-glass text-arbor-sage hover:bg-arbor-glass/50'"
+            : 'bg-arbor-glass text-arbor-sage hover:bg-white/10'"
     >
         <svg
             class="w-5 h-5 transition-transform"

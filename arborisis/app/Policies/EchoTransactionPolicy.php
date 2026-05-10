@@ -9,6 +9,11 @@ use App\Models\User;
 
 class EchoTransactionPolicy
 {
+    public function viewAny(User $user): bool
+    {
+        return $user->isModerator();
+    }
+
     public function view(User $user, EchoTransaction $transaction): bool
     {
         return $user->id === $transaction->user_id;

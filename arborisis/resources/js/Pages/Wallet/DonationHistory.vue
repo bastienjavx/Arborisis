@@ -94,7 +94,7 @@ const totalReceived = props.received.data.reduce((sum, d) => sum + parseFloat(d.
                         <div
                             v-for="(donation, index) in sent.data"
                             :key="donation.id"
-                            class="glass-card p-5 flex items-start gap-4 hover:bg-arbor-glass/50 transition-colors"
+                            class="glass-card p-5 flex items-start gap-4 hover:bg-white/10 transition-colors"
                             :style="`animation: slideUp 0.4s ease-out forwards; animation-delay: ${index * 0.06}s; opacity: 0;`"
                         >
                             <!-- Recipient Avatar -->
@@ -149,7 +149,7 @@ const totalReceived = props.received.data.reduce((sum, d) => sum + parseFloat(d.
                         <div
                             v-for="(donation, index) in received.data"
                             :key="donation.id"
-                            class="glass-card p-5 flex items-start gap-4 hover:bg-arbor-glass/50 transition-colors"
+                            class="glass-card p-5 flex items-start gap-4 hover:bg-white/10 transition-colors"
                             :style="`animation: slideUp 0.4s ease-out forwards; animation-delay: ${index * 0.06}s; opacity: 0;`"
                         >
                             <!-- Donor Avatar -->

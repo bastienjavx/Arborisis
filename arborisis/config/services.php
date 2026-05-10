@@ -46,4 +46,21 @@ return [
         'timeout' => env('PYTHON_TIMEOUT', 300),
     ],
 
+    'vapid' => [
+        'subject' => env('VAPID_SUBJECT', 'mailto:contact@arborisis.com'),
+        'public_key' => env('VAPID_PUBLIC_KEY'),
+        'private_key' => env('VAPID_PRIVATE_KEY'),
+    ],
+
+    'discord' => [
+        'client_id' => env('DISCORD_CLIENT_ID'),
+        'client_secret' => env('DISCORD_CLIENT_SECRET'),
+        'redirect' => env('DISCORD_REDIRECT_URL', '/auth/discord/callback'),
+        'bot_token' => env('DISCORD_BOT_TOKEN'),
+        'guild_id' => env('DISCORD_GUILD_ID'),
+        'bot_host' => env('DISCORD_BOT_HOST', '127.0.0.1'),
+        'bot_port' => env('DISCORD_BOT_PORT', 3001),
+        'internal_api_token' => env('DISCORD_INTERNAL_API_TOKEN'),
+    ],
+
 ];

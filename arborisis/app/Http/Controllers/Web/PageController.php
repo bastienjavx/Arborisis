@@ -30,6 +30,11 @@ class PageController extends Controller
         return Inertia::render('Charte');
     }
 
+    public function privacy(): Response
+    {
+        return Inertia::render('Privacy');
+    }
+
     public function offline(): \Illuminate\Http\Response
     {
         return response()->view('offline');

@@ -1,6 +1,9 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import PlayerProgressCard from '@/Components/Gamification/PlayerProgressCard.vue';
+import ActiveQuests from '@/Components/Gamification/ActiveQuests.vue';
+import AchievementMedalShelf from '@/Components/Gamification/AchievementMedalShelf.vue';
 import { computed, onMounted, ref } from 'vue';
 
 const props = defineProps({
@@ -24,6 +27,25 @@ const props = defineProps({
     echoBalance: {
         type: Number,
         default: 0
+    },
+    gamification: {
+        type: Object,
+        default: () => ({
+            level: 1,
+            xp_total: 0,
+            xp_for_next_level: 100,
+            xp_progress: 0,
+            xp_needed: 100,
+            progress_percentage: 0,
+            current_streak: 0,
+            longest_streak: 0,
+            quests: [],
+            achievements: [],
+            medals: [],
+            quests_completed: 0,
+            achievements_unlocked: 0,
+            medals_unlocked: 0,
+        })
     },
 });
 
@@ -292,6 +314,34 @@ const getMiniWaveform = (seed) => {
                     </div>
                 </section>
 
+                <!-- Gamification Section -->
+                <section class="pb-12 section-padding">
+                    <div class="max-w-7xl mx-auto">
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            <!-- Player Progress (1/3) -->
+                            <div class="lg:col-span-1">
+                                <PlayerProgressCard
+                                    :level="gamification.level"
+                                    :xp-total="gamification.xp_total"
+                                    :xp-for-next-level="gamification.xp_for_next_level"
+                                    :xp-progress="gamification.xp_progress"
+                                    :xp-needed="gamification.xp_needed"
+                                    :progress-percentage="gamification.progress_percentage"
+                                    :current-streak="gamification.current_streak"
+                                    :longest-streak="gamification.longest_streak"
+                                    :quests-completed="gamification.quests_completed"
+                                    :achievements-unlocked="gamification.achievements_unlocked"
+                                    :medals-unlocked="gamification.medals_unlocked"
+                                />
+                            </div>
+                            <!-- Active Quests (2/3) -->
+                            <div class="lg:col-span-2">
+                                <ActiveQuests :quests="gamification.quests" />
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
                 <!-- Main Content Grid -->
                 <section class="pb-24 section-padding">
                     <div class="max-w-7xl mx-auto">
@@ -510,6 +560,12 @@ const getMiniWaveform = (seed) => {
                                         </Link>
                                     </div>
                                 </div>
+
+                                <!-- Achievements & Medals -->
+                                <AchievementMedalShelf
+                                    :achievements="gamification.achievements"
+                                    :medals="gamification.medals"
+                                />
 
                                 <!-- Tip Card -->
                                 <div class="glass-card p-6 bg-gradient-to-br from-arbor-moss/10 to-transparent hover-lift">

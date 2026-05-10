@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Social;
 
+use App\Events\Gamification\SoundLiked;
 use App\Models\Like;
 use App\Models\Sound;
 use App\Models\User;
@@ -32,6 +33,8 @@ class LikeService
                 ]);
                 $sound->increment('like_count');
                 $liked = true;
+
+                SoundLiked::dispatch($user, $sound);
             }
 
             return ['liked' => $liked, 'count' => $sound->fresh()->like_count];

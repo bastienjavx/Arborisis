@@ -8,6 +8,11 @@ use App\Models\User;
 
 class UserPolicy
 {
+    public function viewAny(User $user): bool
+    {
+        return $user->isModerator();
+    }
+
     public function view(User $user, User $model): bool
     {
         return $user->id === $model->id;

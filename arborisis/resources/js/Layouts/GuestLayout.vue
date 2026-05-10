@@ -2,13 +2,21 @@
 import { ref } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
+import PushNotificationToggle from '@/Components/PushNotificationToggle.vue';
+import NewsletterForm from '@/Components/NewsletterForm.vue';
+import { useConsentStore } from '@/Stores/consent';
 
 const showingMobileMenu = ref(false);
+const consentStore = useConsentStore();
+
+function openCookieSettings() {
+    consentStore.openBanner();
+}
 </script>
 
 <template>
     <div class="min-h-screen bg-arbor-night text-arbor-cream">
-        <nav class="fixed top-0 left-0 right-0 z-50 bg-arbor-night/80 backdrop-blur-md border-b border-arbor-glass-border">
+        <nav class="fixed top-0 left-0 right-0 z-[1000] bg-arbor-night/80 backdrop-blur-md border-b border-arbor-glass-border">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between h-16">
                     <Link href="/" class="flex items-center gap-3">
@@ -24,11 +32,17 @@ const showingMobileMenu = ref(false);
                         <Link href="/map" class="text-sm text-arbor-sage hover:text-arbor-cream transition-colors">
                             Carte
                         </Link>
+                        <Link href="/arborisis-map" class="text-sm text-arbor-sage hover:text-arbor-cream transition-colors">
+                            Carte Arborisis
+                        </Link>
                         <Link href="/creators" class="text-sm text-arbor-sage hover:text-arbor-cream transition-colors">
                             Créateurs
                         </Link>
                         <Link href="/radio" class="text-sm text-arbor-sage hover:text-arbor-cream transition-colors">
                             Radio
+                        </Link>
+                        <Link href="/contact" class="text-sm text-arbor-sage hover:text-arbor-cream transition-colors">
+                            Contact
                         </Link>
                         <div class="w-px h-5 bg-arbor-glass-border"></div>
                         <Link
@@ -104,6 +118,13 @@ const showingMobileMenu = ref(false);
                         Carte sonore
                     </Link>
                     <Link
+                        href="/arborisis-map"
+                        class="block px-3 py-2 rounded-lg text-arbor-sage hover:text-arbor-cream hover:bg-arbor-glass transition-colors"
+                        :class="route().current('arborisis-map.index') ? 'text-arbor-emerald bg-arbor-emerald/10' : ''"
+                    >
+                        Carte Arborisis
+                    </Link>
+                    <Link
                         href="/creators"
                         class="block px-3 py-2 rounded-lg text-arbor-sage hover:text-arbor-cream hover:bg-arbor-glass transition-colors"
                         :class="route().current('creators.*') ? 'text-arbor-emerald bg-arbor-emerald/10' : ''"
@@ -116,6 +137,13 @@ const showingMobileMenu = ref(false);
                         :class="route().current('radio.*') ? 'text-arbor-emerald bg-arbor-emerald/10' : ''"
                     >
                         Radio
+                    </Link>
+                    <Link
+                        href="/contact"
+                        class="block px-3 py-2 rounded-lg text-arbor-sage hover:text-arbor-cream hover:bg-arbor-glass transition-colors"
+                        :class="route().current('contact') ? 'text-arbor-emerald bg-arbor-emerald/10' : ''"
+                    >
+                        Contact
                     </Link>
                 </div>
                 <div class="border-t border-arbor-glass-border pb-3 pt-2 px-4">
@@ -157,14 +185,19 @@ const showingMobileMenu = ref(false);
                             <ApplicationLogo class="h-8 w-8 text-arbor-emerald shrink-0" />
                             <span class="font-display text-lg font-semibold">Arborisis</span>
                         </div>
-                        <p class="text-arbor-sage text-sm max-w-sm leading-relaxed">
+                        <p class="text-arbor-sage text-sm max-w-sm leading-relaxed mb-6">
                             Une archive sonore vivante dédiée aux créateurs de field recording et aux amoureux de la nature.
                         </p>
+                        <div class="max-w-sm">
+                            <h4 class="text-xs font-medium text-arbor-cream uppercase tracking-wider mb-3">Newsletter</h4>
+                            <NewsletterForm />
+                        </div>
                     </div>
                     <div>
                         <h3 class="font-medium text-arbor-cream mb-4 text-sm">Explorer</h3>
                         <ul class="space-y-2 text-sm text-arbor-sage">
                             <li><Link href="/map" class="hover:text-arbor-emerald transition-colors">Carte sonore</Link></li>
+                            <li><Link href="/arborisis-map" class="hover:text-arbor-emerald transition-colors">Carte Arborisis</Link></li>
                             <li><Link href="/sounds" class="hover:text-arbor-emerald transition-colors">Tous les sons</Link></li>
                             <li><Link href="/creators" class="hover:text-arbor-emerald transition-colors">Créateurs</Link></li>
                         </ul>
@@ -175,11 +208,19 @@ const showingMobileMenu = ref(false);
                             <li><Link href="/transparency" class="hover:text-arbor-emerald transition-colors">Crédits ECHO</Link></li>
                             <li><Link href="/mission" class="hover:text-arbor-emerald transition-colors">Notre mission</Link></li>
                             <li><Link href="/charte" class="hover:text-arbor-emerald transition-colors">Charte</Link></li>
+                            <li><button @click="openCookieSettings" class="hover:text-arbor-emerald transition-colors text-left">Cookies</button></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-arbor-cream mb-4 text-sm">Aide</h3>
+                        <ul class="space-y-2 text-sm text-arbor-sage">
+                            <li><Link href="/contact" class="hover:text-arbor-emerald transition-colors">Contact</Link></li>
                         </ul>
                     </div>
                 </div>
-                <div class="mt-12 pt-8 border-t border-arbor-glass-border text-center text-xs text-arbor-sage">
+                <div class="mt-12 pt-8 border-t border-arbor-glass-border flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-arbor-sage">
                     <p>&copy; {{ new Date().getFullYear() }} Arborisis. Tous droits réservés.</p>
+                    <PushNotificationToggle />
                 </div>
             </div>
         </footer>

@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
+import PushNotificationToggle from '@/Components/PushNotificationToggle.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
@@ -13,7 +14,7 @@ const showingExploreDropdown = ref(false);
 
 <template>
     <div class="min-h-screen bg-arbor-night text-arbor-cream">
-        <nav class="fixed top-0 left-0 right-0 z-50 bg-arbor-night/80 backdrop-blur-md border-b border-arbor-glass-border">
+        <nav class="fixed top-0 left-0 right-0 z-[1000] bg-arbor-night/80 backdrop-blur-md border-b border-arbor-glass-border">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="flex h-16 justify-between">
                     <div class="flex items-center gap-8">
@@ -30,6 +31,18 @@ const showingExploreDropdown = ref(false);
                                 :active="route().current('dashboard')"
                             >
                                 Dashboard
+                            </NavLink>
+
+                            <NavLink
+                                :href="route('chat.index')"
+                                :active="route().current('chat.*')"
+                            >
+                                <span class="flex items-center gap-1.5">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                    </svg>
+                                    Chat
+                                </span>
                             </NavLink>
 
                             <!-- Explorer Dropdown -->
@@ -65,6 +78,15 @@ const showingExploreDropdown = ref(false);
                                                 Carte sonore
                                             </span>
                                         </DropdownLink>
+                                        <DropdownLink :href="route('arborisis-map.index')">
+                                            <span class="flex items-center gap-2">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                </svg>
+                                                Carte Arborisis
+                                            </span>
+                                        </DropdownLink>
                                     </template>
                                 </Dropdown>
                             </div>
@@ -91,7 +113,7 @@ const showingExploreDropdown = ref(false);
                                     <span class="inline-flex rounded-md">
                                         <button
                                             type="button"
-                                            class="inline-flex items-center gap-2 rounded-xl border border-arbor-glass-border bg-arbor-glass px-3 py-2 text-sm font-medium leading-4 text-arbor-cream transition duration-150 ease-in-out hover:bg-arbor-glass/50 focus:outline-none"
+                                            class="inline-flex items-center gap-2 rounded-xl border border-arbor-glass-border bg-arbor-glass px-3 py-2 text-sm font-medium leading-4 text-arbor-cream transition duration-150 ease-in-out hover:bg-white/10 focus:outline-none"
                                         >
                                             <div class="w-7 h-7 rounded-full bg-arbor-moss/30 flex items-center justify-center text-xs font-medium text-arbor-emerald">
                                                 {{ $page.props.auth.user.name.charAt(0).toUpperCase() }}
@@ -113,6 +135,10 @@ const showingExploreDropdown = ref(false);
                                             Profil
                                         </span>
                                     </DropdownLink>
+                                    <div class="border-t border-arbor-glass-border my-1"></div>
+                                    <div class="px-4 py-2">
+                                        <PushNotificationToggle />
+                                    </div>
                                     <div class="border-t border-arbor-glass-border my-1"></div>
                                     <DropdownLink :href="route('logout')" method="post" as="button">
                                         <span class="flex items-center gap-2">
@@ -179,6 +205,12 @@ const showingExploreDropdown = ref(false);
                         :active="route().current('map.index')"
                     >
                         Carte sonore
+                    </ResponsiveNavLink>
+                    <ResponsiveNavLink
+                        :href="route('arborisis-map.index')"
+                        :active="route().current('arborisis-map.index')"
+                    >
+                        Carte Arborisis
                     </ResponsiveNavLink>
                     <ResponsiveNavLink
                         :href="route('sounds.create')"
