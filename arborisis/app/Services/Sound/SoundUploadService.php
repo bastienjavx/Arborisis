@@ -56,11 +56,15 @@ class SoundUploadService
 
                 // 2. Store audio file
                 $storedName = $this->generateFileName($audioFile);
-                $path = "audio/{$userId}/{$storedName}";
-
                 $disk = config('filesystems.default') === 'local' && empty(config('filesystems.disks.s3.key'))
                     ? 'public'
-                    : 'audio';
+                    : env('AUDIO_DISK', 'audio');
+
+                if ($disk === 'r2') {
+                    $path = "sounds/original/{$sound->id}/{$storedName}";
+                } else {
+                    $path = "audio/{$userId}/{$storedName}";
+                }
 
                 $audioFile->storeAs(
                     dirname($path),
@@ -125,10 +129,19 @@ class SoundUploadService
                     $sound->tags()->sync($tagIds);
                 }
 
-                // 6. Dispatch audio analysis job
+                // 6. Audio analysis
                 $analysisOnUpload = $data['analysis_on_upload'] ?? true;
                 if ($analysisOnUpload) {
-                    ProcessAudioAnalysis::dispatch($sound->id);
+                    if ($disk === 'r2') {
+                        // New pipeline: R2 Event → Queue → Worker → Analyzer
+                        \App\Models\SoundAnalysis::firstOrCreate(
+                            ['sound_id' => $sound->id],
+                            ['status' => \App\Enums\AnalysisStatus::PENDING, 'original_r2_key' => $path]
+                        );
+                    } else {
+                        // Legacy pipeline: direct CLI analysis
+                        ProcessAudioAnalysis::dispatch($sound->id);
+                    }
                 }
 
                 // 7. Notify subscribers

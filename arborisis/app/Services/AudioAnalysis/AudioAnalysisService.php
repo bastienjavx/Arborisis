@@ -141,18 +141,19 @@ class AudioAnalysisService
 
     private function storeVisualizations(SoundAnalysis $analysis, string $outputDir, array $config): void
     {
-        $diskName = 'audio';
+        $diskName = env('AUDIO_DISK', 'audio');
         $vizDir = "analysis/{$analysis->sound_id}";
 
         $vizMap = [
-            'stft' => SpectrogramType::STFT,
-            'mel' => SpectrogramType::MEL_SPECTROGRAM,
-            'mfcc' => SpectrogramType::MFCC,
-            'feature_correlation' => SpectrogramType::FEATURE_CORRELATION,
+            'stft' => ['type' => SpectrogramType::STFT, 'file' => 'spectrogram_stft.png'],
+            'mel' => ['type' => SpectrogramType::MEL_SPECTROGRAM, 'file' => 'spectrogram_mel.png'],
+            'mfcc' => ['type' => SpectrogramType::MFCC, 'file' => 'spectrogram_mfcc.png'],
+            'feature_correlation' => ['type' => SpectrogramType::FEATURE_CORRELATION, 'file' => 'feature_correlation.png'],
         ];
 
-        foreach ($vizMap as $fileKey => $enumType) {
-            $fileName = "spectrogram_{$fileKey}.png";
+        foreach ($vizMap as $fileKey => $vizData) {
+            $enumType = $vizData['type'];
+            $fileName = $vizData['file'];
             $localPath = $outputDir . '/' . $fileName;
 
             if (! file_exists($localPath)) {

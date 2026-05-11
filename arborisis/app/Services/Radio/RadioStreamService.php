@@ -503,6 +503,10 @@ class RadioStreamService
         $disk = $sound->soundFile->disk;
         $path = $sound->soundFile->path;
 
+        if ($disk === 'r2') {
+            return app(\App\Services\Storage\SignedUrlService::class)->url($disk, $path, $this->tempUrlTtlMinutes);
+        }
+
         if ($disk === 'audio' || $disk === 's3') {
             return Storage::disk($disk)->temporaryUrl(
                 $path,

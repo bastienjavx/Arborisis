@@ -1,0 +1,14 @@
+name = "arborisis-audio-analysis-orchestrator"
+main = "src/index.ts"
+compatibility_date = "2026-05-10"
+account_id = "bc36459259b257fdbaf4252f06bcb690"
+
+[vars]
+ANALYZER_URL = "https://arborisis.com/analyzer"
+
+[[queues.consumers]]
+queue = "audio-analysis-queue"
+max_batch_size = 10
+max_batch_timeout = 30
+max_retries = 3
+dead_letter_queue = "audio-analysis-dlq"

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\Gamification\AchievementController;
 use App\Http\Controllers\Api\Gamification\AdminArborisisPointController;
 use App\Http\Controllers\Api\Gamification\ArborisisPointController;
@@ -16,12 +17,24 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/health', HealthController::class)->name('api.health');
+
+Route::get('/scientific-stats/global', [\App\Http\Controllers\Api\ScientificStatsController::class, 'globalStats'])->name('api.scientific-stats.global');
+Route::get('/scientific-stats/categories', [\App\Http\Controllers\Api\ScientificStatsController::class, 'categories'])->name('api.scientific-stats.categories');
+Route::get('/scientific-stats/environments', [\App\Http\Controllers\Api\ScientificStatsController::class, 'environments'])->name('api.scientific-stats.environments');
+Route::get('/scientific-stats/temporal', [\App\Http\Controllers\Api\ScientificStatsController::class, 'temporal'])->name('api.scientific-stats.temporal');
+Route::get('/scientific-stats/geo-heatmap', [\App\Http\Controllers\Api\ScientificStatsController::class, 'geoHeatmap'])->name('api.scientific-stats.geo-heatmap');
+Route::get('/scientific-stats/audio-features', [\App\Http\Controllers\Api\ScientificStatsController::class, 'audioFeatures'])->name('api.scientific-stats.audio-features');
+Route::get('/scientific-stats/top-locations', [\App\Http\Controllers\Api\ScientificStatsController::class, 'topLocations'])->name('api.scientific-stats.top-locations');
+Route::get('/scientific-stats/equipment', [\App\Http\Controllers\Api\ScientificStatsController::class, 'equipment'])->name('api.scientific-stats.equipment');
+Route::get('/scientific-stats/raw-data', [\App\Http\Controllers\Api\ScientificStatsController::class, 'rawData'])->name('api.scientific-stats.raw-data');
+
 Route::get('/map/sounds', [MapController::class, 'sounds'])->name('api.map.sounds');
 Route::get('/map/sounds/search', [MapController::class, 'search'])->name('api.map.sounds.search');
 
 Route::get('/radio/now-playing', [RadioController::class, 'nowPlaying'])->name('api.radio.now-playing');
 
-Route::middleware('auth')->get('/users/search', function (Request $request) {
+Route::middleware(['web', 'auth'])->get('/users/search', function (Request $request) {
     $q = $request->get('q');
 
     return User::where('id', '!=', $request->user()->id)
@@ -47,7 +60,7 @@ Route::middleware(['throttle:60,1'])->group(function () {
     Route::get('/arborisis-points/{arborisisPoint:slug}', [ArborisisPointController::class, 'show'])->name('api.arborisis-points.show');
 });
 
-Route::middleware(['auth', 'throttle:30,1'])->group(function () {
+Route::middleware(['web', 'auth', 'throttle:30,1'])->group(function () {
     Route::post('/arborisis-points', [ArborisisPointController::class, 'store'])->name('api.arborisis-points.store');
     Route::put('/arborisis-points/{arborisisPoint:slug}', [ArborisisPointController::class, 'update'])->name('api.arborisis-points.update');
     Route::delete('/arborisis-points/{arborisisPoint:slug}', [ArborisisPointController::class, 'destroy'])->name('api.arborisis-points.destroy');
@@ -56,7 +69,7 @@ Route::middleware(['auth', 'throttle:30,1'])->group(function () {
 });
 
 // Gamification — Visits
-Route::middleware(['auth', 'throttle:30,1'])->group(function () {
+Route::middleware(['web', 'auth', 'throttle:30,1'])->group(function () {
     Route::post('/arborisis-points/{arborisisPoint:slug}/visit', [ArborisisVisitController::class, 'visit'])->name('api.arborisis-points.visit');
     Route::get('/me/visits', [ArborisisVisitController::class, 'history'])->name('api.me.visits');
     Route::get('/me/visited-points', [ArborisisVisitController::class, 'visitedPoints'])->name('api.me.visited-points');
@@ -68,7 +81,7 @@ Route::middleware(['throttle:60,1'])->group(function () {
     Route::get('/quests/{quest}', [QuestController::class, 'show'])->name('api.quests.show');
 });
 
-Route::middleware(['auth', 'throttle:30,1'])->group(function () {
+Route::middleware(['web', 'auth', 'throttle:30,1'])->group(function () {
     Route::post('/quests/{quest}/start', [QuestController::class, 'start'])->name('api.quests.start');
     Route::post('/quests/{quest}/claim', [QuestController::class, 'claim'])->name('api.quests.claim');
     Route::get('/me/quests', [QuestController::class, 'myQuests'])->name('api.me.quests');
@@ -79,7 +92,7 @@ Route::middleware(['throttle:60,1'])->group(function () {
     Route::get('/achievements', [AchievementController::class, 'index'])->name('api.achievements.index');
 });
 
-Route::middleware(['auth', 'throttle:30,1'])->group(function () {
+Route::middleware(['web', 'auth', 'throttle:30,1'])->group(function () {
     Route::get('/me/achievements', [AchievementController::class, 'myAchievements'])->name('api.me.achievements');
 });
 
@@ -88,26 +101,40 @@ Route::middleware(['throttle:60,1'])->group(function () {
     Route::get('/medals', [MedalController::class, 'index'])->name('api.medals.index');
 });
 
-Route::middleware(['auth', 'throttle:30,1'])->group(function () {
+Route::middleware(['web', 'auth', 'throttle:30,1'])->group(function () {
     Route::get('/me/medals', [MedalController::class, 'myMedals'])->name('api.me.medals');
 });
 
 // Gamification — User Progress
-Route::middleware(['auth', 'throttle:30,1'])->group(function () {
+Route::middleware(['web', 'auth', 'throttle:30,1'])->group(function () {
     Route::get('/me/progress', [UserProgressController::class, 'progress'])->name('api.me.progress');
     Route::get('/me/xp-events', [UserProgressController::class, 'xpEvents'])->name('api.me.xp-events');
 });
 
 // Gamification — Presence
-Route::middleware(['auth', 'throttle:30,1'])->group(function () {
+Route::middleware(['web', 'auth', 'throttle:30,1'])->group(function () {
     Route::post('/presence/update', [PresenceController::class, 'update'])->name('api.presence.update');
     Route::delete('/presence', [PresenceController::class, 'destroy'])->name('api.presence.destroy');
 });
 
 Route::middleware(['throttle:60,1'])->get('/map/presence', [PresenceController::class, 'mapPresence'])->name('api.map.presence');
 
+// Audio Analysis — Internal callback
+Route::post('/internal/audio-analysis/callback', [\App\Http\Controllers\Api\InternalAudioAnalysisController::class, 'callback'])
+    ->name('api.internal.audio-analysis.callback')
+    ->middleware(\App\Http\Middleware\VerifyInternalApiToken::class);
+
+// Audio Analysis — Public API
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/sounds/{sound}/analysis', [\App\Http\Controllers\Web\AudioAnalysisController::class, 'showApi'])
+        ->name('api.sounds.analysis.show');
+    Route::post('/sounds/{sound}/analysis/retry', [\App\Http\Controllers\Web\AudioAnalysisController::class, 'retry'])
+        ->name('api.sounds.analysis.retry')
+        ->middleware('throttle:5,1');
+});
+
 // Gamification — Admin Moderation
-Route::middleware(['auth', 'throttle:60,1'])->prefix('admin')->group(function () {
+Route::middleware(['web', 'auth', 'throttle:60,1'])->prefix('admin')->group(function () {
     Route::get('/arborisis-points/pending', [AdminArborisisPointController::class, 'pending'])->name('api.admin.arborisis-points.pending');
     Route::post('/arborisis-points/{arborisisPoint:slug}/approve', [AdminArborisisPointController::class, 'approve'])->name('api.admin.arborisis-points.approve');
     Route::post('/arborisis-points/{arborisisPoint:slug}/reject', [AdminArborisisPointController::class, 'reject'])->name('api.admin.arborisis-points.reject');

@@ -41,6 +41,10 @@ class SoundVisualization extends Model
             return null;
         }
 
+        if ($this->disk === 'r2') {
+            return app(\App\Services\Storage\SignedUrlService::class)->url($this->disk, $this->file_path);
+        }
+
         if ($this->disk === 'audio' || $this->disk === 's3') {
             return Storage::disk($this->disk)->temporaryUrl($this->file_path, now()->addMinutes(60));
         }

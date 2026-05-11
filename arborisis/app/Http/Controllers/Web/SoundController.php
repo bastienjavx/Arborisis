@@ -10,6 +10,7 @@ use App\Models\Category;
 use App\Models\Environment;
 use App\Models\Sound;
 use App\Models\SoundAnalysis;
+use App\Services\AudioAnalysis\AudioAnalysisOrchestrationService;
 use App\Services\Sound\SoundUploadService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
@@ -19,7 +20,8 @@ use Inertia\Response;
 class SoundController extends Controller
 {
     public function __construct(
-        private readonly SoundUploadService $uploadService
+        private readonly SoundUploadService $uploadService,
+        private readonly AudioAnalysisOrchestrationService $orchestrationService,
     ) {}
 
     public function index(): Response
@@ -88,10 +90,7 @@ class SoundController extends Controller
             ? auth()->user()->isFollowing($sound->user)
             : false;
 
-        $analysis = SoundAnalysis::with('visualizations')
-            ->where('sound_id', $sound->id)
-            ->where('status', 'completed')
-            ->first();
+        $analysis = $this->orchestrationService->getAnalysisWithUrls($sound);
 
         return Inertia::render('Sounds/Show', [
             'sound' => [
@@ -108,16 +107,7 @@ class SoundController extends Controller
             'comments' => $comments,
             'isLiked' => $isLiked,
             'isFollowing' => $isFollowing,
-            'analysis' => $analysis ? [
-                'id' => $analysis->id,
-                'status' => $analysis->status->value,
-                'features' => $analysis->features_json,
-                'visualizations' => $analysis->visualizations->map(fn ($v) => [
-                    'id' => $v->id,
-                    'type' => $v->type->value,
-                    'url' => $v->url,
-                ])->values(),
-            ] : null,
+            'analysis' => $analysis,
         ]);
     }
 
@@ -154,6 +144,10 @@ class SoundController extends Controller
     private function getFileUrl(string $disk, string $path): string
     {
         $storage = Storage::disk($disk);
+
+        if ($disk === 'r2') {
+            return app(\App\Services\Storage\SignedUrlService::class)->url($disk, $path);
+        }
 
         if ($disk === 'audio' || $disk === 's3') {
             return $storage->temporaryUrl($path, now()->addMinutes(60));

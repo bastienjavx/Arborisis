@@ -10,6 +10,7 @@ const props = defineProps({
 const audioRef = ref(null);
 const canvasRef = ref(null);
 const vuCanvasRef = ref(null);
+const blobUrl = ref(null);
 
 const {
     isInitialized,
@@ -26,18 +27,29 @@ const {
 
 let drawRaf = null;
 
-onMounted(() => {
-    if (audioRef.value) {
-        audioRef.value.crossOrigin = 'anonymous';
-        audioRef.value.addEventListener('canplay', () => {
-            createAnalyzer(audioRef.value, 2048);
-        });
+onMounted(async () => {
+    try {
+        const response = await fetch(props.audioUrl);
+        const blob = await response.blob();
+        blobUrl.value = URL.createObjectURL(blob);
+
+        if (audioRef.value) {
+            audioRef.value.src = blobUrl.value;
+            audioRef.value.addEventListener('canplay', () => {
+                createAnalyzer(audioRef.value, 2048);
+            });
+        }
+    } catch (e) {
+        console.error('Failed to load audio blob for realtime analysis:', e);
     }
 });
 
 onUnmounted(() => {
     if (drawRaf) cancelAnimationFrame(drawRaf);
     dispose();
+    if (blobUrl.value) {
+        URL.revokeObjectURL(blobUrl.value);
+    }
 });
 
 watch(isPlaying, (playing) => {
@@ -171,7 +183,7 @@ const formatTime = (seconds) => {
             </button>
         </div>
 
-        <audio ref="audioRef" :src="audioUrl" preload="metadata" class="hidden"></audio>
+        <audio ref="audioRef" preload="metadata" class="hidden"></audio>
 
         <div class="space-y-3">
             <canvas ref="canvasRef" width="600" height="200" class="w-full rounded-xl bg-arbor-deep border border-arbor-glass-border"></canvas>

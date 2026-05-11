@@ -85,6 +85,11 @@ class Sound extends Model
         return $this->hasOne(SoundLocation::class);
     }
 
+    public function soundAnalysis(): HasOne
+    {
+        return $this->hasOne(SoundAnalysis::class);
+    }
+
     public function likes(): HasMany
     {
         return $this->hasMany(Like::class);
@@ -132,6 +137,10 @@ class Sound extends Model
 
     private function getStorageUrl(string $disk, string $path): string
     {
+        if ($disk === 'r2') {
+            return app(\App\Services\Storage\SignedUrlService::class)->url($disk, $path);
+        }
+
         if ($disk === 'audio' || $disk === 's3') {
             return Storage::disk($disk)->temporaryUrl($path, now()->addMinutes(60));
         }
