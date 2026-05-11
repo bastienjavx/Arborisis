@@ -77,6 +77,8 @@ class AudioAnalysisCallbackService
             'birdnet_r2_key' => $results['birdnet_r2_key'] ?? null,
             'summary_r2_key' => $results['summary_r2_key'] ?? null,
             'preview_r2_key' => $results['preview_r2_key'] ?? null,
+            'features_json' => $results['features_json'] ?? null,
+            'features_detailed_json' => $results['features_detailed_json'] ?? null,
             'quality_label' => $results['quality_label'] ?? null,
             'quality_json' => $results['quality_json'] ?? null,
             'completed_at' => now(),

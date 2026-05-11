@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel, Field, field_validator
 
 
@@ -5,6 +6,8 @@ class AnalyzeRequest(BaseModel):
     sound_id: int = Field(..., gt=0)
     original_r2_key: str = Field(..., min_length=1, max_length=512)
     force: bool = False
+    lat: Optional[float] = Field(None, ge=-90, le=90)
+    lon: Optional[float] = Field(None, ge=-180, le=180)
 
     @field_validator("original_r2_key")
     @classmethod

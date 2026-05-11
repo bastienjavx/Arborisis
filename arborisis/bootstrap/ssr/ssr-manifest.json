@@ -13,13 +13,13 @@
     "/build/assets/PushNotificationToggle-Bgz-w13N.js"
   ],
   "resources/js/Components/Audio/WaveSurfer.vue": [
-    "/build/assets/Show-CHeUK0n7.js"
+    "/build/assets/Show-Blw76omx.js"
   ],
   "resources/js/Components/AudioAnalysis/AnalysisControls.vue": [
     "/build/assets/Dashboard-3j2RY_9w.js"
   ],
   "resources/js/Components/AudioAnalysis/AudioAnalysisPanel.vue": [
-    "/build/assets/Show-CHeUK0n7.js"
+    "/build/assets/Show-Blw76omx.js"
   ],
   "resources/js/Components/AudioAnalysis/ExportPanel.vue": [
     "/build/assets/Dashboard-3j2RY_9w.js"
@@ -172,7 +172,7 @@
     "/build/assets/AuthenticatedLayout-D7T5e9JB.js"
   ],
   "resources/js/Components/Scientific/ApiDocs.vue": [
-    "/build/assets/ApiDocs-vDGpNt6f.js"
+    "/build/assets/ApiDocs-yibSXQr3.js"
   ],
   "resources/js/Components/Scientific/AudioFeaturesChart.vue": [
     "/build/assets/AudioFeaturesChart-iegpdor4.js"
@@ -193,8 +193,8 @@
     "/build/assets/GeoHeatmap-CvdAjABl.js"
   ],
   "resources/js/Components/Scientific/StatCard.vue": [
-    "/build/assets/Index-BAe0a8DQ.js",
-    "/build/assets/Index-DC9S2HM0.css"
+    "/build/assets/Index-BZOVFLZd.js",
+    "/build/assets/Index-CwxG__S0.css"
   ],
   "resources/js/Components/Scientific/TemporalChart.vue": [
     "/build/assets/TemporalChart-Dh1aeIgm.js"
@@ -203,19 +203,19 @@
     "/build/assets/DeleteUserForm-CIazdlRv.js"
   ],
   "resources/js/Components/Social/CommentItem.vue": [
-    "/build/assets/Show-CHeUK0n7.js"
+    "/build/assets/Show-Blw76omx.js"
   ],
   "resources/js/Components/Social/CommentSection.vue": [
-    "/build/assets/Show-CHeUK0n7.js"
+    "/build/assets/Show-Blw76omx.js"
   ],
   "resources/js/Components/Social/FollowButton.vue": [
     "/build/assets/FollowButton-D5RJN_lj.js"
   ],
   "resources/js/Components/Social/LikeButton.vue": [
-    "/build/assets/Show-CHeUK0n7.js"
+    "/build/assets/Show-Blw76omx.js"
   ],
   "resources/js/Components/Social/ReportModal.vue": [
-    "/build/assets/Show-CHeUK0n7.js"
+    "/build/assets/Show-Blw76omx.js"
   ],
   "resources/js/Components/TextInput.vue": [
     "/build/assets/TextInput-B6K-bEI3.js"
@@ -328,12 +328,12 @@
     "/build/assets/Index-C0M9qPD2.js"
   ],
   "resources/js/Pages/ScientificStats/Index.vue": [
-    "/build/assets/Index-BAe0a8DQ.js",
-    "/build/assets/Index-DC9S2HM0.css"
+    "/build/assets/Index-BZOVFLZd.js",
+    "/build/assets/Index-CwxG__S0.css"
   ],
-  "resources/js/Pages/ScientificStats/Index.vue?vue&type=style&index=0&scoped=021cda5e&lang.css": [
-    "/build/assets/Index-BAe0a8DQ.js",
-    "/build/assets/Index-DC9S2HM0.css"
+  "resources/js/Pages/ScientificStats/Index.vue?vue&type=style&index=0&scoped=af7753fc&lang.css": [
+    "/build/assets/Index-BZOVFLZd.js",
+    "/build/assets/Index-CwxG__S0.css"
   ],
   "resources/js/Pages/Sounds/Create.vue": [
     "/build/assets/Create-DqJids4G.js"
@@ -342,7 +342,7 @@
     "/build/assets/Index-BZIZIplo.js"
   ],
   "resources/js/Pages/Sounds/Show.vue": [
-    "/build/assets/Show-CHeUK0n7.js"
+    "/build/assets/Show-Blw76omx.js"
   ],
   "resources/js/Pages/Transparency.vue": [
     "/build/assets/Transparency-BmrNF0ke.js"

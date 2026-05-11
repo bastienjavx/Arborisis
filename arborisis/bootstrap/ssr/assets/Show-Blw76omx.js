@@ -442,9 +442,15 @@ var _sfc_main$1 = {
 				if (__props.analysis.spectrogram_url) _push(`<div><p class="text-xs text-arbor-sage mb-2">Spectrogramme</p><div class="rounded-xl overflow-hidden bg-arbor-deep border border-arbor-glass-border"><img${ssrRenderAttr("src", __props.analysis.spectrogram_url)} alt="Spectrogramme" class="w-full h-auto object-cover" loading="lazy"></div></div>`);
 				else _push(`<!---->`);
 				if (__props.analysis.birdnet_detections?.length > 0) {
-					_push(`<div><p class="text-xs text-arbor-sage mb-3"> Détections automatiques probables — à vérifier par la communauté </p><div class="space-y-2"><!--[-->`);
+					_push(`<div><p class="text-xs text-arbor-sage mb-3"> Espèces principales du résumé automatique </p><div class="space-y-2"><!--[-->`);
 					ssrRenderList(__props.analysis.birdnet_detections, (det, i) => {
-						_push(`<div class="flex items-center gap-3 p-3 rounded-lg bg-arbor-glass/50 border border-arbor-glass-border/50"><div class="w-8 h-8 rounded-lg flex items-center justify-center bg-arbor-deep text-sm">🐦</div><div class="flex-1 min-w-0"><p class="text-sm text-arbor-cream truncate">${ssrInterpolate(det.common_name)}</p><p class="text-xs text-arbor-sage truncate italic">${ssrInterpolate(det.scientific_name)}</p></div><div class="w-20"><div class="h-1.5 rounded-full bg-arbor-glass overflow-hidden"><div class="${ssrRenderClass([confidenceColor(det.confidence), "h-full rounded-full transition-all"])}" style="${ssrRenderStyle(`width: ${Math.round(det.confidence * 100)}%`)}"></div></div><p class="text-[10px] text-arbor-sage text-right mt-0.5">${ssrInterpolate(Math.round(det.confidence * 100))}%</p></div></div>`);
+						_push(`<div class="flex items-center gap-3 p-3 rounded-lg bg-arbor-glass/50 border border-arbor-glass-border/50"><div class="w-8 h-8 rounded-lg flex items-center justify-center bg-arbor-deep text-sm">🐦</div><div class="flex-1 min-w-0"><p class="text-sm text-arbor-cream truncate">${ssrInterpolate(det.common_name)}</p>`);
+						if (det.scientific_name) _push(`<p class="text-xs text-arbor-sage truncate italic">${ssrInterpolate(det.scientific_name)}</p>`);
+						else _push(`<!---->`);
+						_push(`</div>`);
+						if (det.confidence !== null && det.confidence !== void 0) _push(`<div class="w-20"><div class="h-1.5 rounded-full bg-arbor-glass overflow-hidden"><div class="${ssrRenderClass([confidenceColor(det.confidence), "h-full rounded-full transition-all"])}" style="${ssrRenderStyle(`width: ${Math.round(det.confidence * 100)}%`)}"></div></div><p class="text-[10px] text-arbor-sage text-right mt-0.5">${ssrInterpolate(Math.round(det.confidence * 100))}%</p></div>`);
+						else _push(`<!---->`);
+						_push(`</div>`);
 					});
 					_push(`<!--]--></div></div>`);
 				} else _push(`<!---->`);

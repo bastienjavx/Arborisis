@@ -15,6 +15,8 @@ return [
 
     'default' => env('FILESYSTEM_DISK', 'local'),
 
+    'audio_disk' => env('AUDIO_DISK', 'audio'),
+
     /*
     |--------------------------------------------------------------------------
     | Filesystem Disks

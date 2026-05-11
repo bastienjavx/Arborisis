@@ -1,5 +1,5 @@
+import importlib.util
 import shutil
-import subprocess
 
 from fastapi import APIRouter
 
@@ -9,34 +9,46 @@ from app.models.responses import HealthResponse
 router = APIRouter()
 logger = get_logger(__name__)
 
+# Cache healthcheck results at module level to avoid repeated import overhead on every request
+_ffmpeg_ok: bool | None = None
+_librosa_ok: bool | None = None
+_birdnet_ok: bool | None = None
+
 
 def _command_exists(cmd: str) -> bool:
     return shutil.which(cmd) is not None
 
 
+def _check_ffmpeg() -> bool:
+    global _ffmpeg_ok
+    if _ffmpeg_ok is None:
+        _ffmpeg_ok = _command_exists("ffmpeg")
+    return _ffmpeg_ok
+
+
+def _check_librosa() -> bool:
+    global _librosa_ok
+    if _librosa_ok is None:
+        try:
+            import librosa
+            _librosa_ok = True
+        except ImportError:
+            _librosa_ok = False
+    return _librosa_ok
+
+
+def _check_birdnet() -> bool:
+    global _birdnet_ok
+    if _birdnet_ok is None:
+        _birdnet_ok = importlib.util.find_spec("birdnet_analyzer") is not None
+    return _birdnet_ok
+
+
 @router.get("/health", response_model=HealthResponse)
 async def health() -> HealthResponse:
-    ffmpeg_ok = _command_exists("ffmpeg")
-    try:
-        import librosa
-        librosa_ok = True
-    except ImportError:
-        librosa_ok = False
-
-    birdnet_ok = False
-    try:
-        result = subprocess.run(
-            ["python3", "-m", "birdnet_analyzer.analyze", "--help"],
-            capture_output=True,
-            timeout=5,
-        )
-        birdnet_ok = result.returncode == 0
-    except Exception:
-        pass
-
     return HealthResponse(
         status="ok",
-        birdnet_available=birdnet_ok,
-        ffmpeg_available=ffmpeg_ok,
-        librosa_available=librosa_ok,
+        birdnet_available=_check_birdnet(),
+        ffmpeg_available=_check_ffmpeg(),
+        librosa_available=_check_librosa(),
     )

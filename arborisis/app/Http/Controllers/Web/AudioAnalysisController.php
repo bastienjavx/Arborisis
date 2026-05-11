@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\AudioAnalysis\AnalyzeSoundRequest;
 use App\Http\Requests\AudioAnalysis\RetryRequest;
 use App\Jobs\ProcessAudioAnalysis;
+use App\Jobs\RequestAudioAnalysis;
 use App\Models\Sound;
 use App\Models\SoundAnalysis;
 use App\Services\AudioAnalysis\AudioAnalysisOrchestrationService;
@@ -77,7 +78,14 @@ class AudioAnalysisController extends Controller
 
         $config = $request->validatedConfig();
 
-        ProcessAudioAnalysis::dispatch($sound->id, $config);
+        $sound->loadMissing('soundFile');
+        $soundFile = $sound->soundFile;
+
+        if ($soundFile?->disk === 'r2' && str_starts_with($soundFile->path, 'sounds/original/')) {
+            RequestAudioAnalysis::dispatch($sound->id, $soundFile->path, force: true);
+        } else {
+            ProcessAudioAnalysis::dispatch($sound->id, $config);
+        }
 
         return response()->json([
             'message' => 'Analyse en cours de traitement.',
@@ -126,11 +134,24 @@ class AudioAnalysisController extends Controller
     {
         Gate::authorize('analyze', [SoundAnalysis::class, $sound]);
 
+        $force = $request->boolean('force', false);
+
         $analysis = $this->orchestrationService->retry(
             $sound,
             auth()->user(),
-            $request->boolean('force', false)
+            $force
         );
+
+        if ($force || $analysis->status === AnalysisStatus::PENDING) {
+            $sound->loadMissing('soundFile');
+            $soundFile = $sound->soundFile;
+
+            if ($soundFile?->disk === 'r2' && str_starts_with($soundFile->path, 'sounds/original/')) {
+                RequestAudioAnalysis::dispatch($sound->id, $soundFile->path, $force);
+            } elseif ($soundFile) {
+                ProcessAudioAnalysis::dispatch($sound->id);
+            }
+        }
 
         return response()->json([
             'message' => 'Analysis retry requested.',

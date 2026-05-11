@@ -141,7 +141,7 @@ class AudioAnalysisService
 
     private function storeVisualizations(SoundAnalysis $analysis, string $outputDir, array $config): void
     {
-        $diskName = env('AUDIO_DISK', 'audio');
+        $diskName = config('filesystems.audio_disk', 'audio');
         $vizDir = "analysis/{$analysis->sound_id}";
 
         $vizMap = [
@@ -202,19 +202,19 @@ class AudioAnalysisService
     private function featuresToCsv(array $features): string
     {
         $lines = [];
-        foreach ($features as $category => $categoryData) {
-            foreach ($categoryData as $featureName => $featureData) {
-                if (isset($featureData['stats'])) {
-                    foreach ($featureData['stats'] as $stat => $value) {
-                        if (is_array($value)) {
-                            foreach ($value as $subKey => $subVal) {
-                                $lines[] = "{$category}.{$featureName}.{$stat}.{$subKey}," . (is_numeric($subVal) ? number_format((float) $subVal, 6) : $subVal);
-                            }
-                        } else {
-                            $lines[] = "{$category}.{$featureName}.{$stat}," . (is_numeric($value) ? number_format((float) $value, 6) : $value);
+        foreach ($features as $key => $value) {
+            if (is_array($value)) {
+                foreach ($value as $subKey => $subVal) {
+                    if (is_array($subVal)) {
+                        foreach ($subVal as $nestedKey => $nestedVal) {
+                            $lines[] = "{$key}.{$subKey}.{$nestedKey}," . (is_numeric($nestedVal) ? number_format((float) $nestedVal, 6) : json_encode($nestedVal));
                         }
+                    } else {
+                        $lines[] = "{$key}.{$subKey}," . (is_numeric($subVal) ? number_format((float) $subVal, 6) : json_encode($subVal));
                     }
                 }
+            } else {
+                $lines[] = "{$key}," . (is_numeric($value) ? number_format((float) $value, 6) : json_encode($value));
             }
         }
         return "feature,value\n" . implode("\n", $lines);

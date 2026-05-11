@@ -69,6 +69,7 @@ return [
 
     'analyzer' => [
         'url' => env('ANALYZER_URL'),
+        'urls' => array_filter(array_map('trim', explode(',', env('ANALYZER_URLS', '')))),
         'secret' => env('ANALYZER_SECRET'),
         'internal_api_token' => env('ANALYZER_INTERNAL_API_TOKEN'),
         'max_duration' => env('AUDIO_MAX_DURATION', 600),

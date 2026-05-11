@@ -150,20 +150,27 @@ class ScientificStatsService
         }
 
         $featureMap = [
-            'zcr' => ['temporal', 'zcr', 'stats', 'mean'],
-            'rms' => ['temporal', 'rms', 'stats', 'mean'],
-            'spectral_centroid' => ['spectral', 'centroid', 'stats', 'mean'],
-            'spectral_rolloff' => ['spectral', 'rolloff', 'stats', 'mean'],
-            'spectral_bandwidth' => ['spectral', 'bandwidth', 'stats', 'mean'],
-            'zero_crossing_rate' => ['temporal', 'zcr', 'stats', 'mean'],
+            'zcr' => 'zero_crossing_rate',
+            'rms' => 'rms_db',
+            'spectral_centroid' => 'spectral_centroid',
+            'spectral_rolloff' => 'spectral_rolloff',
+            'spectral_bandwidth' => 'spectral_bandwidth',
+            'zero_crossing_rate' => 'zero_crossing_rate',
         ];
 
         $result = [];
 
-        foreach ($featureMap as $feature => $path) {
-            $values = $analyses->map(fn ($a) => $this->pluckNested($a->features_json, $path))
-                ->filter(fn ($v) => is_numeric($v))
-                ->map(fn ($v) => (float) $v);
+        foreach ($featureMap as $feature => $key) {
+            $values = $analyses->map(function ($a) use ($key) {
+                $json = $a->features_json ?? [];
+                $value = $json[$key] ?? null;
+                if ($value === null && isset($a->{$key})) {
+                    $value = $a->{$key};
+                }
+                return $value;
+            })
+            ->filter(fn ($v) => is_numeric($v))
+            ->map(fn ($v) => (float) $v);
 
             if ($values->isNotEmpty()) {
                 $result[$feature] = [
@@ -194,20 +201,27 @@ class ScientificStatsService
         }
 
         $featureMap = [
-            'zcr' => ['temporal', 'zcr', 'values'],
-            'rms' => ['temporal', 'rms', 'values'],
-            'spectral_centroid' => ['spectral', 'centroid', 'values'],
-            'spectral_rolloff' => ['spectral', 'rolloff', 'values'],
+            'zcr' => 'zero_crossing_rate',
+            'rms' => 'rms_db',
+            'spectral_centroid' => 'spectral_centroid',
+            'spectral_rolloff' => 'spectral_rolloff',
         ];
 
         $result = [];
 
-        foreach ($featureMap as $feature => $path) {
-            $allValues = $analyses->flatMap(fn ($a) => $this->pluckNested($a->features_json, $path) ?? [])
-                ->filter(fn ($v) => is_numeric($v))
-                ->map(fn ($v) => (float) $v)
-                ->sort()
-                ->values();
+        foreach ($featureMap as $feature => $key) {
+            $allValues = $analyses->map(function ($a) use ($key) {
+                $json = $a->features_json ?? [];
+                $value = $json[$key] ?? null;
+                if ($value === null && isset($a->{$key})) {
+                    $value = $a->{$key};
+                }
+                return $value;
+            })
+            ->filter(fn ($v) => is_numeric($v))
+            ->map(fn ($v) => (float) $v)
+            ->sort()
+            ->values();
 
             if ($allValues->count() < 2) {
                 continue;

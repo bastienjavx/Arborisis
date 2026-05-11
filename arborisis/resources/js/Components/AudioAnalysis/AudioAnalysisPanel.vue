@@ -175,7 +175,7 @@ const confidenceColor = (c) => {
             <!-- BirdNET detections -->
             <div v-if="analysis.birdnet_detections?.length > 0">
                 <p class="text-xs text-arbor-sage mb-3">
-                    Détections automatiques probables — à vérifier par la communauté
+                    Espèces principales du résumé automatique
                 </p>
                 <div class="space-y-2">
                     <div v-for="(det, i) in analysis.birdnet_detections" :key="i"
@@ -183,9 +183,9 @@ const confidenceColor = (c) => {
                         <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-arbor-deep text-sm">🐦</div>
                         <div class="flex-1 min-w-0">
                             <p class="text-sm text-arbor-cream truncate">{{ det.common_name }}</p>
-                            <p class="text-xs text-arbor-sage truncate italic">{{ det.scientific_name }}</p>
+                            <p v-if="det.scientific_name" class="text-xs text-arbor-sage truncate italic">{{ det.scientific_name }}</p>
                         </div>
-                        <div class="w-20">
+                        <div v-if="det.confidence !== null && det.confidence !== undefined" class="w-20">
                             <div class="h-1.5 rounded-full bg-arbor-glass overflow-hidden">
                                 <div class="h-full rounded-full transition-all"
                                      :class="confidenceColor(det.confidence)"

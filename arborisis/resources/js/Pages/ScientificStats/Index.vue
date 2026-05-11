@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineAsyncComponent } from 'vue';
+import { computed, ref, defineAsyncComponent } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import StatCard from '@/Components/Scientific/StatCard.vue';
@@ -27,6 +27,67 @@ const props = defineProps({
 });
 
 const activeTab = ref('overview');
+
+const audioFeaturesSafe = computed(() => props.audioFeatures ?? {});
+const audioDistributionsSafe = computed(() => props.audioFeatureDistribution ?? {});
+const statsSafe = computed(() => props.stats ?? {});
+
+const audioFeatureRows = computed(() => Object.entries(audioFeaturesSafe.value).map(([key, stats]) => ({
+    key,
+    label: featureLabels[key] ?? key,
+    description: featureDescriptions[key] ?? 'Feature acoustique extraite automatiquement du signal.',
+    stats,
+})));
+
+const audioSummary = computed(() => {
+    const totalAnalyses = Number(statsSafe.value.total_analyses ?? 0);
+    const completedAnalyses = Number(statsSafe.value.completed_analyses ?? 0);
+    const totalSounds = Number(statsSafe.value.total_sounds ?? 0);
+    const featureCount = audioFeatureRows.value.length;
+    const distributionCount = Object.keys(audioDistributionsSafe.value).length;
+
+    return {
+        totalAnalyses,
+        completedAnalyses,
+        pendingAnalyses: Math.max(totalAnalyses - completedAnalyses, 0),
+        coverage: totalSounds > 0 ? Math.round((completedAnalyses / totalSounds) * 100) : 0,
+        featureCount,
+        distributionCount,
+        hasFeatures: featureCount > 0,
+    };
+});
+
+const featureLabels = {
+    zcr: 'Zero Crossing Rate',
+    rms: 'RMS Energy',
+    spectral_centroid: 'Centroide spectral',
+    spectral_rolloff: 'Rolloff spectral',
+    spectral_bandwidth: 'Bande passante spectrale',
+    zero_crossing_rate: 'Zero Crossing Rate',
+};
+
+const featureDescriptions = {
+    zcr: 'Taux de passages par zéro, utile pour distinguer textures bruitées, impulsions et signaux tonals.',
+    rms: 'Énergie moyenne du signal, indicateur de présence sonore et de dynamique globale.',
+    spectral_centroid: 'Centre de gravité fréquentiel, souvent perçu comme la brillance du son.',
+    spectral_rolloff: 'Fréquence sous laquelle se concentre la majorité de l’énergie spectrale.',
+    spectral_bandwidth: 'Dispersion du spectre autour du centroide, liée à la richesse fréquentielle.',
+    zero_crossing_rate: 'Alias du taux de passages par zéro conservé pour compatibilité dataset.',
+};
+
+const pipelineSteps = [
+    { title: 'Ingestion', desc: 'Les sons publics publiés sont indexés sans exposer les fichiers privés ni les coordonnées exactes.' },
+    { title: 'Prétraitement', desc: 'Décodage audio, normalisation et extraction de fenêtres temporelles adaptées aux sons naturels.' },
+    { title: 'Features', desc: 'Calcul de métriques temporelles et spectrales pour comparer les paysages sonores.' },
+    { title: 'Agrégation', desc: 'Publication de statistiques anonymisées, distributions et échantillons limités pour la recherche.' },
+];
+
+const qualityChecks = [
+    'Données limitées aux sons publics et publiés.',
+    'Coordonnées exactes exclues des exports publics.',
+    'Agrégations géographiques arrondies avant affichage.',
+    'API conçue pour des analyses reproductibles et non intrusives.',
+];
 
 const tabs = [
     { key: 'overview', label: 'Vue d\'ensemble' },
@@ -172,7 +233,108 @@ function formatDuration(seconds) {
 
                 <!-- Audio -->
                 <div v-if="activeTab === 'audio'" class="space-y-6 animate-fade-in">
-                    <AudioFeaturesChart :features="props.audioFeatures" :distributions="props.audioFeatureDistribution" />
+                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                        <div class="glass-card p-5">
+                            <p class="text-xs uppercase tracking-wider text-arbor-sage">Analyses terminées</p>
+                            <p class="mt-2 font-display text-3xl font-bold text-arbor-cream">{{ audioSummary.completedAnalyses.toLocaleString('fr-FR') }}</p>
+                            <p class="mt-1 text-xs text-arbor-sage">sur {{ audioSummary.totalAnalyses.toLocaleString('fr-FR') }} analyses créées</p>
+                        </div>
+                        <div class="glass-card p-5">
+                            <p class="text-xs uppercase tracking-wider text-arbor-sage">Couverture dataset</p>
+                            <p class="mt-2 font-display text-3xl font-bold text-arbor-emerald">{{ audioSummary.coverage }}%</p>
+                            <div class="mt-3 h-1.5 rounded-full bg-arbor-deep overflow-hidden">
+                                <div class="h-full rounded-full bg-arbor-emerald" :style="{ width: `${Math.min(audioSummary.coverage, 100)}%` }"></div>
+                            </div>
+                        </div>
+                        <div class="glass-card p-5">
+                            <p class="text-xs uppercase tracking-wider text-arbor-sage">Features publiées</p>
+                            <p class="mt-2 font-display text-3xl font-bold text-arbor-cream">{{ audioSummary.featureCount }}</p>
+                            <p class="mt-1 text-xs text-arbor-sage">{{ audioSummary.distributionCount }} distributions disponibles</p>
+                        </div>
+                        <div class="glass-card p-5">
+                            <p class="text-xs uppercase tracking-wider text-arbor-sage">File d'attente</p>
+                            <p class="mt-2 font-display text-3xl font-bold text-arbor-amber">{{ audioSummary.pendingAnalyses.toLocaleString('fr-FR') }}</p>
+                            <p class="mt-1 text-xs text-arbor-sage">analyses non finalisées</p>
+                        </div>
+                    </div>
+
+                    <div v-if="audioSummary.hasFeatures" class="space-y-6">
+                        <AudioFeaturesChart :features="audioFeaturesSafe" :distributions="audioDistributionsSafe" />
+                    </div>
+
+                    <div v-else class="glass-card p-8 overflow-hidden relative">
+                        <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-arbor-emerald/60 to-transparent"></div>
+                        <div class="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-8 items-center">
+                            <div>
+                                <p class="text-xs uppercase tracking-widest text-arbor-emerald mb-3">Analyse audio</p>
+                                <h3 class="font-display text-2xl font-semibold text-arbor-cream mb-3">Aucune feature exploitable n'est encore publiée</h3>
+                                <p class="text-sm leading-relaxed text-arbor-sage">
+                                    La page reste prête pour les résultats du pipeline. Dès que les analyses auront des métriques dans
+                                    <code class="px-1.5 py-0.5 rounded bg-arbor-deep text-arbor-cream">features_json</code>, les graphiques,
+                                    histogrammes et statistiques descriptives apparaîtront automatiquement.
+                                </p>
+                            </div>
+                            <div class="rounded-xl border border-arbor-glass-border bg-arbor-deep/50 p-5">
+                                <p class="text-xs uppercase tracking-wider text-arbor-sage mb-4">À vérifier côté pipeline</p>
+                                <div class="space-y-3">
+                                    <div class="flex items-start gap-3">
+                                        <span class="mt-1 h-2 w-2 rounded-full bg-arbor-emerald"></span>
+                                        <p class="text-sm text-arbor-sage">Les analyses sont marquées comme traitées via <code class="text-arbor-cream">processed_at</code>.</p>
+                                    </div>
+                                    <div class="flex items-start gap-3">
+                                        <span class="mt-1 h-2 w-2 rounded-full bg-arbor-amber"></span>
+                                        <p class="text-sm text-arbor-sage">Le JSON contient les chemins attendus : temporal, spectral, stats et values.</p>
+                                    </div>
+                                    <div class="flex items-start gap-3">
+                                        <span class="mt-1 h-2 w-2 rounded-full bg-arbor-moss"></span>
+                                        <p class="text-sm text-arbor-sage">Les sons associés sont publics et publiés, sinon ils restent exclus.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="glass-card p-6">
+                            <h3 class="font-display text-xl font-semibold text-arbor-cream mb-4">Pipeline d'analyse</h3>
+                            <div class="space-y-4">
+                                <div
+                                    v-for="(step, index) in pipelineSteps"
+                                    :key="step.title"
+                                    class="flex gap-4 rounded-xl border border-arbor-glass-border/70 bg-arbor-deep/35 p-4"
+                                >
+                                    <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-arbor-emerald/10 text-xs font-mono text-arbor-emerald">
+                                        {{ index + 1 }}
+                                    </div>
+                                    <div>
+                                        <h4 class="text-sm font-semibold text-arbor-cream">{{ step.title }}</h4>
+                                        <p class="mt-1 text-sm leading-relaxed text-arbor-sage">{{ step.desc }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-6">
+                            <h3 class="font-display text-xl font-semibold text-arbor-cream mb-4">Qualité & confidentialité</h3>
+                            <div class="space-y-3">
+                                <div
+                                    v-for="check in qualityChecks"
+                                    :key="check"
+                                    class="flex items-start gap-3 rounded-lg bg-arbor-deep/35 px-3 py-2.5"
+                                >
+                                    <span class="mt-1 h-2 w-2 rounded-full bg-arbor-emerald"></span>
+                                    <p class="text-sm text-arbor-sage">{{ check }}</p>
+                                </div>
+                            </div>
+                            <div class="mt-5 rounded-xl border border-arbor-amber/25 bg-arbor-amber/10 p-4">
+                                <p class="text-sm leading-relaxed text-arbor-sage">
+                                    Les métriques audio sont des indicateurs descriptifs. Elles ne remplacent pas une annotation naturaliste
+                                    ni une validation experte des espèces ou habitats.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="glass-card p-6">
                         <h3 class="font-display text-xl font-semibold text-arbor-cream mb-4">Statistiques descriptives — Features audio</h3>
                         <div class="overflow-x-auto">
@@ -190,23 +352,43 @@ function formatDuration(seconds) {
                                 </thead>
                                 <tbody>
                                     <tr
-                                        v-for="(stats, key) in props.audioFeatures"
-                                        :key="key"
+                                        v-for="row in audioFeatureRows"
+                                        :key="row.key"
                                         class="border-b border-arbor-glass-border/50 hover:bg-arbor-glass/20 transition-colors"
                                     >
-                                        <td class="px-4 py-3 text-arbor-cream font-medium">{{ key }}</td>
-                                        <td class="px-4 py-3 text-arbor-sage font-mono">{{ stats.count }}</td>
-                                        <td class="px-4 py-3 text-arbor-emerald font-mono">{{ stats.mean.toExponential(3) }}</td>
-                                        <td class="px-4 py-3 text-arbor-sage font-mono">{{ stats.median.toExponential(3) }}</td>
-                                        <td class="px-4 py-3 text-arbor-sage font-mono">{{ stats.std.toExponential(3) }}</td>
-                                        <td class="px-4 py-3 text-arbor-sage font-mono">{{ stats.min.toExponential(3) }}</td>
-                                        <td class="px-4 py-3 text-arbor-sage font-mono">{{ stats.max.toExponential(3) }}</td>
+                                        <td class="px-4 py-3">
+                                            <div class="text-arbor-cream font-medium">{{ row.label }}</div>
+                                            <div class="mt-1 max-w-sm text-xs text-arbor-sage/70">{{ row.description }}</div>
+                                        </td>
+                                        <td class="px-4 py-3 text-arbor-sage font-mono">{{ row.stats.count }}</td>
+                                        <td class="px-4 py-3 text-arbor-emerald font-mono">{{ Number(row.stats.mean).toExponential(3) }}</td>
+                                        <td class="px-4 py-3 text-arbor-sage font-mono">{{ Number(row.stats.median).toExponential(3) }}</td>
+                                        <td class="px-4 py-3 text-arbor-sage font-mono">{{ Number(row.stats.std).toExponential(3) }}</td>
+                                        <td class="px-4 py-3 text-arbor-sage font-mono">{{ Number(row.stats.min).toExponential(3) }}</td>
+                                        <td class="px-4 py-3 text-arbor-sage font-mono">{{ Number(row.stats.max).toExponential(3) }}</td>
                                     </tr>
-                                    <tr v-if="Object.keys(props.audioFeatures).length === 0">
-                                        <td colspan="7" class="px-4 py-8 text-center text-arbor-sage">Aucune analyse audio disponible pour le moment.</td>
+                                    <tr v-if="audioFeatureRows.length === 0">
+                                        <td colspan="7" class="px-4 py-8 text-center text-arbor-sage">
+                                            Aucune statistique descriptive disponible pour le moment.
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-6">
+                        <h3 class="font-display text-xl font-semibold text-arbor-cream mb-4">Dictionnaire des features</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+                            <div
+                                v-for="(description, key) in featureDescriptions"
+                                :key="key"
+                                class="rounded-xl border border-arbor-glass-border bg-arbor-deep/35 p-4"
+                            >
+                                <code class="text-xs text-arbor-emerald">{{ key }}</code>
+                                <h4 class="mt-2 text-sm font-semibold text-arbor-cream">{{ featureLabels[key] ?? key }}</h4>
+                                <p class="mt-1 text-sm leading-relaxed text-arbor-sage">{{ description }}</p>
+                            </div>
                         </div>
                     </div>
                 </div>

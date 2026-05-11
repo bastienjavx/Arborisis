@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use App\Jobs\ProcessAudioAnalysis;
+use App\Jobs\RequestAudioAnalysis;
 use App\Models\Sound;
 use App\Models\SoundAnalysis;
 use Illuminate\Console\Command;
@@ -61,7 +61,8 @@ class ReanalyzeSounds extends Command
                     ['status' => \App\Enums\AnalysisStatus::PENDING, 'failed_reason' => null]
                 );
 
-                ProcessAudioAnalysis::dispatch($sound->id);
+                $r2Key = $sound->soundFile?->path ?? "sounds/original/{$sound->id}/audio";
+                RequestAudioAnalysis::dispatch($sound->id, $r2Key, force: true);
                 $bar->advance();
             }
         });
