@@ -329,6 +329,8 @@ class RadioStreamService
 
             $startIndex = $this->resolveCurrentIndex();
             $index = $startIndex;
+            $consecutiveFailures = 0;
+            $playlistCount = $playlist->count();
 
             while (! connection_aborted()) {
                 $sound = $playlist[$index] ?? null;
@@ -345,8 +347,21 @@ class RadioStreamService
                 $bytesStreamed = $this->streamSound($sound, $outputCallback, $injectIcy);
 
                 if ($bytesStreamed === 0) {
-                    Log::warning('Radio stream: sound streamed 0 bytes, throttling', ['sound_id' => $sound->id]);
+                    $consecutiveFailures++;
+                    Log::warning('Radio stream: sound streamed 0 bytes, throttling', [
+                        'sound_id' => $sound->id,
+                        'consecutive_failures' => $consecutiveFailures,
+                        'playlist_count' => $playlistCount,
+                    ]);
+
+                    if ($consecutiveFailures >= $playlistCount) {
+                        Log::error('Radio stream: all sounds failed, stopping stream to prevent worker saturation');
+                        break;
+                    }
+
                     sleep(1);
+                } else {
+                    $consecutiveFailures = 0;
                 }
 
                 if ($this->gapMs > 0) {
@@ -355,7 +370,7 @@ class RadioStreamService
 
                 $index++;
 
-                if ($index >= $playlist->count()) {
+                if ($index >= $playlistCount) {
                     if (! $this->loop) {
                         Log::info('Radio stream: reached end of playlist, loop disabled');
                         break;
