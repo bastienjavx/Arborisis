@@ -13,17 +13,23 @@ beforeEach(function () {
     $this->analysis = SoundAnalysis::factory()->create([
         'sound_id' => $this->sound->id,
         'features_json' => [
-            'temporal' => [
-                'zcr' => ['stats' => ['mean' => 0.1, 'std' => 0.02]],
-                'rms' => ['stats' => ['mean' => 0.5, 'std' => 0.1]],
-                'duration_seconds' => 120.5,
+            'duration_seconds' => 120.5,
+            'rms_db' => -20.5,
+            'rms_std' => 2.5,
+            'zero_crossing_rate' => 0.1,
+            'zcr_std' => 0.02,
+            'spectral_centroid' => 2500.0,
+            'spectral_rolloff' => 5000.0,
+            'spectral_bandwidth' => 1500.0,
+            'spectral_flatness' => 0.1,
+            'tempo_bpm' => 120.0,
+            'beat_count' => 240,
+            'event_density' => 0.5,
+            'mfcc' => [
+                'mfcc_1' => ['mean' => -100.0, 'std' => 10.0, 'min' => -120.0, 'max' => -80.0],
             ],
-            'spectral' => [
-                'centroid' => ['stats' => ['mean' => 2500, 'std' => 300]],
-                'bandwidth' => ['stats' => ['mean' => 1500, 'std' => 200]],
-            ],
-            'cepstral' => [
-                'mfcc' => ['stats' => ['mfcc_0' => ['mean' => -100]]],
+            'chroma' => [
+                'chroma_1' => ['mean' => 0.5, 'std' => 0.1, 'min' => 0.0, 'max' => 1.0],
             ],
         ],
     ]);
@@ -34,8 +40,8 @@ describe('FeatureExtractorService', function () {
         $service = new FeatureExtractorService();
         $features = $service->getTemporalFeatures($this->analysis);
 
-        expect($features)->toHaveKey('zcr');
-        expect($features)->toHaveKey('rms');
+        expect($features)->toHaveKey('zero_crossing_rate');
+        expect($features)->toHaveKey('rms_db');
         expect($features['duration_seconds'])->toBe(120.5);
     });
 
@@ -43,8 +49,8 @@ describe('FeatureExtractorService', function () {
         $service = new FeatureExtractorService();
         $features = $service->getSpectralFeatures($this->analysis);
 
-        expect($features)->toHaveKey('centroid');
-        expect($features)->toHaveKey('bandwidth');
+        expect($features)->toHaveKey('spectral_centroid');
+        expect($features)->toHaveKey('spectral_bandwidth');
     });
 
     it('returns public summary with key metrics', function () {
@@ -53,7 +59,7 @@ describe('FeatureExtractorService', function () {
 
         expect($summary)->toHaveKeys(['duration_seconds', 'rms_mean', 'zcr_mean', 'centroid_mean']);
         expect($summary['duration_seconds'])->toBe(120.5);
-        expect($summary['rms_mean'])->toBe(0.5);
+        expect($summary['rms_mean'])->toBe(-20.5);
     });
 });
 
@@ -86,7 +92,7 @@ describe('AudioAnalysisService', function () {
 
         expect($export['mime'])->toBe('application/json');
         expect($export['filename'])->toBe("features_{$this->sound->id}.json");
-        expect(json_decode($export['content'], true))->toHaveKey('temporal');
+        expect(json_decode($export['content'], true))->toHaveKey('duration_seconds');
     });
 
     it('exports features as csv', function () {

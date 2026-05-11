@@ -1,3 +1,4 @@
+import asyncio
 import os
 import shutil
 import uuid
@@ -68,6 +69,9 @@ async def analyze(
         original_r2_key=request.original_r2_key,
         analysis_id=analysis_id,
         lock_key=lock_key,
+        lat=request.lat,
+        lon=request.lon,
+        force=request.force,
     )
 
     return AnalyzeResponse(
@@ -78,7 +82,12 @@ async def analyze(
     )
 
 
-async def _run_analysis(sound_id: int, original_r2_key: str, analysis_id: str, lock_key: str) -> None:
+async def _run_analysis(sound_id: int, original_r2_key: str, analysis_id: str, lock_key: str, lat: float | None = None, lon: float | None = None, force: bool = False) -> None:
+    # Run the blocking analysis pipeline in a thread pool so the event loop stays responsive
+    await asyncio.to_thread(_run_analysis_sync, sound_id, original_r2_key, analysis_id, lock_key, lat, lon, force)
+
+
+def _run_analysis_sync(sound_id: int, original_r2_key: str, analysis_id: str, lock_key: str, lat: float | None = None, lon: float | None = None, force: bool = False) -> None:
     temp_dir = f"/tmp/analyzer/{analysis_id}"
     local_path: str | None = None
 
@@ -118,7 +127,7 @@ async def _run_analysis(sound_id: int, original_r2_key: str, analysis_id: str, l
 
         # 8. BirdNET
         birdnet_r2_key, detections = BirdnetRunner(storage).analyze_and_upload(
-            local_path, sound_id, duration, quality["usable_for_analysis"]
+            local_path, sound_id, duration, quality["usable_for_analysis"], lat=lat, lon=lon
         )
 
         # 9. Summary
@@ -130,6 +139,7 @@ async def _run_analysis(sound_id: int, original_r2_key: str, analysis_id: str, l
         callback_payload = {
             "sound_id": sound_id,
             "status": "completed",
+            "force": force,
             "results": {
                 "original_r2_key": original_r2_key,
                 "duration_seconds": features["duration_seconds"],
@@ -144,6 +154,7 @@ async def _run_analysis(sound_id: int, original_r2_key: str, analysis_id: str, l
                 "spectral_centroid": features["spectral_centroid"],
                 "spectral_rolloff": features["spectral_rolloff"],
                 "zero_crossing_rate": features["zero_crossing_rate"],
+                "features_json": features,
                 "waveform_r2_key": waveform_r2_key,
                 "spectrogram_r2_key": spectrogram_r2_key,
                 "features_r2_key": features_r2_key,
@@ -155,7 +166,7 @@ async def _run_analysis(sound_id: int, original_r2_key: str, analysis_id: str, l
                 "birdnet_detections": detections,
             },
         }
-        await LaravelCallback().send(callback_payload)
+        LaravelCallback()._send_sync(callback_payload)
 
         logger.info("analysis_completed", sound_id=sound_id, analysis_id=analysis_id)
 
@@ -164,9 +175,10 @@ async def _run_analysis(sound_id: int, original_r2_key: str, analysis_id: str, l
         error_payload = {
             "sound_id": sound_id,
             "status": "failed",
+            "force": force,
             "error_message": str(e),
         }
-        await LaravelCallback().send(error_payload)
+        LaravelCallback()._send_sync(error_payload)
     finally:
         _analysis_lock.discard(lock_key)
         if local_path and os.path.exists(local_path):

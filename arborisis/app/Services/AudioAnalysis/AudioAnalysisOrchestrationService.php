@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Services\Storage\SignedUrlService;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class AudioAnalysisOrchestrationService
 {
@@ -59,6 +60,8 @@ class AudioAnalysisOrchestrationService
             return null;
         }
 
+        $summary = $this->summaryData($analysis);
+
         return [
             'id' => $analysis->id,
             'status' => $analysis->status->value,
@@ -83,16 +86,72 @@ class AudioAnalysisOrchestrationService
             'birdnet_url' => $this->r2Url($analysis->birdnet_r2_key),
             'summary_url' => $this->r2Url($analysis->summary_r2_key),
             'preview_url' => $this->r2Url($analysis->preview_r2_key),
-            'birdnet_detections' => $analysis->birdnetDetections->map(fn ($d) => [
-                'scientific_name' => $d->scientific_name,
-                'common_name' => $d->common_name,
-                'confidence' => $d->confidence,
-                'start_time' => $d->start_time,
-                'end_time' => $d->end_time,
-            ])->values(),
+            'birdnet_detections' => $this->summarySpecies($summary, $analysis),
+            'suggested_tags' => $summary['suggested_tags'] ?? [],
             'created_at' => $analysis->created_at,
             'updated_at' => $analysis->updated_at,
         ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function summaryData(SoundAnalysis $analysis): array
+    {
+        if (empty($analysis->summary_r2_key)) {
+            return [];
+        }
+
+        try {
+            if (! Storage::disk('r2')->exists($analysis->summary_r2_key)) {
+                return [];
+            }
+
+            $summary = json_decode(Storage::disk('r2')->get($analysis->summary_r2_key), true);
+
+            return is_array($summary) ? $summary : [];
+        } catch (\Throwable $e) {
+            Log::warning('AudioAnalysisOrchestration: unable to read summary json.', [
+                'analysis_id' => $analysis->id,
+                'summary_r2_key' => $analysis->summary_r2_key,
+                'error' => $e->getMessage(),
+            ]);
+
+            return [];
+        }
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function summarySpecies(array $summary, SoundAnalysis $analysis): array
+    {
+        $species = $summary['main_detected_species'] ?? [];
+
+        if (is_array($species) && ! empty($species)) {
+            return collect($species)
+                ->unique(fn (array $item) => $item['name'] ?? $item['common_name'] ?? null)
+                ->take(5)
+                ->map(fn (array $item) => [
+                    'common_name' => $item['name'] ?? $item['common_name'] ?? 'Espèce détectée',
+                    'scientific_name' => $item['scientific_name'] ?? null,
+                    'confidence' => $item['confidence'] ?? null,
+                ])
+                ->values()
+                ->all();
+        }
+
+        return $analysis->birdnetDetections
+            ->sortByDesc('confidence')
+            ->unique(fn ($d) => $d->common_name.'|'.$d->scientific_name)
+            ->take(5)
+            ->map(fn ($d) => [
+                'scientific_name' => $d->scientific_name,
+                'common_name' => $d->common_name,
+                'confidence' => $d->confidence,
+            ])
+            ->values()
+            ->all();
     }
 
     private function r2Url(?string $key): ?string

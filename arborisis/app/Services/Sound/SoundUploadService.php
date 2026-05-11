@@ -7,6 +7,7 @@ namespace App\Services\Sound;
 use App\Enums\SoundStatus;
 use App\Events\SoundPublished;
 use App\Jobs\ProcessAudioAnalysis;
+use App\Jobs\RequestAudioAnalysis;
 use App\Models\Sound;
 use App\Services\Audio\AudioDurationService;
 use App\Services\Discord\DiscordNotificationService;
@@ -58,7 +59,7 @@ class SoundUploadService
                 $storedName = $this->generateFileName($audioFile);
                 $disk = config('filesystems.default') === 'local' && empty(config('filesystems.disks.s3.key'))
                     ? 'public'
-                    : env('AUDIO_DISK', 'audio');
+                    : config('filesystems.audio_disk', 'audio');
 
                 if ($disk === 'r2') {
                     $path = "sounds/original/{$sound->id}/{$storedName}";
@@ -138,6 +139,10 @@ class SoundUploadService
                             ['sound_id' => $sound->id],
                             ['status' => \App\Enums\AnalysisStatus::PENDING, 'original_r2_key' => $path]
                         );
+
+                        // Fallback: dispatch directly to analyzer workers
+                        // (R2 Event pipeline is unreliable — ensures analysis always starts)
+                        RequestAudioAnalysis::dispatch($sound->id, $path);
                     } else {
                         // Legacy pipeline: direct CLI analysis
                         ProcessAudioAnalysis::dispatch($sound->id);
