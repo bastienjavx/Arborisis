@@ -8,7 +8,8 @@ account_id = "bc36459259b257fdbaf4252f06bcb690"
 ANALYZER_URL = "https://<redacted>.com/analyzer"
 
 # Pour 2+ VPS workers, utiliser wrangler secret put ANALYZER_URLS
-# avec une valeur du type : https://worker1.<redacted>.com,https://worker2.<redacted>.com
+# avec une valeur du type : http://157.173.109.156,http://157.173.109.82
+# (Passer en HTTPS quand les certificats seront en place)
 
 [[queues.consumers]]
 queue = "audio-analysis-queue"
