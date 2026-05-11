@@ -4,7 +4,11 @@ compatibility_date = "2026-05-10"
 account_id = "bc36459259b257fdbaf4252f06bcb690"
 
 [vars]
+# Fallback URL unique (utilisé seulement si ANALYZER_URLS n'est pas défini en secret)
 ANALYZER_URL = "https://<redacted>.com/analyzer"
+
+# Pour 2+ VPS workers, utiliser wrangler secret put ANALYZER_URLS
+# avec une valeur du type : https://worker1.<redacted>.com,https://worker2.<redacted>.com
 
 [[queues.consumers]]
 queue = "audio-analysis-queue"

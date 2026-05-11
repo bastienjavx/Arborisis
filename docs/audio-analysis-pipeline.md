@@ -14,8 +14,9 @@ R2 Event Notification
 Cloudflare Queue : audio-analysis-queue
     ↓
 Worker Cloudflare : audio-analysis-orchestrator
-    ↓
-Service Python FastAPI (Container / Docker)
+    ↓  (random + failover — ANALYZER_URLS)
+VPS Worker 1 : Nginx LB + 3× FastAPI
+VPS Worker 2 : Nginx LB + 3× FastAPI
     ↓
 Résultats dans R2 (waveform, spectrogram, features, birdnet, summary)
     ↓
@@ -57,6 +58,8 @@ Vue.js : AudioAnalysisPanel.vue
 **Endpoints :**
 - `GET /health` — disponibilité
 - `POST /analyze` — déclenche analyse asynchrone
+
+**Scaling :** Le service est stateless et déployé en 3 instances sur un VPS worker dédié, derrière un load balancer Nginx (`least_conn`). Voir `infrastructure/audio-analyzer-worker/`.
 
 **Modules :**
 - `metadata_extractor` — ffprobe
