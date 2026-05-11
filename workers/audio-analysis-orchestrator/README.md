@@ -15,7 +15,8 @@ R2 Event Notification → Cloudflare Queue → Worker Consumer
 
 | Variable | Description |
 |----------|-------------|
-| `ANALYZER_URL` | URL du service Python Analyzer |
+| `ANALYZER_URL` | URL unique du service Python (fallback si `ANALYZER_URLS` n'est pas défini) |
+| `ANALYZER_URLS` | **Multi-VPS** : liste d'URLs séparées par virgule. Ex: `https://worker1.com,https://worker2.com` |
 | `ANALYZER_SECRET` | Token Bearer partagé avec le service Python |
 
 ### Wrangler
@@ -25,7 +26,8 @@ npm install
 wrangler login
 
 # Secrets
-wrangler secret put ANALYZER_URL
+wrangler secret put ANALYZER_URL      # fallback (optionnel si ANALYZER_URLS est défini)
+wrangler secret put ANALYZER_URLS    # pour 2+ VPS workers (ex: https://w1.com,https://w2.com)
 wrangler secret put ANALYZER_SECRET
 
 # Déployer

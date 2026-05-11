@@ -115,6 +115,17 @@ docker build -t arborisis-audio-analyzer .
 docker run -d --env-file .env -p 8000:8000 --name analyzer arborisis-audio-analyzer
 ```
 
+### Multi-instance sur VPS Worker dédié (Recommandé en production)
+
+Pour scaler horizontalement, utiliser la config dans `infrastructure/audio-analyzer-worker/` :
+
+```bash
+cd ../../infrastructure/audio-analyzer-worker
+docker compose up -d --build
+```
+
+Cela déploie 3 instances derrière un load balancer Nginx (round-robin pondéré par connexions actives). Voir [`infrastructure/audio-analyzer-worker/README.md`](../../infrastructure/audio-analyzer-worker/README.md) pour le setup complet.
+
 ### Cloudflare Containers (si disponible)
 
 1. Builder et push l'image vers un registre

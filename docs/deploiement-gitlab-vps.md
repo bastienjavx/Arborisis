@@ -147,6 +147,49 @@ sudo supervisorctl update
 sudo supervisorctl start arborisis-worker:*
 ```
 
+## VPS Workers dédiés (Audio Analyzer)
+
+Pour isoler l'analyse audio (CPU-intensive) du serveur web, déployer le service
+Python sur **un ou plusieurs VPS séparés**.
+
+### Déploiement sur chaque VPS worker
+
+Répéter l'opération sur **chaque** VPS worker (identique) :
+
+```bash
+# Sur le VPS worker (pas le VPS web)
+sudo apt update && sudo apt install -y docker.io docker-compose-plugin git
+sudo usermod -aG docker deploy
+
+# Cloner le repo et déployer
+git clone <repo> /var/www/arborisis
+cd /var/www/arborisis/infrastructure/audio-analyzer-worker
+cp ../../services/audio-analyzer/.env.example .env
+# Éditer .env avec les secrets
+sudo docker compose up -d --build
+```
+
+### Configuration du Cloudflare Worker (load balancing global)
+
+Au lieu d'une seule URL, configurer la liste des workers dans le secret
+`ANALYZER_URLS` :
+
+```bash
+cd workers/audio-analysis-orchestrator
+wrangler secret put ANALYZER_URLS
+# Valeur : https://worker1.arborisis.com,https://worker2.arborisis.com
+```
+
+Le Worker Cloudflare distribue aléatoirement les analyses entre les VPS et
+bascule automatiquement sur un autre worker en cas de panne (5xx / timeout).
+
+**Points clés :**
+- Même configuration Docker Compose sur chaque VPS worker.
+- Seul le port 80 (Nginx) est exposé publiquement sur chaque VPS.
+- Aucune base de données ni Redis n'est nécessaire sur ces VPS.
+- Voir `infrastructure/audio-analyzer-worker/README.md` pour le scaling par
+  instance (3× FastAPI par VPS) et le script `deploy.sh`.
+
 ## Structure creee sur le VPS
 
 ```text
