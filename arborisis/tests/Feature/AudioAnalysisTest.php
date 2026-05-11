@@ -28,7 +28,7 @@ describe('Audio Analysis Feature Tests', function () {
         $response->assertOk()
             ->assertJsonStructure([
                 'sound' => ['id', 'slug', 'title', 'duration'],
-                'analysis' => ['status', 'summary', 'visualizations'],
+                'analysis' => ['status', 'duration_seconds', 'sample_rate', 'waveform_url', 'spectrogram_url'],
             ]);
     });
 

@@ -6,7 +6,7 @@ import FollowButton from '@/Components/Social/FollowButton.vue';
 import CommentSection from '@/Components/Social/CommentSection.vue';
 import ReportModal from '@/Components/Social/ReportModal.vue';
 import WaveSurfer from '@/Components/Audio/WaveSurfer.vue';
-import AudioAnalysisPublic from '@/Pages/AudioAnalysis/Public.vue';
+import AudioAnalysisPanel from '@/Components/AudioAnalysis/AudioAnalysisPanel.vue';
 import { usePlayerStore } from '@/Stores/player';
 import { ref, computed, watch } from 'vue';
 
@@ -313,19 +313,11 @@ const getMetaIcon = (type) => {
                         </div>
 
                         <!-- Audio Analysis -->
-                        <div v-if="analysis" class="space-y-4">
-                            <div class="flex items-center justify-between">
-                                <h2 class="font-semibold text-arbor-cream">Analyse Audio</h2>
-                                <Link
-                                    v-if="$page.props.auth.user && $page.props.auth.user.id === sound.user_id"
-                                    :href="route('sounds.analysis.show', sound)"
-                                    class="text-sm text-arbor-emerald hover:text-arbor-emerald-dark transition-colors"
-                                >
-                                    Voir l'analyse complète →
-                                </Link>
-                            </div>
-                            <AudioAnalysisPublic :analysis="analysis" />
-                        </div>
+                        <AudioAnalysisPanel
+                            :analysis="analysis"
+                            :sound="sound"
+                            :is-owner="$page.props.auth.user && $page.props.auth.user.id === sound.user_id"
+                        />
 
                         <!-- Comments -->
                         <CommentSection

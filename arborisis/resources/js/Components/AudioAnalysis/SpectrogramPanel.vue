@@ -9,7 +9,7 @@ const activeTab = ref('mel');
 
 const tabs = [
     { key: 'stft', label: 'STFT' },
-    { key: 'mel', label: 'Mel' },
+    { key: 'mel_spectrogram', label: 'Mel' },
     { key: 'mfcc', label: 'MFCC' },
 ];
 

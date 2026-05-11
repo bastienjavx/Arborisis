@@ -63,4 +63,16 @@ return [
         'internal_api_token' => env('DISCORD_INTERNAL_API_TOKEN'),
     ],
 
+    'r2' => [
+        'signing_key' => env('R2_SIGNING_KEY'),
+    ],
+
+    'analyzer' => [
+        'url' => env('ANALYZER_URL'),
+        'secret' => env('ANALYZER_SECRET'),
+        'internal_api_token' => env('ANALYZER_INTERNAL_API_TOKEN'),
+        'max_duration' => env('AUDIO_MAX_DURATION', 600),
+        'max_file_size_mb' => env('AUDIO_MAX_FILE_SIZE_MB', 500),
+    ],
+
 ];

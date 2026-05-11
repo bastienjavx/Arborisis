@@ -7,9 +7,11 @@ namespace App\Http\Controllers\Web;
 use App\Enums\AnalysisStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AudioAnalysis\AnalyzeSoundRequest;
+use App\Http\Requests\AudioAnalysis\RetryRequest;
 use App\Jobs\ProcessAudioAnalysis;
 use App\Models\Sound;
 use App\Models\SoundAnalysis;
+use App\Services\AudioAnalysis\AudioAnalysisOrchestrationService;
 use App\Services\AudioAnalysis\AudioAnalysisService;
 use App\Services\AudioAnalysis\FeatureExtractorService;
 use Illuminate\Http\JsonResponse;
@@ -21,6 +23,7 @@ class AudioAnalysisController extends Controller
 {
     public function __construct(
         private AudioAnalysisService $audioAnalysisService,
+        private AudioAnalysisOrchestrationService $orchestrationService,
         private FeatureExtractorService $featureExtractor,
     ) {}
 
@@ -39,14 +42,7 @@ class AudioAnalysisController extends Controller
                     'title' => $sound->title,
                     'duration' => $sound->duration,
                 ],
-                'analysis' => $analysis ? [
-                    'status' => $analysis->status->value,
-                    'summary' => $this->featureExtractor->getPublicSummary($analysis),
-                    'visualizations' => $analysis->visualizations->map(fn ($v) => [
-                        'type' => $v->type->value,
-                        'url' => $v->url,
-                    ])->values(),
-                ] : null,
+                'analysis' => $this->orchestrationService->getAnalysisWithUrls($sound),
             ]);
         }
 
@@ -106,6 +102,41 @@ class AudioAnalysisController extends Controller
         }, 200, [
             'Content-Type' => $export['mime'],
             'Content-Disposition' => 'attachment; filename="' . $export['filename'] . '"',
+        ]);
+    }
+
+    public function showApi(Sound $sound): JsonResponse
+    {
+        Gate::authorize('view', [SoundAnalysis::class, $sound]);
+
+        $analysisData = $this->orchestrationService->getAnalysisWithUrls($sound);
+
+        return response()->json([
+            'sound' => [
+                'id' => $sound->id,
+                'slug' => $sound->slug,
+                'title' => $sound->title,
+                'duration' => $sound->duration,
+            ],
+            'analysis' => $analysisData,
+        ]);
+    }
+
+    public function retry(Sound $sound, RetryRequest $request): JsonResponse
+    {
+        Gate::authorize('analyze', [SoundAnalysis::class, $sound]);
+
+        $analysis = $this->orchestrationService->retry(
+            $sound,
+            auth()->user(),
+            $request->boolean('force', false)
+        );
+
+        return response()->json([
+            'message' => 'Analysis retry requested.',
+            'sound_id' => $sound->id,
+            'status' => $analysis->status->value,
+            'attempts' => $analysis->attempts,
         ]);
     }
 

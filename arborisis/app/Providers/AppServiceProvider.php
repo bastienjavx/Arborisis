@@ -55,6 +55,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
+use App\Services\Storage\SignedUrlService;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 
@@ -65,7 +66,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(SignedUrlService::class, function () {
+            return new SignedUrlService(
+                signingKey: config('services.r2.signing_key', ''),
+                customDomain: rtrim(config('filesystems.disks.r2.url', ''), '/'),
+            );
+        });
     }
 
     /**

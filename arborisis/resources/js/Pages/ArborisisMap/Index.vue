@@ -59,7 +59,7 @@ const getCategoryColor = (cat) => categoryColors[cat] || '#9CA3AF';
 const fetchPoints = async () => {
     loading.value = true;
     try {
-        const response = await fetch('/api/<redacted>-points');
+        const response = await fetch('/api/<redacted>-points', { credentials: 'same-origin' });
         const data = await response.json();
         points.value = data.features ?? [];
     } catch (e) {
@@ -230,6 +230,7 @@ const sendPresenceUpdate = async (lat, lng) => {
     try {
         await fetch('/api/presence/update', {
             method: 'POST',
+            credentials: 'same-origin',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
@@ -252,6 +253,7 @@ const handleVisit = async () => {
     try {
         const response = await fetch(`/api/<redacted>-points/${selectedPoint.value.slug}/visit`, {
             method: 'POST',
+            credentials: 'same-origin',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
@@ -271,6 +273,8 @@ const handleVisit = async () => {
             visitSuccessTitle.value = selectedPoint.value.title;
             visitSuccessOpen.value = true;
             drawerOpen.value = false;
+        } else if (response.status === 401) {
+            alert('Vous devez être connecté pour visiter un lieu.');
         } else {
             alert(data.message || 'Visite impossible');
         }
@@ -284,6 +288,7 @@ const handleCreatePoint = async (formData) => {
     try {
         const response = await fetch('/api/<redacted>-points', {
             method: 'POST',
+            credentials: 'same-origin',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
@@ -300,8 +305,14 @@ const handleCreatePoint = async (formData) => {
             clearTempMarker();
             fetchPoints();
             alert(data.message);
+        } else if (response.status === 401) {
+            alert('Vous devez être connecté pour proposer un lieu. Veuillez rafraîchir la page.');
+        } else if (data.errors) {
+            alert(Object.values(data.errors).flat().join('\n'));
+        } else if (data.message) {
+            alert(data.message);
         } else {
-            alert(Object.values(data.errors || {}).flat().join('\n'));
+            alert('Une erreur est survenue lors de la création.');
         }
     } catch (e) {
         console.error(e);
@@ -326,7 +337,7 @@ const togglePresence = async () => {
             clearInterval(presenceUpdateInterval.value);
             presenceUpdateInterval.value = null;
         }
-        await fetch('/api/presence', { method: 'DELETE' });
+        await fetch('/api/presence', { method: 'DELETE', credentials: 'same-origin' });
         presenceActive.value = false;
         clearUserLocationMarker();
         lastSentPosition.value = null;

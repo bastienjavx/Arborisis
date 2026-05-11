@@ -58,6 +58,8 @@ Route::middleware(['auth', 'verified'])->get('/<redacted>-map', function () {
 Route::get('/creators', [CreatorController::class, 'index'])->name('creators.index');
 Route::get('/creators/{slug}', [CreatorProfileController::class, 'show'])->name('creators.show');
 
+Route::get('/scientific-stats', [\App\Http\Controllers\Web\ScientificStatsController::class, 'index'])->name('scientific-stats.index');
+
 Route::get('/transparency', [PageController::class, 'transparency'])->name('transparency');
 Route::get('/echo', [PageController::class, 'echoInfo'])->name('echo.info');
 Route::get('/mission', [PageController::class, 'mission'])->name('mission');

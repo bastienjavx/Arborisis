@@ -59,7 +59,7 @@ from typing import Optional
 
 def merge_config(user_config: Optional[dict]) -> dict:
     """Fusionne la config utilisateur avec les valeurs par défaut."""
-    if user_config is None:
+    if user_config is None or not isinstance(user_config, dict):
         return DEFAULT_CONFIG.copy()
 
     merged = DEFAULT_CONFIG.copy()

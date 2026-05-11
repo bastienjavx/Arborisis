@@ -162,7 +162,9 @@ class DashboardService
                 'icon' => $achievement->icon,
                 'category' => $achievement->category?->value,
                 'points' => $achievement->points,
-                'unlocked_at' => $achievement->pivot->unlocked_at?->toISOString(),
+                'unlocked_at' => $achievement->pivot->unlocked_at instanceof \Carbon\Carbon
+                    ? $achievement->pivot->unlocked_at->toISOString()
+                    : ($achievement->pivot->unlocked_at ? \Carbon\Carbon::parse($achievement->pivot->unlocked_at)->toISOString() : null),
             ])
             ->toArray();
 
@@ -177,7 +179,9 @@ class DashboardService
                 'icon' => $medal->icon,
                 'rarity' => $medal->rarity?->value,
                 'category' => $medal->category?->value,
-                'unlocked_at' => $medal->pivot->unlocked_at?->toISOString(),
+                'unlocked_at' => $medal->pivot->unlocked_at instanceof \Carbon\Carbon
+                    ? $medal->pivot->unlocked_at->toISOString()
+                    : ($medal->pivot->unlocked_at ? \Carbon\Carbon::parse($medal->pivot->unlocked_at)->toISOString() : null),
             ])
             ->toArray();
 
