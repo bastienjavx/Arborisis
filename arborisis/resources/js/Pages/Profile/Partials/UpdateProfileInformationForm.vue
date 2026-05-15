@@ -83,7 +83,7 @@ const form = useForm({
                     v-model="form.bio"
                     rows="3"
                     maxlength="1000"
-                    class="mt-1 block w-full rounded-lg border border-arbor-fog/30 bg-arbor-charcoal/50 px-4 py-2.5 text-sm text-arbor-cream placeholder:text-arbor-sage/40 focus:border-arbor-emerald/50 focus:outline-none focus:ring-1 focus:ring-arbor-emerald/20 transition-colors resize-none"
+                    class="mt-1 block w-full rounded-lg border border-arbor-fog/30 bg-arbor-charcoal/50 px-4 py-2.5 text-base text-arbor-cream placeholder:text-arbor-sage/60 focus:border-arbor-emerald/50 focus:outline-none focus:ring-1 focus:ring-arbor-emerald/20 transition-colors resize-none"
                     placeholder="Parlez-nous de vous, de votre passion pour le field recording..."
                 />
                 <InputError class="mt-2" :message="form.errors.bio" />

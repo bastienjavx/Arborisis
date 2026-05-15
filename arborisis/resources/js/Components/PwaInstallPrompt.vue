@@ -54,7 +54,7 @@ onMounted(() => {
                     </div>
                     <button
                         @click="handleDismiss"
-                        class="text-arbor-sage hover:text-arbor-cream shrink-0 p-1"
+                        class="text-arbor-sage hover:text-arbor-cream shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center"
                         aria-label="Fermer"
                     >
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

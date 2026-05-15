@@ -57,7 +57,7 @@ const submit = () => {
             <div class="glass-card w-full max-w-md p-6 space-y-4">
                 <div class="flex items-center justify-between">
                     <h3 class="font-semibold text-arbor-cream">Signaler un contenu</h3>
-                    <button @click="show = false" class="text-arbor-sage hover:text-arbor-cream">
+                    <button @click="show = false" aria-label="Fermer" class="min-w-[44px] min-h-[44px] flex items-center justify-center text-arbor-sage hover:text-arbor-cream">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -83,7 +83,7 @@ const submit = () => {
                         <textarea
                             v-model="form.description"
                             rows="3"
-                            class="w-full rounded-lg bg-arbor-deep border-arbor-glass text-arbor-cream placeholder-arbor-sage/50 focus:border-arbor-emerald focus:ring-arbor-emerald text-sm resize-none"
+                            class="w-full rounded-lg bg-arbor-deep border-arbor-glass text-arbor-cream placeholder-arbor-sage/50 focus:border-arbor-emerald focus:ring-arbor-emerald text-base resize-none"
                             placeholder="Décrivez le problème..."
                         ></textarea>
                         <div v-if="form.errors.description" class="text-sm text-red-400 mt-1">{{ form.errors.description }}</div>

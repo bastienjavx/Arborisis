@@ -83,7 +83,7 @@ const showingExploreDropdown = ref(false);
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 </svg>
-                                                Carte communauté
+                                                Carte des visites
                                             </span>
                                         </DropdownLink>
                                     </template>
@@ -170,9 +170,9 @@ const showingExploreDropdown = ref(false);
                             @click="showingNavigationDropdown = !showingNavigationDropdown"
                             :aria-label="showingNavigationDropdown ? 'Fermer le menu' : 'Ouvrir le menu'"
                             :aria-expanded="showingNavigationDropdown"
-                            class="inline-flex items-center justify-center rounded-xl p-2 text-arbor-sage transition duration-150 ease-in-out hover:bg-arbor-glass hover:text-arbor-cream focus:bg-arbor-glass focus:text-arbor-cream focus:outline-none"
+                            class="inline-flex items-center justify-center rounded-xl p-2.5 text-arbor-sage transition duration-150 ease-in-out hover:bg-arbor-glass hover:text-arbor-cream focus:bg-arbor-glass focus:text-arbor-cream focus:outline-none min-h-[44px] min-w-[44px]"
                         >
-                            <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                            <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24" aria-hidden="true">
                                 <path
                                     :class="{ hidden: showingNavigationDropdown, 'inline-flex': !showingNavigationDropdown }"
                                     stroke-linecap="round"

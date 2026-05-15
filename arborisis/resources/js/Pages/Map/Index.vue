@@ -228,7 +228,7 @@ onMounted(() => {
                                 v-model="searchQuery"
                                 type="text"
                                 placeholder="Rechercher un son, un lieu..."
-                                class="w-full pl-10 pr-9 py-2.5 bg-arbor-charcoal/60 border border-arbor-fog/40 rounded-xl text-sm text-arbor-cream placeholder:text-arbor-sage/40 focus:outline-none focus:border-arbor-emerald/50 focus:ring-2 focus:ring-arbor-emerald/10 transition-all search-pulse"
+                                class="w-full pl-10 pr-9 py-2.5 bg-arbor-charcoal/60 border border-arbor-fog/40 rounded-xl text-base text-arbor-cream placeholder:text-arbor-sage/60 focus:outline-none focus:border-arbor-emerald/50 focus:ring-2 focus:ring-arbor-emerald/10 transition-colors search-pulse"
                                 aria-label="Rechercher un son ou un lieu"
                                 @input="onSearchInput"
                             />
@@ -250,7 +250,7 @@ onMounted(() => {
                         <div class="flex flex-wrap gap-1.5">
                             <button
                                 :class="[
-                                    'px-3 py-2 min-h-[44px] rounded-lg text-xs font-medium transition-all duration-200 flex items-center',
+                                    'px-3 py-2 min-h-[44px] rounded-lg text-xs font-medium transition-colors duration-200 flex items-center',
                                     selectedCategory === ''
                                         ? 'bg-arbor-emerald/15 text-arbor-emerald border border-arbor-emerald/30 shadow-sm shadow-arbor-emerald/5'
                                         : 'bg-arbor-charcoal/60 text-arbor-sage border border-arbor-fog/40 hover:border-arbor-sage/50 hover:bg-arbor-charcoal',
@@ -263,7 +263,7 @@ onMounted(() => {
                                 v-for="category in categories"
                                 :key="category.id"
                                 :class="[
-                                    'px-3 py-2 min-h-[44px] rounded-lg text-xs font-medium transition-all duration-200 border flex items-center',
+                                    'px-3 py-2 min-h-[44px] rounded-lg text-xs font-medium transition-colors duration-200 border flex items-center',
                                     selectedCategory == category.id
                                         ? `${getCategoryStyle(category.name).bg} ${getCategoryStyle(category.name).text} ${getCategoryStyle(category.name).border} shadow-sm ${getCategoryStyle(category.name).glow}`
                                         : 'bg-arbor-charcoal/60 text-arbor-sage border-arbor-fog/40 hover:border-arbor-sage/50 hover:bg-arbor-charcoal',
@@ -372,7 +372,7 @@ onMounted(() => {
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 7m0 13V7m0 0L9 7" />
                             </svg>
                             <p class="text-sm text-arbor-sage mb-1">Aucun enregistrement ici</p>
-                            <p class="text-xs text-arbor-sage/50 mb-4">Essayez une autre recherche ou catégorie</p>
+                            <p class="text-xs text-arbor-sage/70 mb-4">Essayez une autre recherche ou catégorie</p>
                             <button
                                 class="text-xs text-arbor-emerald hover:text-arbor-emerald-dark transition-colors font-medium"
                                 @click="clearSearch(); selectedCategory = ''; fetchSounds();"

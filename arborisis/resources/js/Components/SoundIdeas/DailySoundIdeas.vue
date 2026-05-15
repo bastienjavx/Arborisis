@@ -154,7 +154,7 @@ onMounted(() => {
         <div v-if="totalCount > 0" class="mb-6">
             <div class="h-1.5 bg-arbor-charcoal rounded-full overflow-hidden">
                 <div
-                    class="h-full bg-gradient-to-r from-arbor-emerald to-arbor-moss rounded-full transition-all duration-500 ease-out"
+                    class="h-full bg-gradient-to-r from-arbor-emerald to-arbor-moss rounded-full transition-transform duration-500 ease-out"
                     :style="{ width: `${progressPercentage}%` }"
                 />
             </div>
@@ -195,7 +195,7 @@ onMounted(() => {
             <div
                 v-for="idea in ideas"
                 :key="idea.id"
-                class="group relative p-4 rounded-xl border transition-all duration-300"
+                class="group relative p-4 rounded-xl border transition-colors duration-300"
                 :class="{
                     'bg-arbor-emerald/5 border-arbor-emerald/30': idea.status === 'completed',
                     'bg-arbor-charcoal/40 border-arbor-fog/30 hover:border-arbor-moss/40': idea.status !== 'completed',
@@ -206,7 +206,8 @@ onMounted(() => {
                     <!-- Checkbox -->
                     <button
                         @click="toggleIdea(idea)"
-                        class="mt-0.5 shrink-0 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-200"
+                        aria-label="Marquer comme complété"
+                        class="mt-0.5 shrink-0 min-w-[44px] min-h-[44px] rounded-lg border-2 flex items-center justify-center transition-colors duration-200"
                         :class="{
                             'bg-arbor-emerald border-arbor-emerald': idea.status === 'completed',
                             'border-arbor-sage/40 hover:border-arbor-emerald': idea.status !== 'completed',
@@ -283,8 +284,9 @@ onMounted(() => {
                     <button
                         v-if="idea.status !== 'dismissed' && idea.status !== 'completed'"
                         @click="dismissIdea(idea)"
-                        class="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-arbor-sage/50 hover:text-arbor-sage"
+                        class="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-arbor-sage/50 hover:text-arbor-sage min-w-[44px] min-h-[44px] flex items-center justify-center"
                         title="Ignorer cette idée"
+                        aria-label="Ignorer cette idée"
                     >
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />

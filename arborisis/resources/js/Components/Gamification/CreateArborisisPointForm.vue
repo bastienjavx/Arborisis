@@ -118,7 +118,7 @@ const showSensitiveWarning = computed(() => {
                 required
                 minlength="3"
                 maxlength="255"
-                class="w-full bg-arbor-glass border border-arbor-glass-border rounded-xl px-4 py-2.5 text-sm text-arbor-cream placeholder:text-arbor-sage/40 focus:outline-none focus:border-arbor-emerald/50 focus:ring-1 focus:ring-arbor-emerald/20 transition-colors"
+                class="w-full bg-arbor-glass border border-arbor-glass-border rounded-xl px-4 py-2.5 text-base text-arbor-cream placeholder:text-arbor-sage/60 focus:outline-none focus:border-arbor-emerald/50 focus:ring-1 focus:ring-arbor-emerald/20 transition-colors"
                 placeholder="Ex: Clairière aux chouettes"
             />
             <p v-if="errors.title" class="text-xs text-rose-400 mt-1">{{ errors.title[0] }}</p>
@@ -130,7 +130,7 @@ const showSensitiveWarning = computed(() => {
                 v-model="form.description"
                 rows="3"
                 maxlength="5000"
-                class="w-full bg-arbor-glass border border-arbor-glass-border rounded-xl px-4 py-2.5 text-sm text-arbor-cream placeholder:text-arbor-sage/40 focus:outline-none focus:border-arbor-emerald/50 focus:ring-1 focus:ring-arbor-emerald/20 transition-colors resize-none"
+                class="w-full bg-arbor-glass border border-arbor-glass-border rounded-xl px-4 py-2.5 text-base text-arbor-cream placeholder:text-arbor-sage/60 focus:outline-none focus:border-arbor-emerald/50 focus:ring-1 focus:ring-arbor-emerald/20 transition-colors resize-none"
                 placeholder="Décrivez ce lieu, ce qu'on y entend, comment y accéder..."
             />
         </div>
@@ -143,7 +143,7 @@ const showSensitiveWarning = computed(() => {
                     type="number"
                     step="any"
                     required
-                    class="w-full bg-arbor-glass border border-arbor-glass-border rounded-xl px-4 py-2.5 text-sm text-arbor-cream focus:outline-none focus:border-arbor-emerald/50 transition-colors"
+                    class="w-full bg-arbor-glass border border-arbor-glass-border rounded-xl px-4 py-2.5 text-base text-arbor-cream focus:outline-none focus:border-arbor-emerald/50 transition-colors"
                 />
             </div>
             <div>
@@ -153,7 +153,7 @@ const showSensitiveWarning = computed(() => {
                     type="number"
                     step="any"
                     required
-                    class="w-full bg-arbor-glass border border-arbor-glass-border rounded-xl px-4 py-2.5 text-sm text-arbor-cream focus:outline-none focus:border-arbor-emerald/50 transition-colors"
+                    class="w-full bg-arbor-glass border border-arbor-glass-border rounded-xl px-4 py-2.5 text-base text-arbor-cream focus:outline-none focus:border-arbor-emerald/50 transition-colors"
                 />
             </div>
         </div>
@@ -187,7 +187,7 @@ const showSensitiveWarning = computed(() => {
                     type="number"
                     min="1"
                     max="5"
-                    class="w-full bg-arbor-glass border border-arbor-glass-border rounded-xl px-4 py-2.5 text-sm text-arbor-cream focus:outline-none focus:border-arbor-emerald/50 transition-colors"
+                    class="w-full bg-arbor-glass border border-arbor-glass-border rounded-xl px-4 py-2.5 text-base text-arbor-cream focus:outline-none focus:border-arbor-emerald/50 transition-colors"
                 />
             </div>
         </div>
@@ -222,7 +222,7 @@ const showSensitiveWarning = computed(() => {
                     v-model="tagInput"
                     type="text"
                     maxlength="50"
-                    class="flex-1 bg-arbor-glass border border-arbor-glass-border rounded-xl px-4 py-2 text-sm text-arbor-cream placeholder:text-arbor-sage/40 focus:outline-none focus:border-arbor-emerald/50 transition-colors"
+                    class="flex-1 bg-arbor-glass border border-arbor-glass-border rounded-xl px-4 py-2 text-base text-arbor-cream placeholder:text-arbor-sage/60 focus:outline-none focus:border-arbor-emerald/50 transition-colors"
                     placeholder="Ajouter un tag..."
                     @keydown.enter.prevent="addTag"
                 />

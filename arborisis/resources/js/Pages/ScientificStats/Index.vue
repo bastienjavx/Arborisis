@@ -127,10 +127,10 @@ function formatDuration(seconds) {
                             </p>
                         </div>
                         <div class="text-right hidden md:block">
-                            <p class="text-xs text-arbor-sage/60 font-mono">
+                            <p class="text-xs text-arbor-sage/70 font-mono">
                                 Mis à jour : {{ new Date().toLocaleDateString('fr-FR') }}
                             </p>
-                            <p class="text-xs text-arbor-sage/60 font-mono">
+                            <p class="text-xs text-arbor-sage/70 font-mono">
                                 {{ props.stats.total_sounds?.toLocaleString('fr-FR') }} sons indexés
                             </p>
                         </div>

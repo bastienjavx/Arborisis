@@ -44,7 +44,7 @@ const isNearby = computed(() => props.distance !== null && props.distance <= 500
                             <p v-if="displayDistance" class="text-xs text-arbor-sage/70">{{ displayDistance }} de toi</p>
                         </div>
                     </div>
-                    <button @click="emit('close')" class="text-arbor-sage/50 hover:text-arbor-cream">
+                    <button @click="emit('close')" aria-label="Fermer" class="min-w-[44px] min-h-[44px] flex items-center justify-center text-arbor-sage/50 hover:text-arbor-cream">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>

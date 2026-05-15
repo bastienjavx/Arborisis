@@ -30,7 +30,7 @@ const onKeydown = (e) => {
                 v-model="body"
                 @keydown="onKeydown"
                 rows="1"
-                class="flex-1 resize-none rounded-xl bg-arbor-glass border border-arbor-glass-border px-4 py-2.5 text-sm text-arbor-cream placeholder-arbor-sage/50 focus:outline-none focus:border-arbor-emerald/50"
+                class="flex-1 resize-none rounded-xl bg-arbor-glass border border-arbor-glass-border px-4 py-2.5 text-base text-arbor-cream placeholder-arbor-sage/50 focus:outline-none focus:border-arbor-emerald/50"
                 placeholder="Écrivez un message... (Ctrl+Enter pour envoyer)"
             />
             <button

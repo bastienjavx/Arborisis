@@ -3,12 +3,28 @@ import { Head, Link } from '@inertiajs/vue3';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import { ref, onMounted, onUnmounted, defineAsyncComponent } from 'vue';
 import ParticleField from '@/Components/Three/ParticleField.vue';
+import SoundCard from '@/Components/SoundCard.vue';
+import CreatorCard from '@/Components/CreatorCard.vue';
 
 const SoundMap = defineAsyncComponent(() => import('@/Components/Map/SoundMap.vue'));
 
 const props = defineProps({
     stats: Object,
+    featuredSounds: {
+        type: Array,
+        default: () => [],
+    },
+    featuredCreators: {
+        type: Array,
+        default: () => [],
+    },
 });
+
+// Reactive data — initialized from SSR props, then refreshed client-side
+const featuredSounds = ref(props.featuredSounds);
+const featuredCreators = ref(props.featuredCreators);
+const soundsLoading = ref(props.featuredSounds.length === 0);
+const creatorsLoading = ref(props.featuredCreators.length === 0);
 
 const features = ref([
     {
@@ -28,6 +44,27 @@ const features = ref([
     },
 ]);
 
+const steps = ref([
+    {
+        number: '01',
+        title: 'Explorez',
+        description: 'Naviguez sur la carte ou parcourez les catégories pour découvrir des paysages sonores uniques.',
+        icon: 'M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 7m0 13V7m0 0L9 7',
+    },
+    {
+        number: '02',
+        title: 'Écoutez',
+        description: 'Lancez la lecture et laissez-vous transporter par les sons de la nature, capturés avec passion.',
+        icon: 'M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+    },
+    {
+        number: '03',
+        title: 'Partagez',
+        description: 'Publiez vos propres enregistrements et soutenez les créateurs qui enrichissent l\'archive.',
+        icon: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z',
+    },
+]);
+
 const categories = ref([
     { name: 'Forêts', count: 0, color: 'bg-emerald-500/20 text-emerald-400' },
     { name: 'Océans', count: 0, color: 'bg-blue-500/20 text-blue-400' },
@@ -36,8 +73,6 @@ const categories = ref([
     { name: 'Pluie', count: 0, color: 'bg-indigo-500/20 text-indigo-400' },
     { name: 'Crépuscule', count: 0, color: 'bg-amber-500/20 text-amber-400' },
 ]);
-
-// Particles are now rendered via Three.js ParticleField component
 
 const mapSounds = ref([]);
 const mapLoading = ref(true);
@@ -67,9 +102,43 @@ const animateCount = (target, key, duration = 1500) => {
     requestAnimationFrame(step);
 };
 
+const loadFeaturedSounds = async () => {
+    if (featuredSounds.value.length > 0) {
+        soundsLoading.value = false;
+        return;
+    }
+    try {
+        const response = await fetch('/api/sounds/featured');
+        if (!response.ok) throw new Error('Failed to fetch sounds');
+        featuredSounds.value = await response.json();
+    } catch (e) {
+        console.error('Failed to load featured sounds:', e);
+    } finally {
+        soundsLoading.value = false;
+    }
+};
+
+const loadFeaturedCreators = async () => {
+    if (featuredCreators.value.length > 0) {
+        creatorsLoading.value = false;
+        return;
+    }
+    try {
+        const response = await fetch('/api/creators/featured');
+        if (!response.ok) throw new Error('Failed to fetch creators');
+        featuredCreators.value = await response.json();
+    } catch (e) {
+        console.error('Failed to load featured creators:', e);
+    } finally {
+        creatorsLoading.value = false;
+    }
+};
+
 onMounted(() => {
     prefersReducedMotion.value = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     loadMapSounds();
+    loadFeaturedSounds();
+    loadFeaturedCreators();
 
     const statsEl = document.getElementById('stats-section');
     if (statsEl) {
@@ -106,11 +175,11 @@ const loadMapSounds = async () => {
 </script>
 
 <template>
-    <Head title="Accueil" />
+    <Head title="L'archive sonore du monde vivant" />
     <GuestLayout>
         <!-- Hero Section -->
         <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
-            <!-- Cinematic nature photograph background (img tag for earlier discovery & fetchpriority) -->
+            <!-- Cinematic nature photograph background -->
             <img
                 src="/images/hero-leaf.webp"
                 alt=""
@@ -148,14 +217,13 @@ const loadMapSounds = async () => {
             />
 
             <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <h1 class="font-display text-5xl sm:text-6xl lg:text-7xl font-bold text-arbor-cream leading-tight mb-6 animate-slide-up">
+                <h1 class="font-display text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-arbor-cream leading-tight mb-6 animate-slide-up">
                     L'archive sonore<br />
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-arbor-emerald to-arbor-moss">de la nature</span>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-arbor-emerald to-arbor-moss">du monde vivant</span>
                 </h1>
 
                 <p class="text-lg sm:text-xl text-arbor-sage max-w-2xl mx-auto mb-10 leading-relaxed animate-slide-up" style="animation-delay: 0.1s">
-                    Découvrez, partagez et préservez les sons du monde vivant.
-                    Une plateforme pour les field recorders et les rêveurs d'espaces sauvages.
+                    Explorez, écoutez et préservez les sons de la nature, capturés par une communauté de field recorders passionnés.
                 </p>
 
                 <div class="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up" style="animation-delay: 0.2s">
@@ -164,13 +232,13 @@ const loadMapSounds = async () => {
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
                         </svg>
-                        Explorer la carte
+                        Explorer la carte sonore
                     </Link>
-                    <Link href="/register" class="btn-secondary text-base px-8 py-4 w-full sm:w-auto group">
+                    <Link href="/sounds" class="btn-secondary text-base px-8 py-4 w-full sm:w-auto group">
                         <svg class="w-5 h-5 mr-2 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        Publier un son
+                        Écouter les derniers sons
                     </Link>
                 </div>
             </div>
@@ -209,32 +277,64 @@ const loadMapSounds = async () => {
             </div>
         </section>
 
-        <!-- Features Section -->
+        <!-- Audio Demo Section -->
         <section class="py-24">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center mb-16">
                     <h2 class="font-display text-3xl sm:text-4xl font-bold text-arbor-cream mb-4">
-                        Une expérience sonore unique
+                        Écoutez avant d'explorer
                     </h2>
                     <p class="text-arbor-sage max-w-xl mx-auto">
-                        Arborisis combine cartographie interactive, lecture haute-fidélité et communauté passionnée.
+                        Une sélection de sons récents pour vous transporter immédiatement dans la nature.
                     </p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div v-for="(feature, index) in features" :key="feature.title"
-                        class="glass-card p-8 hover:bg-white/10 transition-all duration-300 group hover-lift"
-                        :class="`stagger-${index + 1}`"
-                        style="animation: fadeInUp 0.6s ease-out forwards; animation-delay: ${index * 0.15}s; opacity: 0;"
-                    >
-                        <div class="w-12 h-12 rounded-xl bg-arbor-moss/20 flex items-center justify-center mb-6 group-hover:bg-arbor-moss/30 transition-colors group-hover:scale-110 duration-300">
-                            <svg class="w-6 h-6 text-arbor-emerald" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" :d="feature.icon" />
-                            </svg>
+                <!-- Loading skeletons -->
+                <div v-if="soundsLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div v-for="n in 6" :key="n" class="glass-card overflow-hidden animate-pulse">
+                        <div class="aspect-[16/9] bg-arbor-charcoal/60" />
+                        <div class="p-4 space-y-3">
+                            <div class="h-4 bg-arbor-charcoal/60 rounded w-3/4" />
+                            <div class="h-3 bg-arbor-charcoal/60 rounded w-1/2" />
                         </div>
-                        <h3 class="text-lg font-semibold text-arbor-cream mb-3">{{ feature.title }}</h3>
-                        <p class="text-arbor-sage text-sm leading-relaxed">{{ feature.description }}</p>
                     </div>
+                </div>
+
+                <!-- Sounds grid -->
+                <div v-else-if="featuredSounds.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <SoundCard
+                        v-for="sound in featuredSounds"
+                        :key="sound.id"
+                        :sound="sound"
+                    />
+                </div>
+
+                <!-- Empty state -->
+                <div v-else class="text-center py-16">
+                    <div class="w-16 h-16 rounded-2xl bg-arbor-moss/10 flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-arbor-moss/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                        </svg>
+                    </div>
+                    <h3 class="font-display text-lg text-arbor-cream mb-2">L'archive s'éveille</h3>
+                    <p class="text-arbor-sage max-w-sm mx-auto mb-6">
+                        Les premiers enregistrements arrivent. Soyez parmi les premiers à capturer et partager les sons de la nature.
+                    </p>
+                    <Link href="/record" class="btn-primary inline-flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+                        </svg>
+                        Enregistrer un son
+                    </Link>
+                </div>
+
+                <div class="text-center mt-10">
+                    <Link href="/sounds" class="btn-secondary inline-flex items-center gap-2 group">
+                        Découvrir tous les sons
+                        <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                    </Link>
                 </div>
             </div>
         </section>
@@ -253,7 +353,7 @@ const loadMapSounds = async () => {
                             Naviguez, filtrez et plongez dans l'acoustique des paysages.
                         </p>
                         <div class="flex flex-wrap gap-3 mb-8">
-                            <span v-for="cat in categories" :key="cat.name" class="px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 hover:scale-105 cursor-default" :class="cat.color">
+                            <span v-for="cat in categories" :key="cat.name" class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200 hover:scale-105 cursor-default" :class="cat.color">
                                 {{ cat.name }}
                             </span>
                         </div>
@@ -264,7 +364,7 @@ const loadMapSounds = async () => {
                             </svg>
                         </Link>
                     </div>
-                    <div class="glass-card aspect-[4/3] relative overflow-hidden rounded-2xl border border-arbor-glass-border hover-lift">
+                    <div class="glass-card aspect-[16/9] relative overflow-hidden rounded-2xl border border-arbor-glass-border hover-lift group">
                         <div v-if="mapLoading" class="absolute inset-0 flex flex-col items-center justify-center bg-arbor-deep/80 z-10">
                             <div class="w-10 h-10 border-2 border-arbor-emerald/30 border-t-arbor-emerald rounded-full animate-spin mb-4"></div>
                             <p class="text-arbor-sage text-sm">Chargement de la carte...</p>
@@ -275,9 +375,117 @@ const loadMapSounds = async () => {
                             :initial-zoom="2"
                             :initial-center="[25, 10]"
                         />
-                        <!-- Overlay gradient for seamless blend -->
+                        <!-- Overlay for seamless blend -->
                         <div class="absolute inset-0 pointer-events-none rounded-2xl ring-1 ring-inset ring-white/5"></div>
+                        <!-- Hover overlay -->
+                        <Link
+                            href="/map"
+                            class="absolute inset-0 bg-arbor-night/60 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                        >
+                            <span class="btn-primary">
+                                Ouvrir la carte en plein écran
+                            </span>
+                        </Link>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How it works Section -->
+        <section class="py-24">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="font-display text-3xl sm:text-4xl font-bold text-arbor-cream mb-4">
+                        Comment ça marche
+                    </h2>
+                    <p class="text-arbor-sage max-w-xl mx-auto">
+                        Arborisis est simple. Trois étapes pour explorer et partager le monde sonore.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div
+                        v-for="(step, index) in steps"
+                        :key="step.number"
+                        class="glass-card p-8 text-center hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/20 transition-all duration-300"
+                        :style="`animation: fadeInUp 0.6s ease-out forwards; animation-delay: ${index * 0.15}s; opacity: 0;`"
+                    >
+                        <div class="font-display text-5xl text-arbor-emerald/20 font-bold mb-4">
+                            {{ step.number }}
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-arbor-moss/20 flex items-center justify-center mx-auto mb-6">
+                            <svg class="w-6 h-6 text-arbor-emerald" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" :d="step.icon" />
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-arbor-cream mb-3">{{ step.title }}</h3>
+                        <p class="text-arbor-sage text-sm leading-relaxed">{{ step.description }}</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Creators Section -->
+        <section class="py-24 bg-arbor-deep/30 border-y border-arbor-glass-border">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="font-display text-3xl sm:text-4xl font-bold text-arbor-cream mb-4">
+                        Créateurs en avant
+                    </h2>
+                    <p class="text-arbor-sage max-w-xl mx-auto">
+                        Rencontrez les enregistreurs qui donnent vie à l'archive.
+                    </p>
+                </div>
+
+                <!-- Loading skeletons -->
+                <div v-if="creatorsLoading" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div v-for="n in 3" :key="n" class="glass-card p-6 animate-pulse">
+                        <div class="flex items-center gap-4">
+                            <div class="w-16 h-16 rounded-full bg-arbor-charcoal/60 shrink-0" />
+                            <div class="flex-1 space-y-2">
+                                <div class="h-4 bg-arbor-charcoal/60 rounded w-2/3" />
+                                <div class="h-3 bg-arbor-charcoal/60 rounded w-1/2" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Creators grid -->
+                <div v-else-if="featuredCreators.length > 0" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <CreatorCard
+                        v-for="creator in featuredCreators"
+                        :key="creator.id"
+                        :creator="creator"
+                        :featured-sound="creator.featured_sound"
+                    />
+                </div>
+
+                <!-- Empty state -->
+                <div v-else class="text-center py-16">
+                    <div class="w-16 h-16 rounded-2xl bg-arbor-moss/10 flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-arbor-moss/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                        </svg>
+                    </div>
+                    <h3 class="font-display text-lg text-arbor-cream mb-2">Les pionniers de l'écoute</h3>
+                    <p class="text-arbor-sage max-w-sm mx-auto mb-6">
+                        Les premiers créateurs rejoindront bientôt l'archive. Devenez l'un d'entre eux et faites entendre votre territoire.
+                    </p>
+                    <Link href="/register" class="btn-primary inline-flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                        </svg>
+                        Rejoindre la communauté
+                    </Link>
+                </div>
+
+                <div v-if="featuredCreators.length > 0" class="text-center mt-10">
+                    <Link href="/creators" class="btn-secondary inline-flex items-center gap-2 group">
+                        Voir tous les créateurs
+                        <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                    </Link>
                 </div>
             </div>
         </section>

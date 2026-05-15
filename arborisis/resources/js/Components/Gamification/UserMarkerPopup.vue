@@ -49,7 +49,7 @@ const modeColor = computed(() => {
             </span>
         </div>
 
-        <p v-if="lastSeen" class="text-[10px] text-arbor-sage/50 italic">
+        <p v-if="lastSeen" class="text-[10px] text-arbor-sage/70 italic">
             {{ lastSeen }}
         </p>
 

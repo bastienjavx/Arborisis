@@ -36,8 +36,9 @@ onMounted(() => {
     renderer.setClearColor(0x000000, 0);
     canvasContainer.value.appendChild(renderer.domElement);
 
-    // Particles geometry
-    const particleCount = 60;
+    // Particles geometry — reduce on mobile for performance and visual clarity
+    const isMobile = window.innerWidth < 768;
+    const particleCount = isMobile ? 15 : 30;
     const positions = new Float32Array(particleCount * 3);
     const colors = new Float32Array(particleCount * 3);
     const sizes = new Float32Array(particleCount);

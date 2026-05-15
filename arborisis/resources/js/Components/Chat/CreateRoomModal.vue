@@ -34,12 +34,12 @@ const submit = () => {
             <form @submit.prevent="submit" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-arbor-sage mb-1">Nom</label>
-                    <input v-model="form.name" type="text" class="w-full rounded-lg bg-arbor-glass border border-arbor-glass-border px-3 py-2 text-arbor-cream text-sm focus:outline-none focus:border-arbor-emerald/50" required />
+                    <input v-model="form.name" type="text" class="w-full rounded-lg bg-arbor-glass border border-arbor-glass-border px-3 py-2 text-arbor-cream text-base focus:outline-none focus:border-arbor-emerald/50" required />
                     <div v-if="form.errors.name" class="text-red-400 text-xs mt-1">{{ form.errors.name }}</div>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-arbor-sage mb-1">Description</label>
-                    <textarea v-model="form.description" rows="2" class="w-full rounded-lg bg-arbor-glass border border-arbor-glass-border px-3 py-2 text-arbor-cream text-sm focus:outline-none focus:border-arbor-emerald/50"></textarea>
+                    <textarea v-model="form.description" rows="2" class="w-full rounded-lg bg-arbor-glass border border-arbor-glass-border px-3 py-2 text-arbor-cream text-base focus:outline-none focus:border-arbor-emerald/50"></textarea>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-arbor-sage mb-1">Type</label>

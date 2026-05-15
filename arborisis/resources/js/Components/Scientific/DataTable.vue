@@ -72,7 +72,7 @@ function downloadCsv() {
                     v-model="search"
                     type="text"
                     placeholder="Rechercher..."
-                    class="bg-arbor-deep border border-arbor-glass-border rounded-lg px-3 py-1.5 text-sm text-arbor-cream placeholder-arbor-sage/50 focus:outline-none focus:border-arbor-emerald/50"
+                    class="bg-arbor-deep border border-arbor-glass-border rounded-lg px-3 py-1.5 text-base text-arbor-cream placeholder-arbor-sage/50 focus:outline-none focus:border-arbor-emerald/50"
                 />
                 <button
                     @click="downloadCsv"
