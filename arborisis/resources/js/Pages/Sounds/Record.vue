@@ -184,7 +184,7 @@ const goBackToRecord = () => {
                                 <h2 class="font-display text-2xl font-light italic text-arbor-cream">
                                     Décrivez votre capture
                                 </h2>
-                                <p class="mt-1 text-sm text-arbor-sage/60">
+                                <p class="mt-1 text-sm text-arbor-sage/70">
                                     Vous pouvez revenir en arrière pour réenregistrer.
                                 </p>
                             </div>
@@ -213,7 +213,7 @@ const goBackToRecord = () => {
                                         <p class="truncate text-sm text-arbor-cream">
                                             {{ form.audio_file?.name || 'Enregistrement' }}
                                         </p>
-                                        <p class="text-xs text-arbor-sage/60">
+                                        <p class="text-xs text-arbor-sage/70">
                                             {{ form.audio_file?.type?.includes('mp4') || form.audio_file?.type?.includes('aac') ? 'M4A' : 'WebM' }}
                                             — {{ (form.audio_file?.size / 1024 / 1024).toFixed(2) }} Mo
                                         </p>

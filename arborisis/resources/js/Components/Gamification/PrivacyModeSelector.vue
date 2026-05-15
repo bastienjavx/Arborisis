@@ -24,7 +24,7 @@ const selectMode = (mode) => {
             v-for="mode in modes"
             :key="mode.value"
             @click="selectMode(mode.value)"
-            class="w-full flex items-center gap-3 p-3 rounded-xl border transition-all text-left"
+            class="w-full flex items-center gap-3 p-3 rounded-xl border transition-colors text-left"
             :class="modelValue === mode.value
                 ? 'border-arbor-emerald/40 bg-arbor-emerald/5'
                 : 'border-white/5 bg-white/5 hover:bg-white/10'"
@@ -37,7 +37,7 @@ const selectMode = (mode) => {
             </div>
             <div>
                 <p class="text-sm text-arbor-cream">{{ mode.label }}</p>
-                <p class="text-[11px] text-arbor-sage/50">{{ mode.desc }}</p>
+                <p class="text-[11px] text-arbor-sage/70">{{ mode.desc }}</p>
             </div>
         </button>
     </div>

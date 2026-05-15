@@ -69,7 +69,7 @@ async function toggle() {
                     </Link>
                     <p class="truncate text-xs text-arbor-sage">{{ player.radioMetadata?.artist || 'En direct' }}</p>
                 </div>
-                <button type="button" class="p-1 text-arbor-sage hover:text-arbor-cream" aria-label="Fermer le widget radio" @click="player.close">
+                <button type="button" class="min-w-[44px] min-h-[44px] flex items-center justify-center text-arbor-sage hover:text-arbor-cream" aria-label="Fermer le widget radio" @click="player.close">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M6 18 18 6M6 6l12 12" /></svg>
                 </button>
             </div>

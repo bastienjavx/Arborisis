@@ -108,7 +108,7 @@ function formatDate(iso) {
                                 <input
                                     v-model="trackInput"
                                     type="text"
-                                    class="flex-1 rounded-xl bg-arbor-glass/30 border border-arbor-glass-border px-4 py-2.5 text-sm text-arbor-cream placeholder:text-arbor-sage/50 focus:outline-none focus:ring-2 focus:ring-arbor-emerald/40 focus:border-arbor-emerald/40 transition-all uppercase"
+                                    class="flex-1 rounded-xl bg-arbor-glass/30 border border-arbor-glass-border px-4 py-2.5 text-base text-arbor-cream placeholder:text-arbor-sage/60 focus:outline-none focus:ring-2 focus:ring-arbor-emerald/40 focus:border-arbor-emerald/40 transition-colors uppercase"
                                     placeholder="ARB-YYYYMMDD-XXXXX"
                                     @keydown.enter.prevent="trackTicket"
                                 />
@@ -189,7 +189,7 @@ function formatDate(iso) {
                                             type="button"
                                             @click="form.type = t.value"
                                             :class="[
-                                                'text-left p-4 rounded-xl border transition-all duration-200',
+                                                'text-left p-4 rounded-xl border transition-colors duration-200',
                                                 form.type === t.value
                                                     ? 'border-arbor-emerald bg-arbor-emerald/10 text-arbor-emerald'
                                                     : 'border-arbor-glass-border bg-arbor-glass/30 text-arbor-sage hover:bg-white/10'
@@ -211,7 +211,7 @@ function formatDate(iso) {
                                             v-model="form.name"
                                             type="text"
                                             required
-                                            class="w-full rounded-xl bg-arbor-glass/30 border border-arbor-glass-border px-4 py-2.5 text-sm text-arbor-cream placeholder:text-arbor-sage/50 focus:outline-none focus:ring-2 focus:ring-arbor-emerald/40 focus:border-arbor-emerald/40 transition-all"
+                                            class="w-full rounded-xl bg-arbor-glass/30 border border-arbor-glass-border px-4 py-2.5 text-base text-arbor-cream placeholder:text-arbor-sage/60 focus:outline-none focus:ring-2 focus:ring-arbor-emerald/40 focus:border-arbor-emerald/40 transition-colors"
                                             placeholder="Votre nom"
                                         />
                                         <div v-if="form.errors.name" class="mt-1.5 text-sm text-red-400">{{ form.errors.name }}</div>
@@ -223,7 +223,7 @@ function formatDate(iso) {
                                             v-model="form.email"
                                             type="email"
                                             required
-                                            class="w-full rounded-xl bg-arbor-glass/30 border border-arbor-glass-border px-4 py-2.5 text-sm text-arbor-cream placeholder:text-arbor-sage/50 focus:outline-none focus:ring-2 focus:ring-arbor-emerald/40 focus:border-arbor-emerald/40 transition-all"
+                                            class="w-full rounded-xl bg-arbor-glass/30 border border-arbor-glass-border px-4 py-2.5 text-base text-arbor-cream placeholder:text-arbor-sage/60 focus:outline-none focus:ring-2 focus:ring-arbor-emerald/40 focus:border-arbor-emerald/40 transition-colors"
                                             placeholder="vous@exemple.com"
                                         />
                                         <div v-if="form.errors.email" class="mt-1.5 text-sm text-red-400">{{ form.errors.email }}</div>
@@ -238,7 +238,7 @@ function formatDate(iso) {
                                         v-model="form.subject"
                                         type="text"
                                         required
-                                        class="w-full rounded-xl bg-arbor-glass/30 border border-arbor-glass-border px-4 py-2.5 text-sm text-arbor-cream placeholder:text-arbor-sage/50 focus:outline-none focus:ring-2 focus:ring-arbor-emerald/40 focus:border-arbor-emerald/40 transition-all"
+                                        class="w-full rounded-xl bg-arbor-glass/30 border border-arbor-glass-border px-4 py-2.5 text-base text-arbor-cream placeholder:text-arbor-sage/60 focus:outline-none focus:ring-2 focus:ring-arbor-emerald/40 focus:border-arbor-emerald/40 transition-colors"
                                         placeholder="Sujet de votre message"
                                     />
                                     <div v-if="form.errors.subject" class="mt-1.5 text-sm text-red-400">{{ form.errors.subject }}</div>
@@ -253,7 +253,7 @@ function formatDate(iso) {
                                         rows="5"
                                         required
                                         maxlength="5000"
-                                        class="w-full rounded-xl bg-arbor-glass/30 border border-arbor-glass-border px-4 py-2.5 text-sm text-arbor-cream placeholder:text-arbor-sage/50 focus:outline-none focus:ring-2 focus:ring-arbor-emerald/40 focus:border-arbor-emerald/40 transition-all resize-none"
+                                        class="w-full rounded-xl bg-arbor-glass/30 border border-arbor-glass-border px-4 py-2.5 text-base text-arbor-cream placeholder:text-arbor-sage/60 focus:outline-none focus:ring-2 focus:ring-arbor-emerald/40 focus:border-arbor-emerald/40 transition-colors resize-none"
                                         placeholder="Décrivez votre demande en détail..."
                                     ></textarea>
                                     <div class="mt-1 flex justify-between">

@@ -88,7 +88,7 @@ function handleSavePreferences() {
                         </h2>
                         <button
                             @click="store.closeDetails"
-                            class="p-1 rounded-lg text-arbor-sage hover:text-arbor-cream hover:bg-arbor-glass transition-colors"
+                            class="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-arbor-sage hover:text-arbor-cream hover:bg-arbor-glass transition-colors"
                             aria-label="Fermer"
                         >
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

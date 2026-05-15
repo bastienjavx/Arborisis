@@ -314,7 +314,7 @@ watch(() => props.sounds, updateMarkers, { deep: true });
                     </div>
                 </div>
                 <p class="text-arbor-sage text-base font-medium">Aucun son sur cette zone</p>
-                <p class="text-arbor-sage/50 text-sm mt-2 max-w-xs mx-auto">Explorez d'autres catégories ou élargissez votre recherche pour découvrir des enregistrements.</p>
+                <p class="text-arbor-sage/70 text-sm mt-2 max-w-xs mx-auto">Explorez d'autres catégories ou élargissez votre recherche pour découvrir des enregistrements.</p>
             </div>
         </div>
     </div>
@@ -379,7 +379,8 @@ watch(() => props.sounds, updateMarkers, { deep: true });
 
 /* Popup styles */
 .sound-popup-wrapper .leaflet-popup-content-wrapper {
-    background: #111827 !important;
+    background: rgba(15, 23, 42, 0.95) !important;
+    backdrop-filter: blur(12px) !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
     border-radius: 16px !important;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
@@ -393,7 +394,7 @@ watch(() => props.sounds, updateMarkers, { deep: true });
 }
 
 .sound-popup-wrapper .leaflet-popup-tip {
-    background: #111827 !important;
+    background: rgba(15, 23, 42, 0.95) !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
     width: 12px !important;
     height: 12px !important;
@@ -415,14 +416,14 @@ watch(() => props.sounds, updateMarkers, { deep: true });
     left: 0;
     right: 0;
     height: 50px;
-    background: linear-gradient(to top, #111827, transparent);
+    background: linear-gradient(to top, #0F172A, transparent);
 }
 
 .map-popup-cover-empty {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #1a1f2e, #2a3142);
+    background: linear-gradient(135deg, #1E293B, #2a3142);
     color: rgba(143, 166, 142, 0.3);
 }
 
@@ -516,7 +517,7 @@ watch(() => props.sounds, updateMarkers, { deep: true });
 }
 
 .leaflet-control-zoom a {
-    background: #111827 !important;
+    background: #0F172A !important;
     color: #8FA68E !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
     width: 38px !important;
@@ -528,7 +529,7 @@ watch(() => props.sounds, updateMarkers, { deep: true });
 }
 
 .leaflet-control-zoom a:hover {
-    background: #1a1f2e !important;
+    background: #1E293B !important;
     color: #F3F0E7 !important;
 }
 

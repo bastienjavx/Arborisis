@@ -54,7 +54,7 @@ const nextMilestone = computed(() => {
                 </div>
                 <div class="h-2.5 bg-arbor-charcoal rounded-full overflow-hidden border border-arbor-fog/50">
                     <div
-                        class="h-full bg-gradient-to-r from-arbor-emerald to-arbor-moss rounded-full transition-all duration-1000 ease-out relative"
+                        class="h-full bg-gradient-to-r from-arbor-emerald to-arbor-moss rounded-full transition-[width] duration-1000 ease-out relative"
                         :style="{ width: `${progressPercentage}%` }"
                     >
                         <div class="absolute inset-0 bg-white/20 animate-[shimmer_2s_ease-in-out_infinite]" />

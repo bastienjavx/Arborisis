@@ -194,10 +194,10 @@ const getMetaIcon = (type) => {
                                 ref="waveSurferRef"
                                 :audio-url="audioUrl"
                                 :is-playing="effectiveIsPlaying"
-                                wave-color="#4a5d4a"
-                                progress-color="#7c9a6a"
-                                cursor-color="#d4c9a8"
-                                :height="80"
+                                wave-color="#1E293B"
+                                progress-color="#34D399"
+                                cursor-color="#8FA68E"
+                                :height="100"
                                 @ready="onWaveReady"
                                 @timeupdate="onWaveTimeUpdate"
                                 @finish="onWaveFinish"
@@ -213,7 +213,7 @@ const getMetaIcon = (type) => {
                                     @click="seek"
                                 >
                                     <div
-                                        class="absolute top-0 left-0 h-full bg-arbor-emerald rounded-full transition-all duration-100 group-hover:bg-arbor-emerald-dark"
+                                        class="absolute top-0 left-0 h-full bg-arbor-emerald rounded-full transition-transform duration-100 group-hover:bg-arbor-emerald-dark"
                                         :style="`width: ${duration ? (currentTime / duration) * 100 : 0}%`"
                                     />
                                     <div
@@ -234,7 +234,7 @@ const getMetaIcon = (type) => {
                             />
                             <button
                                 @click="shareLink"
-                                class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-arbor-glass border border-arbor-glass-border text-arbor-sage text-sm hover:text-arbor-cream hover:bg-white/10 transition-all"
+                                class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-arbor-glass border border-arbor-glass-border text-arbor-sage text-sm hover:text-arbor-cream hover:bg-white/10 transition-colors"
                             >
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
@@ -333,7 +333,7 @@ const getMetaIcon = (type) => {
                         <!-- Creator Card -->
                         <div class="glass-card p-6 hover-lift">
                             <Link :href="route('creators.show', sound.user?.slug)" class="flex items-center gap-3 mb-4 group">
-                                <div class="w-12 h-12 rounded-full bg-arbor-moss/30 flex items-center justify-center overflow-hidden ring-2 ring-arbor-glass-border/50 group-hover:ring-arbor-emerald/30 transition-all">
+                                <div class="w-12 h-12 rounded-full bg-arbor-moss/30 flex items-center justify-center overflow-hidden ring-2 ring-arbor-glass-border/50 group-hover:ring-arbor-emerald/30 transition-colors">
                                     <span class="text-lg font-display font-bold text-arbor-emerald">
                                         {{ sound.user?.name?.charAt(0)?.toUpperCase() ?? '?' }}
                                     </span>

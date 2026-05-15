@@ -40,10 +40,10 @@ const formatTime = (date) => {
             >
                 {{ message.body }}
             </div>
-            <button v-if="canBan" @click="emit('ban')" class="ml-2 text-arbor-sage/50 hover:text-arbor-amber text-xs">
+            <button v-if="canBan" @click="emit('ban')" class="ml-2 text-arbor-sage/70 hover:text-arbor-amber text-xs">
                 Exclure
             </button>
-            <button v-if="canDelete" @click="emit('delete')" class="ml-2 text-arbor-sage/50 hover:text-red-400 text-xs">
+            <button v-if="canDelete" @click="emit('delete')" class="ml-2 text-arbor-sage/70 hover:text-red-400 text-xs">
                 Suppr.
             </button>
         </div>

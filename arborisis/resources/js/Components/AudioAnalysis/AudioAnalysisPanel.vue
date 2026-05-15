@@ -157,7 +157,7 @@ const confidenceColor = (c) => {
                     </span>
                 </div>
                 <div class="h-1.5 rounded-full bg-arbor-glass overflow-hidden">
-                    <div class="h-full rounded-full bg-gradient-to-r transition-all duration-700"
+                    <div class="h-full rounded-full bg-gradient-to-r transition-[width] duration-700"
                          :class="qualityGradient"
                          :style="`width: ${qualityPercent}%`"></div>
                 </div>
@@ -187,7 +187,7 @@ const confidenceColor = (c) => {
                         </div>
                         <div v-if="det.confidence !== null && det.confidence !== undefined" class="w-20">
                             <div class="h-1.5 rounded-full bg-arbor-glass overflow-hidden">
-                                <div class="h-full rounded-full transition-all"
+                                <div class="h-full rounded-full transition-[width]"
                                      :class="confidenceColor(det.confidence)"
                                      :style="`width: ${Math.round(det.confidence * 100)}%`"></div>
                             </div>

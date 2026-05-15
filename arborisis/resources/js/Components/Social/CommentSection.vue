@@ -62,7 +62,7 @@ const cancelReply = () => {
                 <textarea
                     v-model="form.body"
                     rows="3"
-                    class="w-full rounded-lg bg-arbor-deep border-arbor-glass text-arbor-cream placeholder-arbor-sage/50 focus:border-arbor-emerald focus:ring-arbor-emerald text-sm resize-none"
+                    class="w-full rounded-lg bg-arbor-deep border-arbor-glass text-arbor-cream placeholder-arbor-sage/50 focus:border-arbor-emerald focus:ring-arbor-emerald text-base resize-none"
                     placeholder="Votre commentaire..."
                 ></textarea>
                 <div v-if="form.errors.body" class="text-sm text-red-400">{{ form.errors.body }}</div>

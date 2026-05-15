@@ -170,7 +170,7 @@ const submit = () => {
                                         <input type="file" accept="audio/mpeg,audio/wav,audio/flac,audio/mp4,audio/x-m4a" class="hidden" @change="handleAudioChange" />
                                     </label>
                                 </p>
-                                <p class="text-xs text-arbor-sage/60">MP3, WAV, FLAC, M4A — max 500 Mo</p>
+                                <p class="text-xs text-arbor-sage/70">MP3, WAV, FLAC, M4A — max 500 Mo</p>
                             </div>
                             <div v-else>
                                 <audio :src="audioPreview" controls class="w-full" />

@@ -39,6 +39,9 @@ Route::get('/scientific-stats/raw-data', [\App\Http\Controllers\Api\ScientificSt
 Route::get('/map/sounds', [MapController::class, 'sounds'])->name('api.map.sounds');
 Route::get('/map/sounds/search', [MapController::class, 'search'])->name('api.map.sounds.search');
 
+Route::get('/sounds/featured', [\App\Http\Controllers\Api\FeaturedController::class, 'sounds'])->name('api.sounds.featured');
+Route::get('/creators/featured', [\App\Http\Controllers\Api\FeaturedController::class, 'creators'])->name('api.creators.featured');
+
 Route::get('/blog', [ApiBlogController::class, 'index'])->name('api.blog.index');
 Route::get('/blog/{slug}', [ApiBlogController::class, 'show'])->name('api.blog.show');
 

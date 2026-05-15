@@ -72,7 +72,7 @@ const toggleViz = (type) => {
             <div>
                 <label class="block text-xs text-arbor-sage mb-1">Hop length</label>
                 <input v-model.number="params.hop_length" type="number" min="64" max="4096" step="64"
-                    class="w-full bg-arbor-deep border border-arbor-glass-border rounded-lg px-3 py-2 text-sm text-arbor-cream focus:outline-none focus:border-arbor-emerald">
+                    class="w-full bg-arbor-deep border border-arbor-glass-border rounded-lg px-3 py-2 text-base text-arbor-cream focus:outline-none focus:border-arbor-emerald">
             </div>
 
             <!-- Frequency scale -->
@@ -87,14 +87,14 @@ const toggleViz = (type) => {
             <div>
                 <label class="block text-xs text-arbor-sage mb-1">Nombre de bands Mel</label>
                 <input v-model.number="params.n_mels" type="number" min="32" max="256"
-                    class="w-full bg-arbor-deep border border-arbor-glass-border rounded-lg px-3 py-2 text-sm text-arbor-cream focus:outline-none focus:border-arbor-emerald">
+                    class="w-full bg-arbor-deep border border-arbor-glass-border rounded-lg px-3 py-2 text-base text-arbor-cream focus:outline-none focus:border-arbor-emerald">
             </div>
 
             <!-- n_mfcc -->
             <div>
                 <label class="block text-xs text-arbor-sage mb-1">Nombre de MFCC</label>
                 <input v-model.number="params.n_mfcc" type="number" min="5" max="40"
-                    class="w-full bg-arbor-deep border border-arbor-glass-border rounded-lg px-3 py-2 text-sm text-arbor-cream focus:outline-none focus:border-arbor-emerald">
+                    class="w-full bg-arbor-deep border border-arbor-glass-border rounded-lg px-3 py-2 text-base text-arbor-cream focus:outline-none focus:border-arbor-emerald">
             </div>
 
             <!-- Preprocessing -->
@@ -131,7 +131,7 @@ const toggleViz = (type) => {
                     <div v-if="params.preprocessing.filter_type">
                         <label class="block text-xs text-arbor-sage mb-1">Fréquence de coupure (Hz)</label>
                         <input v-model.number="params.preprocessing.cutoff" type="number" min="10"
-                            class="w-full bg-arbor-deep border border-arbor-glass-border rounded-lg px-3 py-2 text-sm text-arbor-cream focus:outline-none focus:border-arbor-emerald">
+                            class="w-full bg-arbor-deep border border-arbor-glass-border rounded-lg px-3 py-2 text-base text-arbor-cream focus:outline-none focus:border-arbor-emerald">
                     </div>
 
                     <div class="flex items-center justify-between">

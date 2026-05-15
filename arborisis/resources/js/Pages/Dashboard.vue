@@ -60,7 +60,13 @@ const props = defineProps({
     },
 });
 
-// Waveform visualization is now rendered via Three.js WaveformScene component
+const activeTab = ref('overview');
+
+const tabs = [
+    { id: 'overview', label: 'Aperçu' },
+    { id: 'progression', label: 'Progression' },
+    { id: 'activity', label: 'Activité' },
+];
 
 const greeting = computed(() => {
     const hour = new Date().getHours();
@@ -99,7 +105,6 @@ const animateCount = (target, key, duration = 1200) => {
 
 onMounted(() => {
     prefersReducedMotion.value = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    // Animate stat numbers on mount with delay
     setTimeout(() => {
         statsAnimated.value = true;
         animateCount(props.stats.totalSounds, 'totalSounds');
@@ -213,13 +218,10 @@ const getMiniWaveform = (seed) => {
         <div class="relative min-h-screen bg-arbor-night">
             <!-- Ambient Background -->
             <div class="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-                <!-- Gradient glow -->
                 <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-hero-glow opacity-40" />
-                <!-- Floating waveform visualization (Three.js) -->
                 <div class="absolute bottom-0 left-0 right-0 h-48 opacity-10">
                     <WaveformScene />
                 </div>
-                <!-- Subtle noise texture overlay -->
                 <div class="absolute inset-0 opacity-[0.015]" style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 256 256%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.9%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22/%3E%3C/svg%3E'); background-repeat: repeat;"
                 />
             </div>
@@ -227,10 +229,9 @@ const getMiniWaveform = (seed) => {
             <!-- Main Content -->
             <div class="relative z-10">
                 <!-- Hero Welcome Section -->
-                <section class="pt-24 pb-12 section-padding">
+                <section class="pt-24 pb-8 section-padding">
                     <div class="max-w-7xl mx-auto">
                         <div class="animate-fade-in">
-                            <!-- Greeting -->
                             <div class="mb-2">
                                 <span class="text-arbor-sage text-sm font-medium tracking-wide uppercase">
                                     {{ greeting }}
@@ -247,20 +248,18 @@ const getMiniWaveform = (seed) => {
                 </section>
 
                 <!-- Stats Row -->
-                <section class="pb-12 section-padding">
+                <section class="pb-8 section-padding">
                     <div class="max-w-7xl mx-auto">
-                        <!-- Skeleton stats -->
                         <div v-if="!statsAnimated" class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
                             <div v-for="n in 4" :key="n" class="stat-card">
                                 <div class="flex items-center gap-3 mb-4">
-                                    <div class="w-10 h-10 rounded-xl bg-arbor-charcoal animate-pulse" />
-                                    <div class="h-3 bg-arbor-charcoal rounded animate-pulse w-20" />
+                                    <div class="w-10 h-10 rounded-xl bg-arbor-charcoal skeleton" />
+                                    <div class="h-3 bg-arbor-charcoal skeleton rounded w-20" />
                                 </div>
-                                <div class="h-8 bg-arbor-charcoal rounded animate-pulse w-16" />
+                                <div class="h-8 bg-arbor-charcoal skeleton rounded w-16" />
                             </div>
                         </div>
                         <div v-else class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-                            <!-- Stat: Sounds -->
                             <div class="stat-card group">
                                 <div class="flex items-center gap-3 mb-4">
                                     <div class="w-10 h-10 rounded-xl bg-arbor-emerald/15 flex items-center justify-center transition-transform group-hover:scale-110">
@@ -277,7 +276,6 @@ const getMiniWaveform = (seed) => {
                                 </div>
                             </div>
 
-                            <!-- Stat: Plays -->
                             <div class="stat-card group">
                                 <div class="flex items-center gap-3 mb-4">
                                     <div class="w-10 h-10 rounded-xl bg-arbor-moss/20 flex items-center justify-center transition-transform group-hover:scale-110">
@@ -294,7 +292,6 @@ const getMiniWaveform = (seed) => {
                                 </div>
                             </div>
 
-                            <!-- Stat: Likes -->
                             <div class="stat-card group">
                                 <div class="flex items-center gap-3 mb-4">
                                     <div class="w-10 h-10 rounded-xl bg-rose-500/15 flex items-center justify-center transition-transform group-hover:scale-110">
@@ -311,7 +308,6 @@ const getMiniWaveform = (seed) => {
                                 </div>
                             </div>
 
-                            <!-- Stat: Followers -->
                             <div class="stat-card group">
                                 <div class="flex items-center gap-3 mb-4">
                                     <div class="w-10 h-10 rounded-xl bg-arbor-amber/15 flex items-center justify-center transition-transform group-hover:scale-110">
@@ -331,41 +327,33 @@ const getMiniWaveform = (seed) => {
                     </div>
                 </section>
 
-                <!-- Gamification Section -->
-                <section class="pb-12 section-padding">
+                <!-- Tabs -->
+                <section class="pb-8 section-padding">
                     <div class="max-w-7xl mx-auto">
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                            <!-- Player Progress (1/3) -->
-                            <div class="lg:col-span-1">
-                                <PlayerProgressCard
-                                    :level="gamification.level"
-                                    :xp-total="gamification.xp_total"
-                                    :xp-for-next-level="gamification.xp_for_next_level"
-                                    :xp-progress="gamification.xp_progress"
-                                    :xp-needed="gamification.xp_needed"
-                                    :progress-percentage="gamification.progress_percentage"
-                                    :current-streak="gamification.current_streak"
-                                    :longest-streak="gamification.longest_streak"
-                                    :quests-completed="gamification.quests_completed"
-                                    :achievements-unlocked="gamification.achievements_unlocked"
-                                    :medals-unlocked="gamification.medals_unlocked"
+                        <div class="flex items-center gap-1 border-b border-arbor-glass-border">
+                            <button
+                                v-for="tab in tabs"
+                                :key="tab.id"
+                                @click="activeTab = tab.id"
+                                class="px-4 py-3 text-sm font-medium transition-colors relative"
+                                :class="activeTab === tab.id ? 'text-arbor-emerald' : 'text-arbor-sage hover:text-arbor-cream'"
+                            >
+                                {{ tab.label }}
+                                <span
+                                    v-if="activeTab === tab.id"
+                                    class="absolute bottom-0 left-0 right-0 h-0.5 bg-arbor-emerald rounded-full"
                                 />
-                            </div>
-                            <!-- Active Quests (2/3) -->
-                            <div class="lg:col-span-2">
-                                <ActiveQuests :quests="gamification.quests" />
-                            </div>
+                            </button>
                         </div>
                     </div>
                 </section>
 
-                <!-- Main Content Grid -->
-                <section class="pb-24 section-padding">
+                <!-- Tab Content: Overview -->
+                <section v-if="activeTab === 'overview'" class="pb-24 section-padding">
                     <div class="max-w-7xl mx-auto">
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                             <!-- Left Column (2/3) -->
                             <div class="lg:col-span-2 space-y-8">
-                                <!-- Daily Sound Ideas -->
                                 <DailySoundIdeas
                                     :initial-ideas="dailySoundIdeas.ideas"
                                     :initial-theme="dailySoundIdeas.theme"
@@ -404,7 +392,7 @@ const getMiniWaveform = (seed) => {
                                                 class="flex items-center gap-4 p-4 rounded-xl bg-arbor-charcoal/50 border border-arbor-fog/50 hover:border-arbor-moss/50 hover:bg-arbor-charcoal transition-colors duration-300 group"
                                                 :style="`animation: slideInRight 0.4s ease-out forwards; animation-delay: ${index * 0.08}s; opacity: 0;`"
                                             >
-                                                <!-- Cover / Play button -->
+                                                <!-- Cover -->
                                                 <div class="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-arbor-deep">
                                                     <div
                                                         v-if="sound.cover_url"
@@ -416,7 +404,6 @@ const getMiniWaveform = (seed) => {
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                                                         </svg>
                                                     </div>
-                                                    <!-- Play overlay -->
                                                     <div class="sound-card-overlay rounded-xl" aria-hidden="true">
                                                         <div class="w-8 h-8 rounded-full bg-arbor-emerald/90 flex items-center justify-center">
                                                             <svg class="w-4 h-4 text-arbor-night ml-0.5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -468,7 +455,6 @@ const getMiniWaveform = (seed) => {
                                         </div>
                                     </div>
 
-                                    <!-- Empty State -->
                                     <div v-else class="text-center py-16">
                                         <div class="w-16 h-16 rounded-2xl bg-arbor-moss/10 flex items-center justify-center mx-auto mb-4 transition-transform hover:scale-110">
                                             <svg class="w-8 h-8 text-arbor-moss/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -480,44 +466,6 @@ const getMiniWaveform = (seed) => {
                                         <Link href="/sounds/create" class="btn-primary">
                                             Publier un son
                                         </Link>
-                                    </div>
-                                </div>
-
-                                <!-- Activity Feed -->
-                                <div class="glass-card p-6 lg:p-8">
-                                    <h2 class="font-display text-2xl font-semibold text-arbor-cream mb-6">
-                                        Activité récente
-                                    </h2>
-
-                                    <div v-if="activities.length > 0" class="space-y-4">
-                                        <div
-                                            v-for="(activity, index) in activities.slice(0, 6)"
-                                            :key="activity.id"
-                                            class="flex items-start gap-4 p-4 rounded-xl hover:bg-arbor-charcoal/30 transition-colors"
-                                            :style="`animation: slideInRight 0.4s ease-out forwards; animation-delay: ${index * 0.06}s; opacity: 0;`"
-                                        >
-                                            <div
-                                                class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform hover:scale-110"
-                                                :class="getActivityColor(activity.type)"
-                                            >
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" :d="getActivityIcon(activity.type)" />
-                                                </svg>
-                                            </div>
-                                            <div class="flex-1 min-w-0">
-                                                <p class="text-arbor-cream text-sm">
-                                                    <span class="font-medium">{{ activity.user?.name }}</span>
-                                                    {{ activity.description }}
-                                                </p>
-                                                <p class="text-arbor-sage text-xs mt-1">
-                                                    {{ formatDate(activity.created_at) }}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div v-else class="text-center py-12">
-                                        <p class="text-arbor-sage text-sm">Aucune activité récente à afficher.</p>
                                     </div>
                                 </div>
                             </div>
@@ -570,6 +518,7 @@ const getMiniWaveform = (seed) => {
                                                     'bg-arbor-emerald/15 text-arbor-emerald': action.color === 'emerald',
                                                     'bg-arbor-moss/20 text-arbor-moss-light': action.color === 'moss',
                                                     'bg-arbor-sage/15 text-arbor-sage': action.color === 'sage',
+                                                    'bg-arbor-amber/15 text-arbor-amber': action.color === 'amber',
                                                 }"
                                             >
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -585,12 +534,6 @@ const getMiniWaveform = (seed) => {
                                         </Link>
                                     </div>
                                 </div>
-
-                                <!-- Achievements & Medals -->
-                                <AchievementMedalShelf
-                                    :achievements="gamification.achievements"
-                                    :medals="gamification.medals"
-                                />
 
                                 <!-- Tip Card -->
                                 <div class="glass-card p-6 bg-gradient-to-br from-arbor-moss/10 to-transparent hover-lift">
@@ -608,6 +551,81 @@ const getMiniWaveform = (seed) => {
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Tab Content: Progression -->
+                <section v-if="activeTab === 'progression'" class="pb-24 section-padding">
+                    <div class="max-w-7xl mx-auto">
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            <div class="lg:col-span-1">
+                                <PlayerProgressCard
+                                    :level="gamification.level"
+                                    :xp-total="gamification.xp_total"
+                                    :xp-for-next-level="gamification.xp_for_next_level"
+                                    :xp-progress="gamification.xp_progress"
+                                    :xp-needed="gamification.xp_needed"
+                                    :progress-percentage="gamification.progress_percentage"
+                                    :current-streak="gamification.current_streak"
+                                    :longest-streak="gamification.longest_streak"
+                                    :quests-completed="gamification.quests_completed"
+                                    :achievements-unlocked="gamification.achievements_unlocked"
+                                    :medals-unlocked="gamification.medals_unlocked"
+                                />
+                            </div>
+                            <div class="lg:col-span-2">
+                                <ActiveQuests :quests="gamification.quests" />
+                            </div>
+                        </div>
+                        <div class="mt-8">
+                            <AchievementMedalShelf
+                                :achievements="gamification.achievements"
+                                :medals="gamification.medals"
+                            />
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Tab Content: Activity -->
+                <section v-if="activeTab === 'activity'" class="pb-24 section-padding">
+                    <div class="max-w-7xl mx-auto">
+                        <div class="glass-card p-6 lg:p-8 max-w-3xl">
+                            <h2 class="font-display text-2xl font-semibold text-arbor-cream mb-6">
+                                Activité récente
+                            </h2>
+
+                            <div v-if="activities.length > 0" class="space-y-4">
+                                <div
+                                    v-for="(activity, index) in activities"
+                                    :key="activity.id"
+                                    class="flex items-start gap-4 p-4 rounded-xl hover:bg-arbor-charcoal/30 transition-colors"
+                                    :style="`animation: slideInRight 0.4s ease-out forwards; animation-delay: ${index * 0.06}s; opacity: 0;`"
+                                >
+                                    <div
+                                        class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform hover:scale-110"
+                                        :class="getActivityColor(activity.type)"
+                                    >
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" :d="getActivityIcon(activity.type)" />
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-arbor-cream text-sm">
+                                            <span class="font-medium">{{ activity.user?.name }}</span>
+                                            {{ activity.description }}
+                                        </p>
+                                        <p class="text-arbor-sage text-xs mt-1">
+                                            {{ formatDate(activity.created_at) }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div v-else class="text-center py-12">
+                                <p class="text-arbor-sage text-sm">Aucune activité récente à afficher.</p>
+                                <p class="text-arbor-sage/70 text-xs mt-2">Votre histoire commence ici. Publiez ou écoutez votre premier son.</p>
                             </div>
                         </div>
                     </div>

@@ -46,7 +46,7 @@ const handleClick = () => {
     <button
         @click="handleClick"
         :disabled="isDisabled"
-        class="w-full py-3 rounded-xl font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2"
+        class="w-full py-3 rounded-xl font-semibold text-sm transition-colors duration-200 flex items-center justify-center gap-2"
         :class="[
             isDisabled
                 ? 'bg-white/5 text-arbor-sage/40 cursor-not-allowed'

@@ -31,7 +31,7 @@ const isModerator = computed(() => page.props.auth.user?.is_moderator);
             <div class="p-3">
                 <div class="flex items-center justify-between mb-2">
                     <h3 class="text-xs font-semibold uppercase tracking-wider text-arbor-sage">Salons</h3>
-                    <button v-if="isModerator" @click="showCreateRoom = true" class="text-arbor-sage hover:text-arbor-emerald" title="Créer un salon">
+                    <button v-if="isModerator" @click="showCreateRoom = true" class="min-w-[44px] min-h-[44px] flex items-center justify-center text-arbor-sage hover:text-arbor-emerald" title="Créer un salon" aria-label="Créer un salon">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     </button>
                 </div>
@@ -55,7 +55,7 @@ const isModerator = computed(() => page.props.auth.user?.is_moderator);
             <div class="p-3 border-t border-arbor-glass-border">
                 <div class="flex items-center justify-between mb-2">
                     <h3 class="text-xs font-semibold uppercase tracking-wider text-arbor-sage">Messages</h3>
-                    <button @click="showNewConversation = true" class="text-arbor-sage hover:text-arbor-emerald" title="Nouvelle conversation">
+                    <button @click="showNewConversation = true" class="min-w-[44px] min-h-[44px] flex items-center justify-center text-arbor-sage hover:text-arbor-emerald" title="Nouvelle conversation" aria-label="Nouvelle conversation">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     </button>
                 </div>

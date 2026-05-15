@@ -58,7 +58,7 @@ const getRarityClass = (rarity) => rarityGlow[rarity] || rarityGlow.common;
                 <div
                     v-for="(achievement, index) in achievements"
                     :key="achievement.id"
-                    class="flex items-center gap-3 p-3 rounded-xl bg-arbor-charcoal/40 border border-arbor-fog/40 hover:border-arbor-emerald/30 hover:bg-arbor-charcoal/60 transition-all duration-300 group"
+                    class="flex items-center gap-3 p-3 rounded-xl bg-arbor-charcoal/40 border border-arbor-fog/40 hover:border-arbor-emerald/30 hover:bg-arbor-charcoal/60 transition-transform duration-300 group"
                     :style="`animation: slideInRight 0.4s ease-out forwards; animation-delay: ${index * 0.06}s; opacity: 0;`"
                 >
                     <div class="w-10 h-10 rounded-xl bg-arbor-emerald/10 border border-arbor-emerald/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
@@ -102,7 +102,7 @@ const getRarityClass = (rarity) => rarityGlow[rarity] || rarityGlow.common;
                 <div
                     v-for="(medal, index) in medals"
                     :key="medal.id"
-                    class="group relative flex flex-col items-center text-center p-2 rounded-xl bg-arbor-charcoal/40 border hover:border-arbor-amber/30 hover:bg-arbor-charcoal/60 transition-all duration-300 cursor-default"
+                    class="group relative flex flex-col items-center text-center p-2 rounded-xl bg-arbor-charcoal/40 border hover:border-arbor-amber/30 hover:bg-arbor-charcoal/60 transition-transform duration-300 cursor-default"
                     :class="getRarityClass(medal.rarity)"
                     :style="`animation: scaleIn 0.4s ease-out forwards; animation-delay: ${index * 0.08}s; opacity: 0;`"
                 >

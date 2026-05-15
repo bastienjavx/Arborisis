@@ -215,7 +215,7 @@ onUnmounted(() => {
                         {{ dev.label }}
                     </option>
                 </select>
-                <div class="pointer-events-none absolute right-3 top-[2.1rem] text-arbor-sage/50">
+                <div class="pointer-events-none absolute right-3 top-[2.1rem] text-arbor-sage/70">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
@@ -223,7 +223,7 @@ onUnmounted(() => {
             </div>
 
             <button
-                class="text-xs text-arbor-sage/60 underline-offset-2 transition-colors hover:text-arbor-sage"
+                class="text-xs text-arbor-sage/70 underline-offset-2 transition-colors hover:text-arbor-sage"
                 @click="showAdvanced = !showAdvanced"
             >
                 {{ showAdvanced ? 'Masquer les options' : 'Options avancées' }}
@@ -355,14 +355,14 @@ onUnmounted(() => {
                 :class="{
                     'text-arbor-emerald': state === 'recording',
                     'text-arbor-amber': state === 'paused',
-                    'text-arbor-sage/50': state === 'idle',
+                    'text-arbor-sage/70': state === 'idle',
                 }"
             >
                 {{ timerDisplay }}
             </div>
 
             <!-- State label -->
-            <p class="mt-2 text-sm font-display italic text-arbor-sage/60 transition-all duration-300">
+            <p class="mt-2 text-sm font-display italic text-arbor-sage/70 transition-all duration-300">
                 <span v-if="state === 'idle'">Appuyez pour écouter le silence</span>
                 <span v-else-if="state === 'recording'">Enregistrement en cours…</span>
                 <span v-else-if="state === 'paused'">En pause</span>

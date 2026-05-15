@@ -12,6 +12,12 @@ const props = defineProps({
 const displayValue = ref(0);
 
 function animateCount(target, duration = 1200) {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) {
+        displayValue.value = target;
+        return;
+    }
+
     const start = performance.now();
     const from = 0;
 
@@ -32,7 +38,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="glass-card p-6 hover-lift transition-all duration-300">
+    <div class="glass-card p-6 hover-lift transition-transform duration-300">
         <div class="flex items-start justify-between">
             <div>
                 <p class="text-arbor-sage text-sm font-medium tracking-wide uppercase">{{ label }}</p>

@@ -36,7 +36,7 @@ const getStatusConfig = (status) => statusConfig[status] || statusConfig.availab
             <div
                 v-for="(quest, index) in quests"
                 :key="quest.id || quest.title + index"
-                class="group relative bg-arbor-charcoal/50 border border-arbor-fog/50 rounded-xl p-4 hover:border-arbor-moss/40 hover:bg-arbor-charcoal/70 transition-all duration-300"
+                class="group relative bg-arbor-charcoal/50 border border-arbor-fog/50 rounded-xl p-4 hover:border-arbor-moss/40 hover:bg-arbor-charcoal/70 transition-colors duration-300"
                 :style="`animation: slideInRight 0.4s ease-out forwards; animation-delay: ${index * 0.1}s; opacity: 0;`"
             >
                 <div class="flex items-start justify-between gap-3 mb-3">
@@ -68,7 +68,7 @@ const getStatusConfig = (status) => statusConfig[status] || statusConfig.availab
                 <div class="flex items-center gap-3">
                     <div class="flex-1 h-1.5 bg-arbor-deep rounded-full overflow-hidden">
                         <div
-                            class="h-full rounded-full transition-all duration-700 ease-out"
+                            class="h-full rounded-full transition-[width] duration-700 ease-out"
                             :class="{
                                 'bg-arbor-emerald': quest.status === 'in_progress' || quest.status === 'available',
                                 'bg-arbor-amber': quest.status === 'completed',

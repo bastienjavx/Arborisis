@@ -35,14 +35,14 @@ const emit = defineEmits(['close']);
                 </p>
 
                 <div class="bg-white/5 rounded-xl p-4 mb-6">
-                    <p class="text-xs text-arbor-sage/50 mb-1">Lieu visité</p>
+                    <p class="text-xs text-arbor-sage/70 mb-1">Lieu visité</p>
                     <p class="text-sm font-medium text-arbor-cream">{{ pointTitle }}</p>
                 </div>
 
                 <div class="flex items-center justify-center gap-2 mb-6">
-                    <span class="text-xs text-arbor-sage/50">+</span>
+                    <span class="text-xs text-arbor-sage/70">+</span>
                     <span class="text-2xl font-bold text-arbor-emerald">{{ xpGained }}</span>
-                    <span class="text-xs text-arbor-sage/50">XP</span>
+                    <span class="text-xs text-arbor-sage/70">XP</span>
                 </div>
 
                 <button

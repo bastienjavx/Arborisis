@@ -63,7 +63,7 @@ const selectUser = (user) => {
             <div class="space-y-3">
                 <div>
                     <label class="block text-sm font-medium text-arbor-sage mb-1">Rechercher un utilisateur</label>
-                    <input v-model="search" type="text" placeholder="Nom..." class="w-full rounded-lg bg-arbor-glass border border-arbor-glass-border px-3 py-2 text-arbor-cream text-sm focus:outline-none focus:border-arbor-emerald/50" />
+                    <input v-model="search" type="text" placeholder="Nom..." class="w-full rounded-lg bg-arbor-glass border border-arbor-glass-border px-3 py-2 text-arbor-cream text-base focus:outline-none focus:border-arbor-emerald/50" />
                 </div>
                 <div v-if="loading" class="text-sm text-arbor-sage">Chargement...</div>
                 <div v-else-if="results.length" class="space-y-1 max-h-48 overflow-y-auto">
