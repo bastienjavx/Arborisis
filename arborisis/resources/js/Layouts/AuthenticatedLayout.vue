@@ -14,14 +14,13 @@ const showingExploreDropdown = ref(false);
 
 <template>
     <div class="min-h-screen bg-arbor-night text-arbor-cream">
-        <nav class="fixed top-0 left-0 right-0 z-[1000] bg-arbor-night/80 backdrop-blur-md border-b border-arbor-glass-border">
+        <nav class="fixed top-0 left-0 right-0 z-fixed-nav bg-arbor-night/80 backdrop-blur-md border-b border-arbor-glass-border">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="flex h-16 justify-between">
                     <div class="flex items-center gap-8">
                         <!-- Logo -->
-                        <Link :href="route('landing')" class="flex items-center gap-3">
-                            <ApplicationLogo class="block h-8 w-8 text-arbor-emerald shrink-0" />
-                            <span class="font-display text-lg font-semibold hidden sm:block">Arborisis</span>
+                        <Link :href="route('landing')" class="flex items-center">
+                            <ApplicationLogo class="block h-12 w-auto shrink-0" />
                         </Link>
 
                         <!-- Desktop Navigation Links -->
@@ -75,7 +74,7 @@ const showingExploreDropdown = ref(false);
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 7m0 13V7m0 0L9 7" />
                                                 </svg>
-                                                Carte sonore
+                                                Carte des sons
                                             </span>
                                         </DropdownLink>
                                         <DropdownLink :href="route('arborisis-map.index')">
@@ -84,7 +83,7 @@ const showingExploreDropdown = ref(false);
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 </svg>
-                                                Carte Arborisis
+                                                Carte communauté
                                             </span>
                                         </DropdownLink>
                                     </template>
@@ -100,6 +99,18 @@ const showingExploreDropdown = ref(false);
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                                     </svg>
                                     Publier
+                                </span>
+                            </NavLink>
+
+                            <NavLink
+                                :href="route('sounds.record')"
+                                :active="route().current('sounds.record')"
+                            >
+                                <span class="flex items-center gap-1.5">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                                    </svg>
+                                    Enregistrer
                                 </span>
                             </NavLink>
                         </div>
@@ -204,13 +215,13 @@ const showingExploreDropdown = ref(false);
                         :href="route('map.index')"
                         :active="route().current('map.index')"
                     >
-                        Carte sonore
+                        Carte des sons
                     </ResponsiveNavLink>
                     <ResponsiveNavLink
                         :href="route('arborisis-map.index')"
                         :active="route().current('arborisis-map.index')"
                     >
-                        Carte Arborisis
+                        Carte communauté
                     </ResponsiveNavLink>
                     <ResponsiveNavLink
                         :href="route('sounds.create')"
@@ -221,6 +232,17 @@ const showingExploreDropdown = ref(false);
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                             </svg>
                             Publier
+                        </span>
+                    </ResponsiveNavLink>
+                    <ResponsiveNavLink
+                        :href="route('sounds.record')"
+                        :active="route().current('sounds.record')"
+                    >
+                        <span class="flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                            </svg>
+                            Enregistrer
                         </span>
                     </ResponsiveNavLink>
                 </div>

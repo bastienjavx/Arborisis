@@ -15,6 +15,11 @@ return [
 
     'default' => env('FILESYSTEM_DISK', 'local'),
 
+    'avatar_disk' => env(
+        'AVATAR_DISK',
+        env('FILESYSTEM_DISK', 'local') === 'local' ? 'public' : env('FILESYSTEM_DISK', 'local')
+    ),
+
     'audio_disk' => env('AUDIO_DISK', 'audio'),
 
     /*
@@ -86,6 +91,13 @@ return [
             'endpoint' => env('R2_ENDPOINT'),
             'use_path_style_endpoint' => env('R2_USE_PATH_STYLE_ENDPOINT', true),
             'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
+        ],
+
+        'radio_cache' => [
+            'driver' => 'local',
+            'root' => storage_path('app/radio-cache'),
             'throw' => false,
             'report' => false,
         ],

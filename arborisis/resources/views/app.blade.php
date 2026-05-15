@@ -15,11 +15,29 @@
         <!-- PWA -->
         <link rel="manifest" href="/manifest.json">
         <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="/pwa-icons/icon-192x192.png">
+        <link rel="apple-touch-icon" sizes="167x167" href="/pwa-icons/icon-192x192.png">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
         <meta name="apple-mobile-web-app-title" content="Arborisis">
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="application-name" content="Arborisis">
+
+        <!-- Microsoft / Windows -->
+        <meta name="msapplication-TileColor" content="#0B1220">
+        <meta name="msapplication-TileImage" content="/pwa-icons/icon-192x192.png">
+        <meta name="msapplication-config" content="none">
+        <meta name="msapplication-navbutton-color" content="#0B1220">
+
+        <!-- Safari pinned tab -->
+        <link rel="mask-icon" href="/pwa-icons/icon.svg" color="#34D399">
+
+        <!-- Format detection -->
+        <meta name="format-detection" content="telephone=no">
+
+        <!-- Icons for various sizes -->
+        <link rel="icon" type="image/png" sizes="192x192" href="/pwa-icons/icon-192x192.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/pwa-icons/icon-512x512.png">
 
         <title inertia>{{ config('app.name', 'Arborisis') }}</title>
 

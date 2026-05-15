@@ -19,8 +19,10 @@ defineExpose({ focus: () => input.value.focus() });
 
 <template>
     <input
-        class="w-full bg-arbor-charcoal/80 border border-arbor-fog/60 rounded-xl px-4 py-3.5 text-arbor-cream placeholder:text-arbor-sage/40 focus:border-arbor-emerald/60 focus:ring-2 focus:ring-arbor-emerald/15 focus:outline-none transition-all duration-300"
+        class="w-full bg-arbor-charcoal/80 border border-arbor-fog/60 rounded-xl px-4 py-3.5 text-arbor-cream placeholder:text-arbor-sage/40 focus:border-arbor-emerald/60 focus:ring-2 focus:ring-arbor-emerald/15 focus:outline-none transition-colors duration-300"
         v-model="model"
         ref="input"
+        :aria-invalid="$attrs['aria-error'] ? true : false"
+        :aria-describedby="$attrs['aria-describedby'] || undefined"
     />
 </template>

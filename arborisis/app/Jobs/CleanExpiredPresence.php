@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
+use App\Events\Gamification\UserLeftMap;
 use App\Models\UserPresence;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -17,6 +18,12 @@ class CleanExpiredPresence implements ShouldQueue
 
     public function handle(): void
     {
+        $expired = UserPresence::where('expires_at', '<=', now())->get();
+
+        foreach ($expired as $presence) {
+            UserLeftMap::dispatch($presence->user_id);
+        }
+
         UserPresence::where('expires_at', '<=', now())->delete();
     }
 }

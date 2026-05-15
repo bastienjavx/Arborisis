@@ -5,12 +5,16 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Link, useForm, usePage } from '@inertiajs/vue3';
 
-defineProps({
+const props = defineProps({
     mustVerifyEmail: {
         type: Boolean,
     },
     status: {
         type: String,
+    },
+    profile: {
+        type: Object,
+        default: null,
     },
 });
 
@@ -19,6 +23,9 @@ const user = usePage().props.auth.user;
 const form = useForm({
     name: user.name,
     email: user.email,
+    bio: props.profile?.bio ?? '',
+    location: props.profile?.location ?? '',
+    website: props.profile?.website ?? '',
 });
 </script>
 
@@ -67,6 +74,45 @@ const form = useForm({
                 />
 
                 <InputError class="mt-2" :message="form.errors.email" />
+            </div>
+
+            <div>
+                <InputLabel for="bio" value="Bio" />
+                <textarea
+                    id="bio"
+                    v-model="form.bio"
+                    rows="3"
+                    maxlength="1000"
+                    class="mt-1 block w-full rounded-lg border border-arbor-fog/30 bg-arbor-charcoal/50 px-4 py-2.5 text-sm text-arbor-cream placeholder:text-arbor-sage/40 focus:border-arbor-emerald/50 focus:outline-none focus:ring-1 focus:ring-arbor-emerald/20 transition-colors resize-none"
+                    placeholder="Parlez-nous de vous, de votre passion pour le field recording..."
+                />
+                <InputError class="mt-2" :message="form.errors.bio" />
+            </div>
+
+            <div>
+                <InputLabel for="location" value="Localisation" />
+                <TextInput
+                    id="location"
+                    type="text"
+                    class="mt-1 block w-full"
+                    v-model="form.location"
+                    autocomplete="off"
+                    placeholder="Ex: Bretagne, France"
+                />
+                <InputError class="mt-2" :message="form.errors.location" />
+            </div>
+
+            <div>
+                <InputLabel for="website" value="Site web" />
+                <TextInput
+                    id="website"
+                    type="url"
+                    class="mt-1 block w-full"
+                    v-model="form.website"
+                    autocomplete="url"
+                    placeholder="https://..."
+                />
+                <InputError class="mt-2" :message="form.errors.website" />
             </div>
 
             <div v-if="mustVerifyEmail && user.email_verified_at === null">

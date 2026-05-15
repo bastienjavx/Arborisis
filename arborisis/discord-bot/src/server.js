@@ -1,6 +1,7 @@
 const express = require('express');
 const { client } = require('./client');
 const config = require('./config');
+const voiceRadio = require('./services/voiceRadio');
 
 const app = express();
 app.use(express.json());
@@ -13,6 +14,7 @@ app.get('/health', (_req, res) => {
     status: 'ok',
     uptime: process.uptime(),
     discord: client.isReady() ? 'ready' : 'connecting',
+    radio: voiceRadio.status(),
   });
 });
 

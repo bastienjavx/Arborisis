@@ -40,7 +40,6 @@ class StripeCheckoutService
             ]);
 
             $session = Session::create([
-                'payment_method_types' => ['card'],
                 'line_items' => [
                     [
                         'price_data' => [

@@ -2,6 +2,7 @@
 import { Head, Link } from '@inertiajs/vue3';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import { ref, onMounted, onUnmounted, defineAsyncComponent } from 'vue';
+import ParticleField from '@/Components/Three/ParticleField.vue';
 
 const SoundMap = defineAsyncComponent(() => import('@/Components/Map/SoundMap.vue'));
 
@@ -36,15 +37,7 @@ const categories = ref([
     { name: 'Crépuscule', count: 0, color: 'bg-amber-500/20 text-amber-400' },
 ]);
 
-const particles = ref(Array.from({ length: 12 }, (_, i) => ({
-    id: i,
-    size: 1 + Math.random() * 2,
-    left: 10 + Math.random() * 80,
-    top: 5 + Math.random() * 90,
-    delay: Math.random() * 5,
-    duration: 3 + Math.random() * 4,
-    color: ['arbor-emerald', 'arbor-moss', 'arbor-sage', 'arbor-amber'][Math.floor(Math.random() * 4)],
-})));
+// Particles are now rendered via Three.js ParticleField component
 
 const mapSounds = ref([]);
 const mapLoading = ref(true);
@@ -54,7 +47,13 @@ const animatedStats = ref({ sounds: 0, creators: 0, countries: 0 });
 const statsVisible = ref(false);
 let statsObserver = null;
 
+const prefersReducedMotion = ref(false);
+
 const animateCount = (target, key, duration = 1500) => {
+    if (prefersReducedMotion.value) {
+        animatedStats.value[key] = target;
+        return;
+    }
     const start = performance.now();
     const from = 0;
     const to = target;
@@ -69,6 +68,7 @@ const animateCount = (target, key, duration = 1500) => {
 };
 
 onMounted(() => {
+    prefersReducedMotion.value = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     loadMapSounds();
 
     const statsEl = document.getElementById('stats-section');
@@ -139,23 +139,8 @@ const loadMapSounds = async () => {
             <!-- Hero glow -->
             <div class="absolute inset-0 bg-hero-glow opacity-40" />
 
-            <!-- Floating particles effect -->
-            <div class="absolute inset-0 overflow-hidden">
-                <div
-                    v-for="particle in particles"
-                    :key="particle.id"
-                    class="absolute rounded-full animate-pulse-slow"
-                    :class="`bg-${particle.color}/${particle.color === 'arbor-sage' ? '20' : '30'}`"
-                    :style="{
-                        width: `${particle.size}px`,
-                        height: `${particle.size}px`,
-                        left: `${particle.left}%`,
-                        top: `${particle.top}%`,
-                        animationDelay: `${particle.delay}s`,
-                        animationDuration: `${particle.duration}s`,
-                    }"
-                />
-            </div>
+            <!-- Floating particles effect (Three.js) -->
+            <ParticleField />
 
             <!-- Subtle scan-line effect -->
             <div class="absolute inset-0 opacity-[0.02] pointer-events-none"

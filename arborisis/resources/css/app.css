@@ -60,19 +60,19 @@
 
     /* Buttons */
     .btn-primary {
-        @apply inline-flex items-center justify-center px-6 py-3 bg-arbor-moss hover:bg-arbor-moss-light text-white font-medium rounded-xl transition-all duration-300;
+        @apply inline-flex items-center justify-center px-6 py-3 bg-arbor-moss hover:bg-arbor-moss-light text-white font-medium rounded-xl transition-colors duration-300;
         @apply hover:shadow-lg hover:shadow-arbor-moss/20 focus:outline-none focus:ring-2 focus:ring-arbor-emerald focus:ring-offset-2 focus:ring-offset-arbor-night;
         @apply active:scale-[0.98];
     }
 
     .btn-secondary {
-        @apply inline-flex items-center justify-center px-6 py-3 bg-transparent border border-arbor-glass-border hover:border-arbor-sage text-arbor-cream font-medium rounded-xl transition-all duration-300;
+        @apply inline-flex items-center justify-center px-6 py-3 bg-transparent border border-arbor-glass-border hover:border-arbor-sage text-arbor-cream font-medium rounded-xl transition-colors duration-300;
         @apply hover:bg-arbor-glass focus:outline-none focus:ring-2 focus:ring-arbor-sage focus:ring-offset-2 focus:ring-offset-arbor-night;
         @apply active:scale-[0.98];
     }
 
     .btn-amber {
-        @apply inline-flex items-center justify-center px-6 py-3 bg-arbor-amber/15 border border-arbor-amber/30 hover:bg-arbor-amber/25 text-arbor-amber font-medium rounded-xl transition-all duration-300;
+        @apply inline-flex items-center justify-center px-6 py-3 bg-arbor-amber/15 border border-arbor-amber/30 hover:bg-arbor-amber/25 text-arbor-amber font-medium rounded-xl transition-colors duration-300;
         @apply hover:shadow-lg hover:shadow-arbor-amber/10 focus:outline-none focus:ring-2 focus:ring-arbor-amber focus:ring-offset-2 focus:ring-offset-arbor-night;
         @apply active:scale-[0.98];
     }
@@ -83,7 +83,7 @@
     }
 
     .btn-danger {
-        @apply inline-flex items-center justify-center px-6 py-3 bg-red-600/20 border border-red-500/30 hover:bg-red-600/30 text-red-400 font-medium rounded-xl transition-all duration-300;
+        @apply inline-flex items-center justify-center px-6 py-3 bg-red-600/20 border border-red-500/30 hover:bg-red-600/30 text-red-400 font-medium rounded-xl transition-colors duration-300;
         @apply hover:shadow-lg hover:shadow-red-500/10 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-arbor-night;
         @apply active:scale-[0.98];
     }
@@ -96,7 +96,7 @@
     /* Stat card with tape reel accent */
     .stat-card {
         @apply bg-arbor-charcoal border border-arbor-fog rounded-xl p-6 relative overflow-hidden;
-        @apply transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-arbor-moss/10;
+        @apply transition-transform duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-arbor-moss/10;
     }
 
     .stat-card::before {
@@ -122,7 +122,7 @@
     /* Input styles */
     .input-field {
         @apply w-full bg-arbor-charcoal border border-arbor-fog rounded-lg px-4 py-3 text-arbor-cream placeholder:text-arbor-sage/50;
-        @apply focus:border-arbor-emerald focus:ring-2 focus:ring-arbor-emerald/20 transition-all duration-200;
+        @apply focus:border-arbor-emerald focus:ring-2 focus:ring-arbor-emerald/20 transition-colors duration-200;
     }
 
     /* Badge styles */
@@ -167,7 +167,7 @@
 
     /* Hover lift utility */
     .hover-lift {
-        @apply transition-all duration-300;
+        @apply transition-transform duration-300;
     }
     .hover-lift:hover {
         @apply -translate-y-0.5;
@@ -320,6 +320,31 @@
     100% {
         transform: scale(1) translate(0, 0);
     }
+}
+
+/* Leaflet custom popup for presence */
+.arbor-popup .leaflet-popup-content-wrapper {
+    background: rgba(11, 18, 32, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+.arbor-popup .leaflet-popup-content {
+    margin: 8px 12px;
+    line-height: 1.4;
+}
+.arbor-popup .leaflet-popup-tip {
+    background: rgba(11, 18, 32, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    width: 10px;
+    height: 10px;
+}
+
+/* User presence marker base */
+.user-presence-marker {
+    background: transparent !important;
+    border: none !important;
 }
 
 /* Animation utility classes */

@@ -1,5 +1,5 @@
 <script setup>
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
@@ -33,6 +33,9 @@ const form = useForm({
 const audioPreview = ref(null);
 const coverPreview = ref(null);
 const isDragging = ref(false);
+const geoError = ref('');
+const locating = ref(false);
+const uploadProgress = ref(0);
 
 const licenses = [
     { value: 'all_rights_reserved', label: 'Tous droits réservés' },
@@ -75,25 +78,37 @@ const handleDrop = (e) => {
 };
 
 const getCurrentLocation = () => {
-    if (!navigator.geolocation) return;
+    if (!navigator.geolocation) {
+        geoError.value = 'La géolocalisation n\'est pas supportée par ce navigateur.';
+        return;
+    }
+    locating.value = true;
+    geoError.value = '';
     navigator.geolocation.getCurrentPosition(
         (position) => {
             form.latitude = position.coords.latitude.toFixed(6);
             form.longitude = position.coords.longitude.toFixed(6);
+            locating.value = false;
         },
         () => {
-            alert('Impossible d\'obtenir votre position.');
+            geoError.value = 'Impossible d\'obtenir votre position. Vérifiez les permissions de votre navigateur.';
+            locating.value = false;
         }
     );
 };
 
 const submit = () => {
+    uploadProgress.value = 0;
     form.post(route('sounds.store'), {
         forceFormData: true,
+        onProgress: (progress) => {
+            uploadProgress.value = progress.percentage;
+        },
         onSuccess: () => {
             form.reset();
             audioPreview.value = null;
             coverPreview.value = null;
+            uploadProgress.value = 0;
         },
     });
 };
@@ -110,6 +125,29 @@ const submit = () => {
 
         <div class="py-8">
             <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Recorder promo banner -->
+                <div class="mb-8 rounded-2xl border border-arbor-emerald/20 bg-arbor-emerald/5 p-5 backdrop-blur-sm">
+                    <div class="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h3 class="font-display text-lg font-light italic text-arbor-cream">
+                                Enregistrez directement depuis votre appareil
+                            </h3>
+                            <p class="mt-1 text-sm text-arbor-sage/70">
+                                Utilisez le micro de votre téléphone ou une interface externe, sans quitter Arborisis.
+                            </p>
+                        </div>
+                        <Link
+                            :href="route('sounds.record')"
+                            class="btn-primary inline-flex shrink-0 items-center gap-2 text-sm"
+                        >
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                            </svg>
+                            Ouvrir l'enregistreur
+                        </Link>
+                    </div>
+                </div>
+
                 <form @submit.prevent="submit" class="space-y-8">
                     <!-- Audio Upload -->
                     <div>
@@ -207,14 +245,25 @@ const submit = () => {
                         <button
                             type="button"
                             @click="getCurrentLocation"
-                            class="text-sm text-arbor-emerald hover:text-arbor-emerald-dark flex items-center gap-1 mb-4"
+                            :disabled="locating"
+                            class="text-sm text-arbor-emerald hover:text-arbor-emerald-dark flex items-center gap-1.5 mb-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg v-if="locating" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
-                            Utiliser ma position actuelle
+                            <span v-if="locating">Localisation...</span>
+                            <span v-else>Utiliser ma position actuelle</span>
                         </button>
+                        <div v-if="geoError" class="mb-4 text-sm text-red-400 flex items-center gap-1.5">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            {{ geoError }}
+                        </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <InputLabel for="location_name" value="Nom du lieu" />
@@ -387,14 +436,26 @@ const submit = () => {
                         >
                             Annuler
                         </Link>
-                        <button
-                            type="submit"
-                            :disabled="form.processing"
-                            class="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            <span v-if="form.processing">Publication en cours...</span>
-                            <span v-else>Publier le son</span>
-                        </button>
+                        <div class="w-full max-w-xs">
+                            <button
+                                type="submit"
+                                :disabled="form.processing"
+                                class="btn-primary disabled:opacity-50 disabled:cursor-not-allowed w-full"
+                            >
+                                <span v-if="form.processing">Publication en cours...</span>
+                                <span v-else>Publier le son</span>
+                            </button>
+                            <!-- Upload progress bar -->
+                            <div v-if="form.processing && uploadProgress > 0" class="mt-3">
+                                <div class="h-1.5 bg-arbor-glass rounded-full overflow-hidden">
+                                    <div
+                                        class="h-full bg-arbor-emerald rounded-full transition-all duration-200"
+                                        :style="`width: ${uploadProgress}%`"
+                                    />
+                                </div>
+                                <p class="text-xs text-arbor-sage mt-1 text-right">{{ Math.round(uploadProgress) }}%</p>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>

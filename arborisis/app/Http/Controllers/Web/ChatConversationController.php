@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\ChatConversation;
+use App\Models\ChatRoom;
 use App\Models\User;
 use App\Services\Chat\ChatService;
 use Illuminate\Http\JsonResponse;
@@ -28,7 +29,7 @@ class ChatConversationController extends Controller
             ->with(['users', 'messages' => fn ($q) => $q->latest()->limit(1)])
             ->get();
 
-        $rooms = \App\Models\ChatRoom::with('creator')
+        $rooms = ChatRoom::with('creator')
             ->when(! Auth::user()?->isModerator(), function ($q) {
                 $q->where('type', 'public');
             })

@@ -51,4 +51,16 @@ return [
 
     // Approximation grid size in meters for public presence
     'presence_approximation_meters' => env('GAMIFICATION_PRESENCE_APPROXIMATION', 100),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Nearby Interaction Configuration
+    |--------------------------------------------------------------------------
+    */
+
+    // Distance (in meters) to consider two users as "nearby"
+    'nearby_radius' => env('GAMIFICATION_NEARBY_RADIUS', 200),
+
+    // Cooldown between two interactions between the same users (in seconds)
+    'nearby_interaction_cooldown' => env('GAMIFICATION_NEARBY_INTERACTION_COOLDOWN', 3600),
 ];

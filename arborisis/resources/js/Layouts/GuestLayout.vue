@@ -4,6 +4,7 @@ import { Link } from '@inertiajs/vue3';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import PushNotificationToggle from '@/Components/PushNotificationToggle.vue';
 import NewsletterForm from '@/Components/NewsletterForm.vue';
+import NowPlayingWidget from '@/Components/Radio/NowPlayingWidget.vue';
 import { useConsentStore } from '@/Stores/consent';
 
 const showingMobileMenu = ref(false);
@@ -16,12 +17,11 @@ function openCookieSettings() {
 
 <template>
     <div class="min-h-screen bg-arbor-night text-arbor-cream">
-        <nav class="fixed top-0 left-0 right-0 z-[1000] bg-arbor-night/80 backdrop-blur-md border-b border-arbor-glass-border">
+        <nav class="fixed top-0 left-0 right-0 z-fixed-nav bg-arbor-night/80 backdrop-blur-md border-b border-arbor-glass-border">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between h-16">
-                    <Link href="/" class="flex items-center gap-3">
-                        <ApplicationLogo class="h-8 w-8 text-arbor-emerald shrink-0" />
-                        <span class="font-display text-xl font-semibold tracking-tight">Arborisis</span>
+                    <Link href="/" class="flex items-center">
+                        <ApplicationLogo class="h-12 w-auto shrink-0" />
                     </Link>
 
                     <!-- Desktop Navigation -->
@@ -30,13 +30,16 @@ function openCookieSettings() {
                             Sons
                         </Link>
                         <Link href="/map" class="text-sm text-arbor-sage hover:text-arbor-cream transition-colors">
-                            Carte
+                            Carte des sons
                         </Link>
                         <Link href="/arborisis-map" class="text-sm text-arbor-sage hover:text-arbor-cream transition-colors">
-                            Carte Arborisis
+                            Carte communauté
                         </Link>
                         <Link href="/creators" class="text-sm text-arbor-sage hover:text-arbor-cream transition-colors">
                             Créateurs
+                        </Link>
+                        <Link href="/blog" class="text-sm text-arbor-sage hover:text-arbor-cream transition-colors">
+                            Chroniques
                         </Link>
                         <Link href="/radio" class="text-sm text-arbor-sage hover:text-arbor-cream transition-colors">
                             Radio
@@ -115,14 +118,14 @@ function openCookieSettings() {
                         class="block px-3 py-2 rounded-lg text-arbor-sage hover:text-arbor-cream hover:bg-arbor-glass transition-colors"
                         :class="route().current('map') ? 'text-arbor-emerald bg-arbor-emerald/10' : ''"
                     >
-                        Carte sonore
+                        Carte des sons
                     </Link>
                     <Link
                         href="/arborisis-map"
                         class="block px-3 py-2 rounded-lg text-arbor-sage hover:text-arbor-cream hover:bg-arbor-glass transition-colors"
                         :class="route().current('arborisis-map.index') ? 'text-arbor-emerald bg-arbor-emerald/10' : ''"
                     >
-                        Carte Arborisis
+                        Carte communauté
                     </Link>
                     <Link
                         href="/creators"
@@ -130,6 +133,13 @@ function openCookieSettings() {
                         :class="route().current('creators.*') ? 'text-arbor-emerald bg-arbor-emerald/10' : ''"
                     >
                         Créateurs
+                    </Link>
+                    <Link
+                        href="/blog"
+                        class="block px-3 py-2 rounded-lg text-arbor-sage hover:text-arbor-cream hover:bg-arbor-glass transition-colors"
+                        :class="route().current('blog.*') ? 'text-arbor-emerald bg-arbor-emerald/10' : ''"
+                    >
+                        Chroniques
                     </Link>
                     <Link
                         href="/radio"
@@ -177,13 +187,14 @@ function openCookieSettings() {
             <slot />
         </main>
 
+        <NowPlayingWidget />
+
         <footer class="border-t border-arbor-glass-border bg-arbor-deep">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                     <div class="md:col-span-2">
-                        <div class="flex items-center gap-3 mb-4">
-                            <ApplicationLogo class="h-8 w-8 text-arbor-emerald shrink-0" />
-                            <span class="font-display text-lg font-semibold">Arborisis</span>
+                        <div class="flex items-center mb-4">
+                            <ApplicationLogo class="h-16 w-auto shrink-0" />
                         </div>
                         <p class="text-arbor-sage text-sm max-w-sm leading-relaxed mb-6">
                             Une archive sonore vivante dédiée aux créateurs de field recording et aux amoureux de la nature.
@@ -196,10 +207,11 @@ function openCookieSettings() {
                     <div>
                         <h3 class="font-medium text-arbor-cream mb-4 text-sm">Explorer</h3>
                         <ul class="space-y-2 text-sm text-arbor-sage">
-                            <li><Link href="/map" class="hover:text-arbor-emerald transition-colors">Carte sonore</Link></li>
-                            <li><Link href="/arborisis-map" class="hover:text-arbor-emerald transition-colors">Carte Arborisis</Link></li>
+                            <li><Link href="/map" class="hover:text-arbor-emerald transition-colors">Carte des sons</Link></li>
+                            <li><Link href="/arborisis-map" class="hover:text-arbor-emerald transition-colors">Carte communauté</Link></li>
                             <li><Link href="/sounds" class="hover:text-arbor-emerald transition-colors">Tous les sons</Link></li>
                             <li><Link href="/creators" class="hover:text-arbor-emerald transition-colors">Créateurs</Link></li>
+                            <li><Link href="/blog" class="hover:text-arbor-emerald transition-colors">Chroniques</Link></li>
                         </ul>
                     </div>
                     <div>

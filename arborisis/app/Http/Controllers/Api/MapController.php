@@ -55,7 +55,7 @@ class MapController extends Controller
                     'play_count' => $sound->play_count,
                     'like_count' => $sound->like_count,
                     'location_name' => $location->location_name,
-                    'recorded_at' => $sound->recorded_at?->format('d/m/Y'),
+                    'recorded_at' => $sound->recorded_at?->toIso8601String(),
                 ],
             ];
         });
@@ -107,6 +107,7 @@ class MapController extends Controller
                     'duration' => $sound->duration,
                     'cover_url' => $sound->cover_url,
                     'location_name' => $location->location_name,
+                    'recorded_at' => $sound->recorded_at?->toIso8601String(),
                 ],
             ];
         });

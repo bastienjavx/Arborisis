@@ -119,6 +119,14 @@ class SoundController extends Controller
         ]);
     }
 
+    public function record(): Response
+    {
+        return Inertia::render('Sounds/Record', [
+            'categories' => Category::orderBy('order')->get(),
+            'environments' => Environment::orderBy('order')->get(),
+        ]);
+    }
+
     public function store(StoreSoundRequest $request): RedirectResponse
     {
         $this->authorize('create', Sound::class);

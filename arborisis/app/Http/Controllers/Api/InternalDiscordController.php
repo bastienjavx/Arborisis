@@ -10,6 +10,7 @@ use App\Models\Sound;
 use App\Models\User;
 use App\Models\UserDiscordAccount;
 use App\Services\Echo\DonationService;
+use App\Services\Radio\RadioStateService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -97,15 +98,27 @@ class InternalDiscordController extends Controller
         ]);
     }
 
-    public function getRadioNowPlaying(): JsonResponse
+    public function getRadioNowPlaying(RadioStateService $radioState): JsonResponse
     {
-        $nowPlaying = Cache::get('radio_now_playing');
+        $nowPlaying = $radioState->current(app(\App\Services\Radio\RadioStreamService::class));
 
         if (! $nowPlaying) {
             return response()->json(['error' => 'Aucune lecture en cours.'], 404);
         }
 
-        return response()->json($nowPlaying);
+        return response()->json([
+            'title' => $nowPlaying['title'] ?? null,
+            'creator' => $nowPlaying['artist'] ?? null,
+            'duration' => isset($nowPlaying['duration']) ? gmdate('i:s', (int) $nowPlaying['duration']) : null,
+            'sound_id' => $nowPlaying['sound_id'] ?? null,
+            'slug' => $nowPlaying['slug'] ?? null,
+            'kind' => $nowPlaying['kind'] ?? 'sound',
+            'started_at' => $nowPlaying['started_at'] ?? null,
+            'cover_url' => $nowPlaying['cover'] ?? null,
+            'radio_url' => url('/radio'),
+            'url' => ! empty($nowPlaying['slug']) ? url('/sounds/'.$nowPlaying['slug']) : url('/radio'),
+            'embed_color' => '#2F7D5C',
+        ]);
     }
 
     public function linkAccount(Request $request): JsonResponse

@@ -63,7 +63,7 @@ const categoryColor = computed(() => {
     >
         <div
             v-if="isOpen && point"
-            class="absolute top-4 right-4 bottom-4 w-80 z-[800] bg-arbor-night/95 backdrop-blur-xl border border-white/5 rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+            class="absolute top-4 right-4 bottom-4 w-80 z-map bg-arbor-night/95 backdrop-blur-xl border border-white/5 rounded-2xl shadow-2xl overflow-hidden flex flex-col"
         >
             <!-- Header -->
             <div class="relative h-40 shrink-0">

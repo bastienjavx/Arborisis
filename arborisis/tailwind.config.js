@@ -20,6 +20,20 @@ export default {
                 display: ['Cormorant', 'Georgia', 'serif'],
                 mono: ['JetBrains Mono', 'monospace'],
             },
+            zIndex: {
+                'dropdown': '10',
+                'sticky': '20',
+                'fixed-nav': '30',
+                'drawer': '40',
+                'modal': '50',
+                'popover': '60',
+                'toast': '70',
+                'tooltip': '80',
+                'banner': '90',
+                'max': '100',
+                'map': '800',
+                'map-max': '1000',
+            },
             colors: {
                 arbor: {
                     night:    '#0B1220',

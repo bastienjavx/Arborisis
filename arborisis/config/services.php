@@ -63,6 +63,26 @@ return [
         'internal_api_token' => env('DISCORD_INTERNAL_API_TOKEN'),
     ],
 
+    'elevenlabs' => [
+        'api_key' => env('ELEVENLABS_API_KEY'),
+        'voice_id' => env('ELEVENLABS_VOICE_ID'),
+        'base_url' => env('ELEVENLABS_BASE_URL', 'https://api.elevenlabs.io/v1'),
+        'model' => env('ELEVENLABS_MODEL', 'eleven_multilingual_v2'),
+        'output_format' => env('ELEVENLABS_OUTPUT_FORMAT', 'mp3_44100_192'),
+        'stability' => env('ELEVENLABS_STABILITY', 0.55),
+        'similarity_boost' => env('ELEVENLABS_SIMILARITY_BOOST', 0.75),
+        'style' => env('ELEVENLABS_STYLE', 0.2),
+        'use_speaker_boost' => env('ELEVENLABS_USE_SPEAKER_BOOST', true),
+        'timeout' => env('ELEVENLABS_TIMEOUT', 120),
+        'sound_model' => env('ELEVENLABS_SOUND_MODEL', 'eleven_text_to_sound_v2'),
+        'sound_output_format' => env('ELEVENLABS_SOUND_OUTPUT_FORMAT', 'mp3_44100_192'),
+        'sound_prompt_influence' => env('ELEVENLABS_SOUND_PROMPT_INFLUENCE', 0.45),
+        'sound_timeout' => env('ELEVENLABS_SOUND_TIMEOUT', 120),
+        'music_model' => env('ELEVENLABS_MUSIC_MODEL', 'music_v1'),
+        'music_output_format' => env('ELEVENLABS_MUSIC_OUTPUT_FORMAT', 'mp3_44100_192'),
+        'music_timeout' => env('ELEVENLABS_MUSIC_TIMEOUT', 300),
+    ],
+
     'r2' => [
         'signing_key' => env('R2_SIGNING_KEY'),
     ],
@@ -74,6 +94,12 @@ return [
         'internal_api_token' => env('ANALYZER_INTERNAL_API_TOKEN'),
         'max_duration' => env('AUDIO_MAX_DURATION', 600),
         'max_file_size_mb' => env('AUDIO_MAX_FILE_SIZE_MB', 500),
+    ],
+
+    'openrouter' => [
+        'api_key' => env('OPENROUTER_API_KEY'),
+        'model' => env('OPENROUTER_MODEL', 'openai/gpt-4o-mini'),
+        'base_url' => env('OPENROUTER_BASE_URL', 'https://openrouter.ai/api/v1'),
     ],
 
 ];

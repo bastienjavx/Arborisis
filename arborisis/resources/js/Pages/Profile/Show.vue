@@ -1,5 +1,6 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
+import Breadcrumb from '@/Components/Breadcrumb.vue';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import FollowButton from '@/Components/Social/FollowButton.vue';
 import { ref } from 'vue';
@@ -10,6 +11,7 @@ const props = defineProps({
     stats: Object,
     avatarUrl: String,
     isFollowing: Boolean,
+    isFriend: Boolean,
 });
 
 const formatDuration = (seconds) => {
@@ -33,6 +35,14 @@ const isNew = (createdAt) => {
     <GuestLayout>
         <div class="pt-24 pb-16">
             <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                <Breadcrumb
+                    :items="[
+                        { label: 'Accueil', href: '/' },
+                        { label: 'Créateurs', href: '/creators' },
+                        { label: creator.name },
+                    ]"
+                />
+
                 <!-- Profile Header -->
                 <div class="glass-card p-6 sm:p-8 mb-8 relative overflow-hidden">
                     <!-- Subtle background gradient -->
@@ -54,25 +64,68 @@ const isNew = (createdAt) => {
                         </div>
 
                         <div class="flex-1 text-center sm:text-left">
-                            <h1 class="font-display text-2xl sm:text-3xl font-bold text-arbor-cream mb-2">
-                                {{ creator.name }}
-                            </h1>
+                            <div class="flex items-center justify-center sm:justify-start gap-2 mb-2">
+                                <h1 class="font-display text-2xl sm:text-3xl font-bold text-arbor-cream">
+                                    {{ creator.name }}
+                                </h1>
+                                <span
+                                    v-if="isFriend"
+                                    class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wider bg-arbor-emerald/15 text-arbor-emerald border border-arbor-emerald/30"
+                                >
+                                    Ami
+                                </span>
+                            </div>
                             <p v-if="creator.profile?.bio" class="text-arbor-sage mb-4 max-w-xl">
                                 {{ creator.profile.bio }}
                             </p>
 
+                            <div v-if="creator.profile?.location || creator.profile?.website" class="flex flex-wrap justify-center sm:justify-start gap-3 text-xs text-arbor-sage/70 mb-4">
+                                <span v-if="creator.profile?.location" class="flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    {{ creator.profile.location }}
+                                </span>
+                                <a
+                                    v-if="creator.profile?.website"
+                                    :href="creator.profile.website"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="flex items-center gap-1 hover:text-arbor-emerald transition-colors"
+                                >
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                    </svg>
+                                    Site web
+                                </a>
+                            </div>
+
                             <div class="flex flex-wrap justify-center sm:justify-start gap-4 text-sm text-arbor-sage mb-4">
+                                <Link
+                                    :href="route('users.followers', creator.slug)"
+                                    class="flex items-center gap-1 group cursor-pointer hover:text-arbor-cream transition-colors"
+                                >
+                                    <span class="font-semibold text-arbor-cream transition-transform group-hover:scale-110">{{ stats.followers_count }}</span>
+                                    <span>abonné{{ stats.followers_count > 1 ? 's' : '' }}</span>
+                                </Link>
+                                <Link
+                                    :href="route('users.following', creator.slug)"
+                                    class="flex items-center gap-1 group cursor-pointer hover:text-arbor-cream transition-colors"
+                                >
+                                    <span class="font-semibold text-arbor-cream transition-transform group-hover:scale-110">{{ stats.following_count }}</span>
+                                    <span>abonnements</span>
+                                </Link>
+                                <Link
+                                    :href="route('users.friends', creator.slug)"
+                                    class="flex items-center gap-1 group cursor-pointer hover:text-arbor-cream transition-colors"
+                                >
+                                    <span class="font-semibold text-arbor-cream transition-transform group-hover:scale-110">{{ stats.friends_count ?? 0 }}</span>
+                                    <span>ami{{ (stats.friends_count ?? 0) > 1 ? 's' : '' }}</span>
+                                </Link>
                                 <div class="flex items-center gap-1 group cursor-default">
                                     <span class="font-semibold text-arbor-cream transition-transform group-hover:scale-110">{{ stats.sounds_count }}</span>
                                     <span>son{{ stats.sounds_count > 1 ? 's' : '' }}</span>
-                                </div>
-                                <div class="flex items-center gap-1 group cursor-default">
-                                    <span class="font-semibold text-arbor-cream transition-transform group-hover:scale-110">{{ stats.followers_count }}</span>
-                                    <span>abonné{{ stats.followers_count > 1 ? 's' : '' }}</span>
-                                </div>
-                                <div class="flex items-center gap-1 group cursor-default">
-                                    <span class="font-semibold text-arbor-cream transition-transform group-hover:scale-110">{{ stats.following_count }}</span>
-                                    <span>abonnements</span>
                                 </div>
                                 <div class="flex items-center gap-1 group cursor-default">
                                     <span class="font-semibold text-arbor-cream transition-transform group-hover:scale-110">{{ stats.total_plays }}</span>
@@ -102,10 +155,12 @@ const isNew = (createdAt) => {
                             :style="`animation: fadeInUp 0.5s ease-out forwards; animation-delay: ${index * 0.06}s; opacity: 0;`"
                         >
                             <div class="aspect-[16/9] bg-arbor-deep relative overflow-hidden">
-                                <div
+                                <img
                                     v-if="sound.cover_url"
-                                    class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
-                                    :style="`background-image: url(${sound.cover_url})`"
+                                    :src="sound.cover_url"
+                                    :alt="sound.title"
+                                    class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                    loading="lazy"
                                 />
                                 <div v-else class="absolute inset-0 flex items-center justify-center">
                                     <svg class="w-12 h-12 text-arbor-moss/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">

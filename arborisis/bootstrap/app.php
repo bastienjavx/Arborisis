@@ -17,10 +17,13 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
             HandleInertiaRequests::class,
+            \App\Http\Middleware\AddAgentDiscoveryLinks::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        //
+        $middleware->alias([
+            'canAccessRadioManager' => \App\Http\Middleware\EnsureCanAccessRadioManager::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

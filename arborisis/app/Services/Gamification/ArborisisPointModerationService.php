@@ -18,10 +18,18 @@ class ArborisisPointModerationService
     public function approve(ArborisisPoint $point, User $admin, ?string $notes = null): ArborisisPoint
     {
         return DB::transaction(function () use ($point, $admin, $notes) {
+            $coordinates = ArborisisPoint::publicCoordinates(
+                (float) $point->latitude,
+                (float) $point->longitude,
+                $point->nature_sensitivity_level,
+            );
+
             $point->update([
                 'moderation_status' => ModerationStatus::Approved,
                 'approved_at' => now(),
                 'approved_by' => $admin->id,
+                'approximate_latitude' => $coordinates['approximate_latitude'],
+                'approximate_longitude' => $coordinates['approximate_longitude'],
             ]);
 
             ArborisisPointApproved::dispatch($point, $admin);

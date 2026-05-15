@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\AgentDiscoveryController;
 use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\Web\CommentController;
 use App\Http\Controllers\Web\CreatorController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\Web\LandingController;
 use App\Http\Controllers\Web\LikeController;
 use App\Http\Controllers\Web\MapController;
 use App\Http\Controllers\Web\PageController;
+use App\Http\Controllers\Web\RadioManagerController;
 use Inertia\Inertia;
 use App\Http\Controllers\Web\RadioController;
 use App\Http\Controllers\Web\ReportController;
@@ -23,6 +25,7 @@ use App\Http\Controllers\Web\ChatMessageController;
 use App\Http\Controllers\Web\ChatModerationController;
 use App\Http\Controllers\Web\ChatPrivateMessageController;
 use App\Http\Controllers\Web\ChatRoomController;
+use App\Http\Controllers\Web\BlogController;
 use App\Http\Controllers\Web\SoundController;
 use App\Http\Controllers\Web\WalletController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -30,10 +33,35 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [LandingController::class, 'index'])->name('landing');
 
+Route::get('/.well-known/api-catalog', [AgentDiscoveryController::class, 'apiCatalog'])
+    ->name('agent-discovery.api-catalog');
+Route::get('/.well-known/oauth-authorization-server', [AgentDiscoveryController::class, 'oauthAuthorizationServer'])
+    ->name('agent-discovery.oauth-authorization-server');
+Route::get('/.well-known/openid-configuration', [AgentDiscoveryController::class, 'openIdConfiguration'])
+    ->name('agent-discovery.openid-configuration');
+Route::get('/.well-known/oauth-protected-resource', [AgentDiscoveryController::class, 'protectedResource'])
+    ->name('agent-discovery.oauth-protected-resource');
+Route::get('/.well-known/jwks.json', [AgentDiscoveryController::class, 'jwks'])
+    ->name('agent-discovery.jwks');
+Route::get('/.well-known/mcp/server-card.json', [AgentDiscoveryController::class, 'mcpServerCard'])
+    ->name('agent-discovery.mcp-server-card');
+Route::get('/.well-known/agent-skills/index.json', [AgentDiscoveryController::class, 'agentSkillsIndex'])
+    ->name('agent-discovery.agent-skills.index');
+Route::get('/.well-known/agent-skills/{skill}.md', [AgentDiscoveryController::class, 'agentSkill'])
+    ->where('skill', '[a-z0-9-]+')
+    ->name('agent-discovery.agent-skills.show');
+Route::get('/openapi.json', [AgentDiscoveryController::class, 'openApi'])
+    ->name('agent-discovery.openapi');
+Route::get('/docs/api', [AgentDiscoveryController::class, 'apiDocs'])
+    ->name('agent-discovery.api-docs');
+Route::match(['get', 'post'], '/oauth/token', [AgentDiscoveryController::class, 'unsupportedOAuthToken'])
+    ->name('agent-discovery.oauth-token');
+
 Route::get('/sounds', [SoundController::class, 'index'])->name('sounds.index');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/sounds/create', [SoundController::class, 'create'])->name('sounds.create');
+    Route::get('/record', [SoundController::class, 'record'])->name('sounds.record');
     Route::post('/sounds', [SoundController::class, 'store'])->name('sounds.store');
 });
 
@@ -58,6 +86,13 @@ Route::middleware(['auth', 'verified'])->get('/arborisis-map', function () {
 Route::get('/creators', [CreatorController::class, 'index'])->name('creators.index');
 Route::get('/creators/{slug}', [CreatorProfileController::class, 'show'])->name('creators.show');
 
+Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
+
+Route::get('/users/{user:slug}/followers', [\App\Http\Controllers\Web\SocialListController::class, 'followers'])->name('users.followers');
+Route::get('/users/{user:slug}/following', [\App\Http\Controllers\Web\SocialListController::class, 'following'])->name('users.following');
+Route::get('/users/{user:slug}/friends', [\App\Http\Controllers\Web\SocialListController::class, 'friends'])->name('users.friends');
+
 Route::get('/scientific-stats', [\App\Http\Controllers\Web\ScientificStatsController::class, 'index'])->name('scientific-stats.index');
 
 Route::get('/transparency', [PageController::class, 'transparency'])->name('transparency');
@@ -81,6 +116,8 @@ Route::delete('/api/push-subscriptions', [\App\Http\Controllers\Api\PushSubscrip
 Route::get('/api/vapid-public-key', fn () => ['key' => config('services.vapid.public_key')]);
 
 Route::get('/radio', [RadioController::class, 'index'])->name('radio.index');
+Route::get('/radio/c/{channel:slug}', [RadioController::class, 'index'])->name('radio.channels.show');
+Route::get('/radio/programmes', [RadioController::class, 'shows'])->name('radio.shows.index');
 Route::get('/radio/stream', [RadioController::class, 'stream'])
     ->name('radio.stream')
     ->withoutMiddleware([
@@ -88,6 +125,39 @@ Route::get('/radio/stream', [RadioController::class, 'stream'])
         \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
     ]);
 Route::get('/radio/stream.m3u', [RadioController::class, 'playlist'])->name('radio.playlist');
+Route::get('/radio/cache/{type}/{id}', [RadioController::class, 'serveCachedAudio'])
+    ->name('radio.cache.serve')
+    ->whereIn('type', ['sounds', 'jingles', 'podcasts', 'dj']);
+
+Route::middleware(['auth', 'verified'])
+    ->prefix('admin/radio-manager')
+    ->name('admin.radio-manager.')
+    ->group(function () {
+        Route::get('/', [RadioManagerController::class, 'index'])
+            ->name('index')
+            ->middleware('canAccessRadioManager');
+        Route::get('/status', [RadioManagerController::class, 'status'])
+            ->name('status')
+            ->middleware('canAccessRadioManager');
+        Route::put('/settings', [RadioManagerController::class, 'updateSettings'])
+            ->name('settings.update')
+            ->middleware('canAccessRadioManager');
+        Route::post('/reload', [RadioManagerController::class, 'reload'])
+            ->name('reload')
+            ->middleware('canAccessRadioManager');
+        Route::post('/generate', [RadioManagerController::class, 'generateContent'])
+            ->name('generate')
+            ->middleware('canAccessRadioManager');
+        Route::post('/podcasts/{podcast}/publish', [RadioManagerController::class, 'publishPodcast'])
+            ->name('podcasts.publish')
+            ->middleware('canAccessRadioManager');
+        Route::post('/podcasts/{podcast}/reject', [RadioManagerController::class, 'rejectPodcast'])
+            ->name('podcasts.reject')
+            ->middleware('canAccessRadioManager');
+        Route::delete('/podcasts/{podcast}', [RadioManagerController::class, 'deletePodcast'])
+            ->name('podcasts.destroy')
+            ->middleware('canAccessRadioManager');
+    });
 
 Route::get('/auth/discord/callback', [\App\Http\Controllers\Auth\DiscordController::class, 'callback'])->name('discord.callback');
 
@@ -101,6 +171,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Social

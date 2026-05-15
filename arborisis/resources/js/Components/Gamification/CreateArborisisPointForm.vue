@@ -118,7 +118,7 @@ const showSensitiveWarning = computed(() => {
                 required
                 minlength="3"
                 maxlength="255"
-                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-arbor-cream placeholder:text-white/20 focus:outline-none focus:border-arbor-emerald/50 focus:ring-1 focus:ring-arbor-emerald/20 transition-colors"
+                class="w-full bg-arbor-glass border border-arbor-glass-border rounded-xl px-4 py-2.5 text-sm text-arbor-cream placeholder:text-arbor-sage/40 focus:outline-none focus:border-arbor-emerald/50 focus:ring-1 focus:ring-arbor-emerald/20 transition-colors"
                 placeholder="Ex: Clairière aux chouettes"
             />
             <p v-if="errors.title" class="text-xs text-rose-400 mt-1">{{ errors.title[0] }}</p>
@@ -130,7 +130,7 @@ const showSensitiveWarning = computed(() => {
                 v-model="form.description"
                 rows="3"
                 maxlength="5000"
-                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-arbor-cream placeholder:text-white/20 focus:outline-none focus:border-arbor-emerald/50 focus:ring-1 focus:ring-arbor-emerald/20 transition-colors resize-none"
+                class="w-full bg-arbor-glass border border-arbor-glass-border rounded-xl px-4 py-2.5 text-sm text-arbor-cream placeholder:text-arbor-sage/40 focus:outline-none focus:border-arbor-emerald/50 focus:ring-1 focus:ring-arbor-emerald/20 transition-colors resize-none"
                 placeholder="Décrivez ce lieu, ce qu'on y entend, comment y accéder..."
             />
         </div>
@@ -143,7 +143,7 @@ const showSensitiveWarning = computed(() => {
                     type="number"
                     step="any"
                     required
-                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-arbor-cream focus:outline-none focus:border-arbor-emerald/50 transition-colors"
+                    class="w-full bg-arbor-glass border border-arbor-glass-border rounded-xl px-4 py-2.5 text-sm text-arbor-cream focus:outline-none focus:border-arbor-emerald/50 transition-colors"
                 />
             </div>
             <div>
@@ -153,7 +153,7 @@ const showSensitiveWarning = computed(() => {
                     type="number"
                     step="any"
                     required
-                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-arbor-cream focus:outline-none focus:border-arbor-emerald/50 transition-colors"
+                    class="w-full bg-arbor-glass border border-arbor-glass-border rounded-xl px-4 py-2.5 text-sm text-arbor-cream focus:outline-none focus:border-arbor-emerald/50 transition-colors"
                 />
             </div>
         </div>
@@ -174,7 +174,7 @@ const showSensitiveWarning = computed(() => {
                 <select
                     v-model="form.category"
                     required
-                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-arbor-cream focus:outline-none focus:border-arbor-emerald/50 transition-colors appearance-none"
+                    class="w-full bg-arbor-glass border border-arbor-glass-border rounded-xl px-4 py-2.5 text-sm text-arbor-cream focus:outline-none focus:border-arbor-emerald/50 transition-colors appearance-none"
                 >
                     <option value="" disabled>Choisir...</option>
                     <option v-for="cat in categories" :key="cat.value" :value="cat.value">{{ cat.label }}</option>
@@ -187,7 +187,7 @@ const showSensitiveWarning = computed(() => {
                     type="number"
                     min="1"
                     max="5"
-                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-arbor-cream focus:outline-none focus:border-arbor-emerald/50 transition-colors"
+                    class="w-full bg-arbor-glass border border-arbor-glass-border rounded-xl px-4 py-2.5 text-sm text-arbor-cream focus:outline-none focus:border-arbor-emerald/50 transition-colors"
                 />
             </div>
         </div>
@@ -196,7 +196,7 @@ const showSensitiveWarning = computed(() => {
             <label class="block text-xs font-medium text-arbor-sage/70 mb-1.5">Niveau de sensibilité naturelle</label>
             <select
                 v-model="form.nature_sensitivity_level"
-                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-arbor-cream focus:outline-none focus:border-arbor-emerald/50 transition-colors appearance-none"
+                class="w-full bg-arbor-glass border border-arbor-glass-border rounded-xl px-4 py-2.5 text-sm text-arbor-cream focus:outline-none focus:border-arbor-emerald/50 transition-colors appearance-none"
             >
                 <option v-for="level in sensitivityLevels" :key="level.value" :value="level.value">{{ level.label }}</option>
             </select>
@@ -222,14 +222,14 @@ const showSensitiveWarning = computed(() => {
                     v-model="tagInput"
                     type="text"
                     maxlength="50"
-                    class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-arbor-cream placeholder:text-white/20 focus:outline-none focus:border-arbor-emerald/50 transition-colors"
+                    class="flex-1 bg-arbor-glass border border-arbor-glass-border rounded-xl px-4 py-2 text-sm text-arbor-cream placeholder:text-arbor-sage/40 focus:outline-none focus:border-arbor-emerald/50 transition-colors"
                     placeholder="Ajouter un tag..."
                     @keydown.enter.prevent="addTag"
                 />
                 <button
                     type="button"
                     @click="addTag"
-                    class="px-3 py-2 rounded-xl bg-white/5 text-arbor-sage text-xs hover:bg-white/10 transition-colors"
+                    class="px-3 py-2 rounded-xl bg-arbor-glass text-arbor-sage text-xs hover:bg-white/10 transition-colors"
                 >
                     + Ajouter
                 </button>
@@ -247,7 +247,7 @@ const showSensitiveWarning = computed(() => {
             <button
                 type="button"
                 @click="emit('cancel')"
-                class="px-5 py-2.5 rounded-xl bg-white/5 text-arbor-sage text-sm hover:bg-white/10 transition-colors"
+                class="px-5 py-2.5 rounded-xl bg-arbor-glass text-arbor-sage text-sm hover:bg-white/10 transition-colors"
             >
                 Annuler
             </button>

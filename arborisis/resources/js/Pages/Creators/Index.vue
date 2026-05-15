@@ -24,7 +24,7 @@ watch(search, (value) => {
 });
 
 const getAvatarUrl = (creator) => {
-    return creator?.profile?.avatar || null;
+    return creator?.profile?.avatarUrl || null;
 };
 
 const getInitials = (name) => {
@@ -81,7 +81,7 @@ const getInitials = (name) => {
                             <div class="flex items-center gap-4 mb-4">
                                 <div class="relative">
                                     <div v-if="getAvatarUrl(creator)" class="w-16 h-16 rounded-2xl overflow-hidden bg-arbor-deep">
-                                        <img :src="getAvatarUrl(creator)" class="w-full h-full object-cover" />
+                                        <img :src="getAvatarUrl(creator)" class="w-full h-full object-cover" loading="lazy" :alt="creator.name" />
                                     </div>
                                     <div v-else class="w-16 h-16 rounded-2xl bg-arbor-moss/20 flex items-center justify-center text-arbor-moss-light font-display text-xl">
                                         {{ getInitials(creator.name) }}

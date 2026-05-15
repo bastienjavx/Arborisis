@@ -27,6 +27,7 @@ class DashboardController extends Controller
         $activities = $this->dashboardService->getActivities($user);
         $echoBalance = $this->walletService->getBalance($user);
         $gamification = $this->dashboardService->getGamificationData($user);
+        $dailySoundIdeas = $this->dashboardService->getDailySoundIdeas($user);
 
         return Inertia::render('Dashboard', [
             'stats' => $stats,
@@ -34,6 +35,7 @@ class DashboardController extends Controller
             'activities' => $activities,
             'echoBalance' => $echoBalance,
             'gamification' => $gamification,
+            'dailySoundIdeas' => $dailySoundIdeas,
         ]);
     }
 }

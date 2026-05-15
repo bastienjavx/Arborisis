@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\Gamification;
 
 use App\Enums\QuestStatus;
+use App\Enums\QuestType;
 use App\Http\Controllers\Controller;
 use App\Models\Quest;
 use App\Models\QuestProgress;
 use App\Services\Gamification\QuestService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class QuestController extends Controller
 {
@@ -68,5 +70,20 @@ class QuestController extends Controller
             ->get();
 
         return response()->json($progresses);
+    }
+
+    public function dailyTheme(): JsonResponse
+    {
+        $theme = Cache::get('daily_quest_theme');
+        $quests = Quest::active()
+            ->where('type', QuestType::Daily)
+            ->whereDate('starts_at', today())
+            ->get(['id', 'title', 'description', 'reward_xp', 'objective_type', 'objective_target']);
+
+        return response()->json([
+            'theme' => $theme,
+            'quests' => $quests,
+            'date' => today()->toDateString(),
+        ]);
     }
 }

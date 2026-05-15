@@ -115,6 +115,25 @@ class ArborisisPoint extends Model
         return (float) $this->approximate_longitude;
     }
 
+    public static function publicCoordinates(
+        float $latitude,
+        float $longitude,
+        NatureSensitivityLevel|string|null $sensitivityLevel = null,
+    ): array {
+        $sensitivityLevel = $sensitivityLevel instanceof NatureSensitivityLevel
+            ? $sensitivityLevel
+            : NatureSensitivityLevel::tryFrom((string) ($sensitivityLevel ?? NatureSensitivityLevel::Normal->value));
+
+        if (! $sensitivityLevel?->requiresApproximateLocation()) {
+            return [
+                'approximate_latitude' => round($latitude, 8),
+                'approximate_longitude' => round($longitude, 8),
+            ];
+        }
+
+        return self::obscure($latitude, $longitude);
+    }
+
     public static function obscure(float $latitude, float $longitude): array
     {
         return [
