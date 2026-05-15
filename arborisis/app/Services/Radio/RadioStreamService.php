@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Services\Radio;
 
 use App\Enums\RadioJinglePlacement;
+use App\Enums\RadioListenerSessionStatus;
 use App\Models\RadioJingle;
+use App\Models\RadioListenerSession;
 use App\Models\RadioPodcast;
 use App\Models\RadioSetting;
 use App\Models\RadioSchedule;
@@ -394,6 +396,14 @@ class RadioStreamService
 
         Cache::forget(self::CACHE_KEY_LISTENER_SESSIONS);
         Cache::forever(self::CACHE_KEY_LISTENER_GENERATION, (int) (microtime(true) * 1000));
+        if (Schema::hasTable('radio_listener_sessions')) {
+            RadioListenerSession::query()
+                ->where('status', RadioListenerSessionStatus::Active)
+                ->update([
+                    'ended_at' => now(),
+                    'status' => RadioListenerSessionStatus::Closed,
+                ]);
+        }
         $this->resetLegacyListenerCount();
     }
 

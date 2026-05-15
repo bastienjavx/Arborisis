@@ -179,7 +179,13 @@ class SoundUploadService
 
     private function generateFileName(UploadedFile $file): string
     {
-        $extension = $file->getClientOriginalExtension();
+        $extension = match ($file->getMimeType()) {
+            'audio/mpeg' => 'mp3',
+            'audio/wav', 'audio/x-wav', 'audio/wave', 'audio/vnd.wave' => 'wav',
+            'audio/flac', 'audio/x-flac' => 'flac',
+            'audio/mp4', 'audio/x-m4a', 'audio/m4a' => 'm4a',
+            default => $file->extension(),
+        };
         $base = Str::uuid();
 
         return "{$base}.{$extension}";

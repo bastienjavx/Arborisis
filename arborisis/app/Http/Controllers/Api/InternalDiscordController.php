@@ -56,14 +56,18 @@ class InternalDiscordController extends Controller
 
     public function searchSounds(Request $request): JsonResponse
     {
-        $query = $request->get('q');
+        $query = $request->validate([
+            'q' => ['nullable', 'string', 'max:120'],
+        ])['q'] ?? '';
+        $likeOperator = DB::connection()->getDriverName() === 'pgsql' ? 'ilike' : 'like';
 
-        $sounds = Sound::query()
+        $sounds = Sound::public()
             ->with('user')
-            ->where('status', 'published')
-            ->where(function ($q) use ($query) {
-                $q->where('title', 'ilike', "%{$query}%")
-                    ->orWhere('description', 'ilike', "%{$query}%");
+            ->when($query !== '', function ($q) use ($query, $likeOperator) {
+                $q->where(function ($q) use ($query, $likeOperator) {
+                    $q->where('title', $likeOperator, "%{$query}%")
+                        ->orWhere('description', $likeOperator, "%{$query}%");
+                });
             })
             ->latest()
             ->limit(10)
@@ -74,7 +78,7 @@ class InternalDiscordController extends Controller
 
     public function getSound(string $id): JsonResponse
     {
-        $sound = Sound::with('user', 'category', 'tags')->find($id);
+        $sound = Sound::public()->with('user', 'category', 'tags')->find($id);
 
         if (! $sound) {
             return response()->json(['error' => 'Son introuvable.'], 404);

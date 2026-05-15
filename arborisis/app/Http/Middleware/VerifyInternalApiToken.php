@@ -15,7 +15,7 @@ class VerifyInternalApiToken
         $token = $request->bearerToken();
         $expected = config('services.analyzer.internal_api_token');
 
-        if (empty($expected) || $token !== $expected) {
+        if (empty($expected) || ! hash_equals((string) $expected, (string) $token)) {
             return response()->json(['message' => 'Unauthorized.'], 401);
         }
 

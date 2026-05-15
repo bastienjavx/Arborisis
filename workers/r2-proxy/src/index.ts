@@ -50,7 +50,21 @@ async function verifySignature(
   const payload = `${path}:${expires}`;
   const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(payload));
   const expected = btoa(String.fromCharCode(...new Uint8Array(sig)));
-  return signature === expected;
+  return timingSafeEqual(signature, expected);
+}
+
+function timingSafeEqual(a: string, b: string): boolean {
+  const encoder = new TextEncoder();
+  const left = encoder.encode(a);
+  const right = encoder.encode(b);
+  const length = Math.max(left.length, right.length);
+  let diff = left.length ^ right.length;
+
+  for (let i = 0; i < length; i += 1) {
+    diff |= (left[i] ?? 0) ^ (right[i] ?? 0);
+  }
+
+  return diff === 0;
 }
 
 export default {

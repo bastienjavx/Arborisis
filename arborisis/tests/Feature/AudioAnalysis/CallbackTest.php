@@ -5,9 +5,11 @@ use App\Models\SoundAnalysis;
 use App\Models\SoundFile;
 use App\Models\User;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
     Config::set('services.analyzer.internal_api_token', 'test-secret-token');
+    Storage::fake('r2');
 });
 
 it('processes a successful callback and updates analysis', function () {

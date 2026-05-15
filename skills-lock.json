@@ -17,6 +17,12 @@
       "sourceType": "well-known",
       "computedHash": "5f82f044d22f5d23b5ddd8cf0370d173e05d9d82345176e388eb49deeac3af0e"
     },
+    "ui-audit": {
+      "source": "tommygeoco/ui-audit",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "a47ac5842ee16bd2b83a248f360d56b5b63724da1496de4bd2f0d5e58721907a"
+    },
     "upgrade-stripe": {
       "source": "docs.stripe.com",
       "sourceType": "well-known",

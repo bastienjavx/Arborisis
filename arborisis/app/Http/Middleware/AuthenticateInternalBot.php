@@ -15,7 +15,7 @@ class AuthenticateInternalBot
         $token = $request->header('X-Internal-Token');
         $expected = config('services.discord.internal_api_token');
 
-        if (empty($expected) || $token !== $expected) {
+        if (empty($expected) || ! hash_equals((string) $expected, (string) $token)) {
             return response()->json(['error' => 'Unauthorized.'], 401);
         }
 
