@@ -34,6 +34,10 @@ class ChatService
 
     public function sendRoomMessage(User $user, ChatRoom $room, string $body): ChatMessage
     {
+        if (! $room->isMember($user)) {
+            throw new \InvalidArgumentException('Vous ne participez pas à ce salon.');
+        }
+
         if ($room->isBanned($user)) {
             throw new \InvalidArgumentException('Vous êtes exclu de ce salon.');
         }

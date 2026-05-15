@@ -52,7 +52,7 @@ class AiBlogGeneratorService
                 'title' => $postData['title'],
                 'subtitle' => $postData['subtitle'] ?? null,
                 'excerpt' => $postData['excerpt'] ?? null,
-                'content' => $postData['content'],
+                'content' => app(BlogHtmlSanitizer::class)->sanitize($postData['content']),
                 'cover_image' => $postData['cover_image'] ?? null,
                 'status' => 'published',
                 'ai_metadata' => [

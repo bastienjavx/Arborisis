@@ -58,7 +58,11 @@ class ArborisisVisitController extends Controller
         $status = $validation['is_valid'] ? VisitStatus::Valid : VisitStatus::Invalid;
         $validationReason = $this->determineValidationReason($validation['issues']);
 
-        if (! $validation['is_valid'] && $validation['score'] < 30) {
+        if (
+            ! $validation['is_valid']
+            && $validation['score'] < 30
+            && in_array('impossible_speed', $validation['issues'], true)
+        ) {
             $status = VisitStatus::Suspicious;
         }
 

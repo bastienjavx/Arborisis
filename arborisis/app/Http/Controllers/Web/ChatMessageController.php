@@ -20,7 +20,10 @@ class ChatMessageController extends Controller
 
     public function store(Request $request, ChatRoom $room): JsonResponse
     {
+        $this->authorize('view', $room);
         $this->authorize('create', ChatMessage::class);
+
+        abort_if(! $room->isMember($request->user()), 403);
 
         $validated = $request->validate([
             'body' => ['required', 'string', 'max:2000'],

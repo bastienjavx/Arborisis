@@ -181,8 +181,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/sounds/{sound}/comments', [CommentController::class, 'store'])->name('comments.store');
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
 
-    Route::post('/users/{user}/follows', [FollowController::class, 'store'])->name('follows.store');
-    Route::delete('/users/{user}/follows', [FollowController::class, 'destroy'])->name('follows.destroy');
+    Route::post('/users/{user:id}/follows', [FollowController::class, 'store'])->name('follows.store');
+    Route::delete('/users/{user:id}/follows', [FollowController::class, 'destroy'])->name('follows.destroy');
 
     Route::post('/reports', [ReportController::class, 'store'])->name('reports.store');
 
