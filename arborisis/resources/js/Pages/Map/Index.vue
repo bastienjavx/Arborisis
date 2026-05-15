@@ -121,7 +121,7 @@ const onSoundClick = (sound) => {
     activeSoundId.value = p.id;
     hideTitle();
 
-    if (soundMapRef.value) {
+    if (soundMapRef.value && coords && isFinite(coords[0]) && isFinite(coords[1])) {
         soundMapRef.value.flyToSound(coords, 14);
         soundMapRef.value.highlightMarker(p.id);
         nextTick(() => {
@@ -173,7 +173,7 @@ onMounted(() => {
 
             <!-- Floating header title -->
             <div
-                class="absolute top-6 left-1/2 -translate-x-1/2 z-[40] text-center map-title-fade pointer-events-none"
+                class="absolute top-6 left-1/2 -translate-x-1/2 z-map text-center map-title-fade pointer-events-none"
                 :class="{ 'map-title-hidden': titleHidden }"
             >
                 <h1 class="font-display text-3xl md:text-4xl font-semibold text-arbor-cream tracking-tight">
@@ -186,7 +186,7 @@ onMounted(() => {
 
             <!-- Mobile sidebar toggle -->
             <button
-                class="md:hidden fixed bottom-6 left-4 z-[40] w-12 h-12 rounded-xl glass-card flex items-center justify-center shadow-lg shadow-black/30"
+                class="md:hidden fixed bottom-6 left-4 z-map w-12 h-12 rounded-xl glass-card flex items-center justify-center shadow-lg shadow-black/30"
                 :class="{ 'ring-2 ring-arbor-emerald/40': sidebarOpen }"
                 aria-label="Ouvrir le panneau de l'explorateur"
                 @click="sidebarOpen = !sidebarOpen"
@@ -201,7 +201,7 @@ onMounted(() => {
 
             <!-- Sidebar — Panneau de l'explorateur -->
             <div
-                class="absolute top-4 left-4 z-[40] w-[340px] lg:w-[380px] max-w-[calc(100vw-2rem)] mobile-sidebar"
+                class="absolute top-4 left-4 z-map w-[340px] lg:w-[380px] max-w-[calc(100vw-2rem)] mobile-sidebar"
                 :class="sidebarOpen ? 'mobile-sidebar-open' : 'mobile-sidebar-closed md:mobile-sidebar-open'"
                 @mouseenter="hideTitle"
                 @click="hideTitle"
@@ -234,7 +234,7 @@ onMounted(() => {
                             />
                             <button
                                 v-if="searchQuery"
-                                class="absolute right-3 top-1/2 -translate-y-1/2 text-arbor-sage/50 hover:text-arbor-cream transition-colors"
+                                class="absolute right-2 top-1/2 -translate-y-1/2 text-arbor-sage/50 hover:text-arbor-cream transition-colors p-2 min-w-[44px] min-h-[44px] flex items-center justify-center"
                                 aria-label="Effacer la recherche"
                                 @click="clearSearch"
                             >
@@ -250,7 +250,7 @@ onMounted(() => {
                         <div class="flex flex-wrap gap-1.5">
                             <button
                                 :class="[
-                                    'px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200',
+                                    'px-3 py-2 min-h-[44px] rounded-lg text-xs font-medium transition-all duration-200 flex items-center',
                                     selectedCategory === ''
                                         ? 'bg-arbor-emerald/15 text-arbor-emerald border border-arbor-emerald/30 shadow-sm shadow-arbor-emerald/5'
                                         : 'bg-arbor-charcoal/60 text-arbor-sage border border-arbor-fog/40 hover:border-arbor-sage/50 hover:bg-arbor-charcoal',
@@ -263,7 +263,7 @@ onMounted(() => {
                                 v-for="category in categories"
                                 :key="category.id"
                                 :class="[
-                                    'px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 border',
+                                    'px-3 py-2 min-h-[44px] rounded-lg text-xs font-medium transition-all duration-200 border flex items-center',
                                     selectedCategory == category.id
                                         ? `${getCategoryStyle(category.name).bg} ${getCategoryStyle(category.name).text} ${getCategoryStyle(category.name).border} shadow-sm ${getCategoryStyle(category.name).glow}`
                                         : 'bg-arbor-charcoal/60 text-arbor-sage border-arbor-fog/40 hover:border-arbor-sage/50 hover:bg-arbor-charcoal',
@@ -299,8 +299,18 @@ onMounted(() => {
 
                     <!-- Section 4: Liste des sons -->
                     <div class="flex-1 overflow-y-auto min-h-0 custom-scrollbar">
+                        <!-- Skeleton loading -->
+                        <div v-if="initialLoad || loading" class="p-3 space-y-3">
+                            <div v-for="n in 6" :key="n" class="flex items-center gap-3">
+                                <div class="w-11 h-11 rounded-lg bg-arbor-charcoal animate-pulse shrink-0" />
+                                <div class="flex-1 space-y-2">
+                                    <div class="h-3 bg-arbor-charcoal rounded animate-pulse w-3/4" />
+                                    <div class="h-2.5 bg-arbor-charcoal rounded animate-pulse w-1/2" />
+                                </div>
+                            </div>
+                        </div>
                         <!-- Sound list -->
-                        <div v-if="hasSounds && !initialLoad" class="p-3 space-y-1.5">
+                        <div v-else-if="hasSounds" class="p-3 space-y-1.5">
                             <div
                                 v-for="(sound, index) in sounds"
                                 :key="sound.properties.id"

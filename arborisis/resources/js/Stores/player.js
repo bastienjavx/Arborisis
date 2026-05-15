@@ -32,18 +32,28 @@ export const usePlayerStore = defineStore('player', () => {
     const duration = ref(saved?.duration || 0);
     const volume = ref(saved?.volume ?? 1);
     const isMuted = ref(saved?.isMuted || false);
+    const currentMode = ref(saved?.currentMode || 'sound');
+    const radioMetadata = ref(saved?.radioMetadata || null);
+    const radioStreamUrl = ref(saved?.radioStreamUrl || '/radio/stream');
 
     const hasActiveTrack = computed(() => currentSound.value !== null);
+    const hasActiveRadio = computed(() => radioMetadata.value !== null);
 
-    function play(sound) {
-        if (currentSound.value?.id === sound.id) {
+    function play(sound = null) {
+        currentMode.value = 'sound';
+        radioMetadata.value = null;
+        if (sound) {
+            if (currentSound.value?.id === sound.id) {
+                isPlaying.value = true;
+                return;
+            }
+            currentSound.value = sound;
             isPlaying.value = true;
-            return;
+            currentTime.value = 0;
+            duration.value = sound.duration || 0;
+        } else if (currentSound.value) {
+            isPlaying.value = true;
         }
-        currentSound.value = sound;
-        isPlaying.value = true;
-        currentTime.value = 0;
-        duration.value = sound.duration || 0;
     }
 
     function pause() {
@@ -78,15 +88,38 @@ export const usePlayerStore = defineStore('player', () => {
 
     function close() {
         currentSound.value = null;
+        radioMetadata.value = null;
         isPlaying.value = false;
         currentTime.value = 0;
         duration.value = 0;
+    }
+
+    function connectRadio(metadata = null, streamUrl = '/radio/stream') {
+        currentMode.value = 'radio';
+        currentSound.value = null;
+        radioMetadata.value = metadata || radioMetadata.value || { title: 'Arborisis Radio', artist: 'En direct' };
+        radioStreamUrl.value = streamUrl;
+        currentTime.value = 0;
+        duration.value = 0;
+    }
+
+    function updateRadioMetadata(metadata) {
+        if (!metadata) return;
+        radioMetadata.value = metadata;
+    }
+
+    function resumeRadio() {
+        currentMode.value = 'radio';
+        isPlaying.value = true;
     }
 
     // Persist state (excluding isPlaying)
     watch(
         () => ({
             currentSound: currentSound.value,
+            currentMode: currentMode.value,
+            radioMetadata: radioMetadata.value,
+            radioStreamUrl: radioStreamUrl.value,
             currentTime: currentTime.value,
             duration: duration.value,
             volume: volume.value,
@@ -103,7 +136,11 @@ export const usePlayerStore = defineStore('player', () => {
         duration,
         volume,
         isMuted,
+        currentMode,
+        radioMetadata,
+        radioStreamUrl,
         hasActiveTrack,
+        hasActiveRadio,
         play,
         pause,
         togglePlay,
@@ -113,5 +150,8 @@ export const usePlayerStore = defineStore('player', () => {
         setVolume,
         toggleMute,
         close,
+        connectRadio,
+        updateRadioMetadata,
+        resumeRadio,
     };
 });

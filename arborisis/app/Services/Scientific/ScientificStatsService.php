@@ -142,7 +142,6 @@ class ScientificStatsService
     public function getAudioFeatureAverages(): array
     {
         $analyses = SoundAnalysis::whereHas('sound', fn (Builder $q) => $q->public())
-            ->whereNotNull('features_json')
             ->get();
 
         if ($analyses->isEmpty()) {
@@ -162,12 +161,7 @@ class ScientificStatsService
 
         foreach ($featureMap as $feature => $key) {
             $values = $analyses->map(function ($a) use ($key) {
-                $json = $a->features_json ?? [];
-                $value = $json[$key] ?? null;
-                if ($value === null && isset($a->{$key})) {
-                    $value = $a->{$key};
-                }
-                return $value;
+                return $this->audioFeatureValue($a, $key);
             })
             ->filter(fn ($v) => is_numeric($v))
             ->map(fn ($v) => (float) $v);
@@ -193,7 +187,6 @@ class ScientificStatsService
     public function getAudioFeatureDistribution(): array
     {
         $analyses = SoundAnalysis::whereHas('sound', fn (Builder $q) => $q->public())
-            ->whereNotNull('features_json')
             ->get();
 
         if ($analyses->isEmpty()) {
@@ -211,12 +204,7 @@ class ScientificStatsService
 
         foreach ($featureMap as $feature => $key) {
             $allValues = $analyses->map(function ($a) use ($key) {
-                $json = $a->features_json ?? [];
-                $value = $json[$key] ?? null;
-                if ($value === null && isset($a->{$key})) {
-                    $value = $a->{$key};
-                }
-                return $value;
+                return $this->audioFeatureValue($a, $key);
             })
             ->filter(fn ($v) => is_numeric($v))
             ->map(fn ($v) => (float) $v)
@@ -247,6 +235,51 @@ class ScientificStatsService
         }
 
         return $result;
+    }
+
+    private function audioFeatureValue(SoundAnalysis $analysis, string $key): mixed
+    {
+        $json = $analysis->features_json ?? [];
+
+        $value = $json[$key] ?? null;
+
+        if ($value === null) {
+            $nestedPaths = [
+                'rms_db' => [
+                    ['temporal', 'rms', 'stats', 'mean'],
+                    ['temporal', 'rms_db', 'stats', 'mean'],
+                ],
+                'zero_crossing_rate' => [
+                    ['temporal', 'zero_crossing_rate', 'stats', 'mean'],
+                    ['temporal', 'zcr', 'stats', 'mean'],
+                ],
+                'spectral_centroid' => [
+                    ['spectral', 'spectral_centroid', 'stats', 'mean'],
+                    ['spectral', 'centroid', 'stats', 'mean'],
+                ],
+                'spectral_rolloff' => [
+                    ['spectral', 'spectral_rolloff', 'stats', 'mean'],
+                    ['spectral', 'rolloff', 'stats', 'mean'],
+                ],
+                'spectral_bandwidth' => [
+                    ['spectral', 'spectral_bandwidth', 'stats', 'mean'],
+                    ['spectral', 'bandwidth', 'stats', 'mean'],
+                ],
+            ];
+
+            foreach ($nestedPaths[$key] ?? [] as $path) {
+                $value = $this->pluckNested($json, $path);
+                if ($value !== null) {
+                    break;
+                }
+            }
+        }
+
+        if ($value === null && isset($analysis->{$key})) {
+            $value = $analysis->{$key};
+        }
+
+        return $value;
     }
 
     /**

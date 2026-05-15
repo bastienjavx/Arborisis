@@ -160,8 +160,13 @@ const updateMarkers = () => {
     props.sounds.forEach((sound) => {
         const coords = sound.geometry.coordinates;
         const p = sound.properties;
+
+        if (!coords || !isFinite(coords[0]) || !isFinite(coords[1])) {
+            return;
+        }
+
         const marker = L.marker([coords[1], coords[0]], {
-            icon: createCustomIcon(p.category, p.id == props.activeSoundId),
+            icon: createCustomIcon(p.category, p.id === props.activeSoundId),
         });
 
         marker.bindPopup(buildPopupContent(sound), {
@@ -186,11 +191,17 @@ const updateMarkers = () => {
         markersMap.value.set(String(p.id), marker);
     });
 
-    const group = L.featureGroup(markerClusterGroup.value.getLayers());
-    map.value.fitBounds(group.getBounds().pad(0.15), {
-        animate: true,
-        duration: 1,
-    });
+    const layers = markerClusterGroup.value.getLayers();
+    if (layers.length > 0) {
+        const group = L.featureGroup(layers);
+        const bounds = group.getBounds();
+        if (bounds.isValid()) {
+            map.value.fitBounds(bounds.pad(0.15), {
+                animate: true,
+                duration: 1,
+            });
+        }
+    }
 };
 
 /* ── Highlight tracking ─────────────────────────────── */
@@ -206,7 +217,7 @@ watch(() => props.activeSoundId, (newId) => {
 
 /* ── Exposed methods ────────────────────────────────── */
 const flyToSound = (coords, zoom = 14) => {
-    if (!map.value) return;
+    if (!map.value || !coords || !isFinite(coords[0]) || !isFinite(coords[1])) return;
     map.value.flyTo([coords[1], coords[0]], zoom, {
         animate: true,
         duration: 1.2,
@@ -214,9 +225,6 @@ const flyToSound = (coords, zoom = 14) => {
 };
 
 const highlightMarker = (soundId) => {
-    const marker = markersMap.value.get(String(soundId));
-    if (!marker) return;
-
     markersMap.value.forEach((m, id) => {
         const sound = props.sounds.find(s => String(s.properties.id) === id);
         if (sound) {
@@ -245,6 +253,7 @@ onMounted(() => {
     map.value = L.map(mapContainer.value, {
         zoomControl: false,
         attributionControl: false,
+        scrollWheelZoom: window.innerWidth >= 768,
     }).setView(props.initialCenter, props.initialZoom);
 
     L.control.zoom({ position: 'bottomright' }).addTo(map.value);
@@ -293,7 +302,7 @@ watch(() => props.sounds, updateMarkers, { deep: true });
         <!-- Empty state overlay -->
         <div
             v-if="sounds.length === 0"
-            class="absolute inset-0 z-[30] flex items-center justify-center pointer-events-none"
+            class="absolute inset-0 z-map flex items-center justify-center pointer-events-none"
         >
             <div class="text-center animate-scale-in">
                 <div class="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-arbor-moss/10 mb-6 ring-1 ring-arbor-emerald/10">

@@ -1,6 +1,13 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
+import ChannelSwitcher from '@/Components/Radio/ChannelSwitcher.vue';
+import InteractionBar from '@/Components/Radio/InteractionBar.vue';
+import LiveVisualizer from '@/Components/Radio/LiveVisualizer.vue';
+import ListeningPulse from '@/Components/Radio/ListeningPulse.vue';
+import ProgrammeGrid from '@/Components/Radio/ProgrammeGrid.vue';
+import ReactiveBackground from '@/Components/Radio/ReactiveBackground.vue';
+import { useRadioAudio } from '@/Composables/useRadioAudio';
 import { usePlayerStore } from '@/Stores/player';
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 
@@ -8,9 +15,12 @@ const props = defineProps({
     nowPlaying: Object,
     history: Array,
     listenerCount: Number,
+    channels: Array,
+    activeChannel: String,
 });
 
 const player = usePlayerStore();
+const { analyser, bands, connect } = useRadioAudio();
 const audioRef = ref(null);
 const isPlaying = ref(false);
 const volume = ref(0.8);
@@ -18,6 +28,9 @@ const isMuted = ref(false);
 const currentMetadata = ref(props.nowPlaying);
 const currentListeners = ref(props.listenerCount);
 const nextUp = ref(null);
+const programme = ref([]);
+const reactionsSummary = ref({ like: 0, heart: 0, leaf: 0, star: 0 });
+const visualizerMode = ref('spectrum');
 const copiedStream = ref(false);
 const copiedM3u = ref(false);
 
@@ -38,8 +51,10 @@ onMounted(() => {
         player.pause();
     }
 
+    player.connectRadio(currentMetadata.value, '/radio/stream');
     fetchMetadata();
-    metadataInterval = setInterval(fetchMetadata, 5000);
+    fetchProgramme();
+    metadataInterval = setInterval(fetchMetadata, 3000);
 });
 
 onUnmounted(() => {
@@ -61,33 +76,54 @@ const fetchMetadata = async () => {
             currentMetadata.value = data.now_playing;
             currentListeners.value = data.listener_count;
             nextUp.value = data.next_up;
+            reactionsSummary.value = data.reactions_summary || reactionsSummary.value;
         }
     } catch {
         // silently fail
     }
 };
 
-const togglePlay = () => {
+const fetchProgramme = async () => {
+    try {
+        const response = await fetch('/api/radio/programme');
+        if (response.ok) {
+            const data = await response.json();
+            programme.value = data.items || [];
+        }
+    } catch {
+        programme.value = [];
+    }
+};
+
+const togglePlay = async () => {
     if (!audioRef.value) return;
 
     if (isPlaying.value) {
         audioRef.value.pause();
         isPlaying.value = false;
+        player.pause();
     } else {
-        audioRef.value.play().then(() => {
+        try {
+            await connect(audioRef.value);
+            await audioRef.value.play();
             isPlaying.value = true;
-        }).catch(() => {
+            player.connectRadio(currentMetadata.value, '/radio/stream');
+            player.resumeRadio();
+        } catch {
             // autoplay blocked
-        });
+        }
     }
 };
 
 const onAudioPlay = () => {
     isPlaying.value = true;
+    player.connectRadio(currentMetadata.value, '/radio/stream');
+    player.resumeRadio();
 };
 
 const onAudioPause = () => {
     isPlaying.value = false;
+    player.pause();
 };
 
 const setVolume = (value) => {
@@ -130,10 +166,12 @@ const copyM3uUrl = () => {
 <template>
     <Head title="Radio" />
     <GuestLayout>
+        <ReactiveBackground :bands="bands" />
         <div class="pt-24 pb-16">
             <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                 <!-- Header -->
                 <div class="mb-12">
+                    <ChannelSwitcher :channels="channels || []" :active-slug="activeChannel || 'main'" />
                     <div class="flex items-center gap-3 mb-4">
                         <div class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
                         <span class="text-sm text-arbor-sage font-medium tracking-wide uppercase">En direct</span>
@@ -144,24 +182,44 @@ const copyM3uUrl = () => {
                     <p class="text-arbor-sage max-w-xl">
                         Un flux continu de field recordings soigneusement sélectionnés parmi les créations de notre communauté.
                     </p>
+                    <div class="mt-6">
+                        <Link
+                            :href="route('radio.shows.index')"
+                            class="inline-flex items-center gap-2 rounded-lg border border-arbor-emerald/30 bg-arbor-emerald/10 px-4 py-2 text-sm font-medium text-arbor-emerald transition hover:bg-arbor-emerald/20"
+                        >
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                            </svg>
+                            Podcasts, flash info et émissions
+                        </Link>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <!-- Main Player -->
                     <div class="lg:col-span-2 space-y-8">
                         <!-- Visualizer / Cover -->
-                        <div class="aspect-square sm:aspect-[16/9] rounded-2xl overflow-hidden bg-arbor-deep relative">
+                        <div class="aspect-square sm:aspect-[16/9] rounded-2xl overflow-hidden bg-arbor-deep relative border border-arbor-glass-border shadow-2xl shadow-black/25">
                             <div
                                 v-if="currentSound?.cover"
-                                class="absolute inset-0 bg-cover bg-center"
+                                class="absolute inset-0 bg-cover bg-center opacity-35"
                                 :style="`background-image: url(${currentSound.cover})`"
                             />
-                            <div v-else class="absolute inset-0 bg-gradient-to-br from-arbor-moss/20 to-arbor-emerald/10 flex items-center justify-center">
-                                <svg class="w-32 h-32 text-arbor-moss/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-                                </svg>
-                            </div>
+                            <LiveVisualizer :analyser="analyser" :active="isPlaying" :mode="visualizerMode" class="absolute inset-0" />
                             <div class="absolute inset-0 bg-gradient-to-t from-arbor-night/80 via-transparent to-transparent"></div>
+                            <div class="absolute right-4 top-4 flex rounded-full border border-arbor-glass-border bg-arbor-night/65 p-1 backdrop-blur">
+                                <button
+                                    v-for="mode in ['spectrum', 'waveform', 'bloom']"
+                                    :key="mode"
+                                    type="button"
+                                    :aria-label="`Mode visualiseur ${mode === 'spectrum' ? 'Spectre' : mode === 'waveform' ? 'Onde' : 'Halo'}`"
+                                    class="rounded-full px-3 py-1 text-xs capitalize transition"
+                                    :class="visualizerMode === mode ? 'bg-arbor-emerald text-arbor-night' : 'text-arbor-sage hover:text-arbor-cream'"
+                                    @click="visualizerMode = mode"
+                                >
+                                    {{ mode === 'spectrum' ? 'Spectre' : mode === 'waveform' ? 'Onde' : 'Halo' }}
+                                </button>
+                            </div>
                             <div class="absolute bottom-0 left-0 right-0 p-6">
                                 <div class="flex items-center gap-3 mb-2">
                                     <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
@@ -204,7 +262,8 @@ const copyM3uUrl = () => {
                                         {{ isPlaying ? 'Lecture en cours' : 'En pause' }}
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-2 text-sm text-arbor-sage">
+                                <ListeningPulse :count="currentListeners" />
+                                <div class="flex items-center gap-2 text-sm text-arbor-sage sr-only">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                                     </svg>
@@ -233,6 +292,14 @@ const copyM3uUrl = () => {
                                     class="flex-1 h-1.5 bg-arbor-glass rounded-full appearance-none cursor-pointer accent-arbor-emerald"
                                 />
                             </div>
+                        </div>
+
+                        <div class="glass-card p-5">
+                            <InteractionBar
+                                :sound="currentSound"
+                                :summary="reactionsSummary"
+                                @update:summary="reactionsSummary = $event"
+                            />
                         </div>
 
                         <!-- Share Links -->
@@ -348,6 +415,8 @@ const copyM3uUrl = () => {
                         </div>
                     </div>
                 </div>
+
+                <ProgrammeGrid :items="programme" />
             </div>
         </div>
     </GuestLayout>

@@ -9,10 +9,10 @@ use App\Http\Requests\Wallet\StoreCheckoutRequest;
 use App\Models\Wallet;
 use App\Services\Echo\StripeCheckoutService;
 use App\Services\Echo\WalletService;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class WalletController extends Controller
 {
@@ -37,7 +37,7 @@ class WalletController extends Controller
         ]);
     }
 
-    public function checkout(StoreCheckoutRequest $request): RedirectResponse
+    public function checkout(StoreCheckoutRequest $request): SymfonyResponse
     {
         $this->authorize('checkout', Wallet::class);
 
@@ -51,7 +51,7 @@ class WalletController extends Controller
             route('wallet.cancel', [], true)
         );
 
-        return redirect($session->url);
+        return Inertia::location($session->url);
     }
 
     public function success(Request $request): Response

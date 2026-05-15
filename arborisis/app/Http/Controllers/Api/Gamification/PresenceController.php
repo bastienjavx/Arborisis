@@ -64,10 +64,11 @@ class PresenceController extends Controller
 
         $bounds = $validated['bounds'];
         $presences = $this->presenceService->getVisiblePresences(
-            $bounds['south'],
-            $bounds['north'],
-            $bounds['west'],
-            $bounds['east'],
+            (float) $bounds['south'],
+            (float) $bounds['north'],
+            (float) $bounds['west'],
+            (float) $bounds['east'],
+            $request->user(),
         );
 
         return response()->json([

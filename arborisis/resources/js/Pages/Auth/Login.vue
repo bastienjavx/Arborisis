@@ -205,7 +205,7 @@ const submit = () => {
                             <div class="w-full border-t border-arbor-glass-border" />
                         </div>
                         <div class="relative flex justify-center text-xs">
-                            <span class="bg-[#111827] px-3 text-arbor-sage/60">ou</span>
+                            <span class="bg-arbor-deep px-3 text-arbor-sage/60">ou</span>
                         </div>
                     </div>
 

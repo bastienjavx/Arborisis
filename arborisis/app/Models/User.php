@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\UserRole;
+use App\Notifications\ResetPasswordNotification;
+use App\Notifications\VerifyEmailNotification;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -35,6 +37,11 @@ class User extends Authenticatable implements MustVerifyEmail, FilamentUser
                 $user->role = UserRole::User->value;
             }
         });
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
     }
 
     public function profile(): HasOne
@@ -84,6 +91,25 @@ class User extends Authenticatable implements MustVerifyEmail, FilamentUser
     public function isFollowing(User $user): bool
     {
         return $this->following()->where('followed_id', $user->id)->exists();
+    }
+
+    public function friends(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'follows', 'follower_id', 'followed_id')
+            ->withTimestamps()
+            ->wherePivotNull('deleted_at')
+            ->whereExists(function ($query) {
+                $query->selectRaw('1')
+                    ->from('follows as f2')
+                    ->whereColumn('f2.follower_id', 'follows.followed_id')
+                    ->whereColumn('f2.followed_id', 'follows.follower_id')
+                    ->whereNull('f2.deleted_at');
+            });
+    }
+
+    public function isFriend(User $user): bool
+    {
+        return $this->isFollowing($user) && $user->isFollowing($this);
     }
 
     public function reportsMade(): HasMany
@@ -201,5 +227,26 @@ class User extends Authenticatable implements MustVerifyEmail, FilamentUser
     public function xpEvents(): HasMany
     {
         return $this->hasMany(XpEvent::class);
+    }
+
+    public function soundIdeaProgress(): HasMany
+    {
+        return $this->hasMany(UserSoundIdeaProgress::class);
+    }
+
+    /**
+     * Send the email verification notification.
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new VerifyEmailNotification());
+    }
+
+    /**
+     * Send the password reset notification.
+     */
+    public function sendPasswordResetNotification(#[\SensitiveParameter] $token)
+    {
+        $this->notify(new ResetPasswordNotification($token));
     }
 }

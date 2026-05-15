@@ -18,18 +18,14 @@ class ArborisisPointService
     public function createPoint(User $user, array $data): ArborisisPoint
     {
         return DB::transaction(function () use ($user, $data) {
-            $coordinates = ArborisisPoint::obscure(
-                (float) $data['latitude'],
-                (float) $data['longitude']
-            );
-
             $sensitivity = NatureSensitivityLevel::tryFrom($data['nature_sensitivity_level'] ?? 'normal')
                 ?? NatureSensitivityLevel::Normal;
 
-            if ($sensitivity->requiresApproximateLocation()) {
-                $data['latitude'] = $coordinates['approximate_latitude'];
-                $data['longitude'] = $coordinates['approximate_longitude'];
-            }
+            $coordinates = ArborisisPoint::publicCoordinates(
+                (float) $data['latitude'],
+                (float) $data['longitude'],
+                $sensitivity,
+            );
 
             $point = ArborisisPoint::create([
                 'user_id' => $user->id,
@@ -64,20 +60,12 @@ class ArborisisPointService
                 $data['slug'] = $this->generateSlug($data['title']);
             }
 
-            if (isset($data['latitude'], $data['longitude'])) {
-                $coordinates = ArborisisPoint::obscure(
-                    (float) $data['latitude'],
-                    (float) $data['longitude']
+            if (isset($data['latitude'], $data['longitude']) || isset($data['nature_sensitivity_level'])) {
+                $coordinates = ArborisisPoint::publicCoordinates(
+                    (float) ($data['latitude'] ?? $point->latitude),
+                    (float) ($data['longitude'] ?? $point->longitude),
+                    $data['nature_sensitivity_level'] ?? $point->nature_sensitivity_level,
                 );
-
-                $sensitivity = isset($data['nature_sensitivity_level'])
-                    ? NatureSensitivityLevel::tryFrom($data['nature_sensitivity_level'])
-                    : $point->nature_sensitivity_level;
-
-                if ($sensitivity && $sensitivity->requiresApproximateLocation()) {
-                    $data['latitude'] = $coordinates['approximate_latitude'];
-                    $data['longitude'] = $coordinates['approximate_longitude'];
-                }
 
                 $data['approximate_latitude'] = $coordinates['approximate_latitude'];
                 $data['approximate_longitude'] = $coordinates['approximate_longitude'];

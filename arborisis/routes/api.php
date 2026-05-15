@@ -3,21 +3,28 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Api\HealthController;
+use App\Http\Controllers\Api\HealthRadioController;
 use App\Http\Controllers\Api\Gamification\AchievementController;
 use App\Http\Controllers\Api\Gamification\AdminArborisisPointController;
 use App\Http\Controllers\Api\Gamification\ArborisisPointController;
 use App\Http\Controllers\Api\Gamification\ArborisisVisitController;
 use App\Http\Controllers\Api\Gamification\MedalController;
+use App\Http\Controllers\Api\Gamification\GroupRecordingEventController;
+use App\Http\Controllers\Api\Gamification\NearbyInteractionController;
 use App\Http\Controllers\Api\Gamification\PresenceController;
 use App\Http\Controllers\Api\Gamification\QuestController;
 use App\Http\Controllers\Api\Gamification\UserProgressController;
+use App\Http\Controllers\Api\BlogController as ApiBlogController;
 use App\Http\Controllers\Api\MapController;
+use App\Http\Controllers\Api\SoundIdeas\DailySoundIdeaController;
 use App\Http\Controllers\Web\RadioController;
+use App\Http\Controllers\RadioInteractionController;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', HealthController::class)->name('api.health');
+Route::get('/health/radio', HealthRadioController::class)->name('api.health.radio');
 
 Route::get('/scientific-stats/global', [\App\Http\Controllers\Api\ScientificStatsController::class, 'globalStats'])->name('api.scientific-stats.global');
 Route::get('/scientific-stats/categories', [\App\Http\Controllers\Api\ScientificStatsController::class, 'categories'])->name('api.scientific-stats.categories');
@@ -32,7 +39,27 @@ Route::get('/scientific-stats/raw-data', [\App\Http\Controllers\Api\ScientificSt
 Route::get('/map/sounds', [MapController::class, 'sounds'])->name('api.map.sounds');
 Route::get('/map/sounds/search', [MapController::class, 'search'])->name('api.map.sounds.search');
 
+Route::get('/blog', [ApiBlogController::class, 'index'])->name('api.blog.index');
+Route::get('/blog/{slug}', [ApiBlogController::class, 'show'])->name('api.blog.show');
+
 Route::get('/radio/now-playing', [RadioController::class, 'nowPlaying'])->name('api.radio.now-playing');
+Route::get('/radio/programme', [RadioController::class, 'programme'])->name('api.radio.programme');
+Route::get('/radio/channels', [RadioController::class, 'channels'])->name('api.radio.channels');
+Route::prefix('radio/interactions')->middleware('throttle:60,1')->group(function () {
+    Route::post('like', [RadioInteractionController::class, 'like'])->name('api.radio.interactions.like');
+    Route::post('react', [RadioInteractionController::class, 'react'])->name('api.radio.interactions.react');
+    Route::post('share', [RadioInteractionController::class, 'share'])->name('api.radio.interactions.share');
+});
+
+Route::prefix('internal/radio')
+    ->middleware([\App\Http\Middleware\VerifyRadioInternalToken::class])
+    ->group(function () {
+        Route::get('playlist', [\App\Http\Controllers\Api\InternalRadioController::class, 'playlist']);
+        Route::get('playlist.m3u', [\App\Http\Controllers\Api\InternalRadioController::class, 'playlistM3u']);
+        Route::match(['get', 'post'], 'now-playing', [\App\Http\Controllers\Api\InternalRadioController::class, 'nowPlaying']);
+        Route::get('status', [\App\Http\Controllers\Api\InternalRadioController::class, 'status']);
+        Route::post('actions/reload', [\App\Http\Controllers\Api\InternalRadioController::class, 'reload']);
+    });
 
 Route::middleware(['web', 'auth'])->get('/users/search', function (Request $request) {
     $q = $request->get('q');
@@ -78,6 +105,7 @@ Route::middleware(['web', 'auth', 'throttle:30,1'])->group(function () {
 // Gamification — Quests
 Route::middleware(['throttle:60,1'])->group(function () {
     Route::get('/quests', [QuestController::class, 'index'])->name('api.quests.index');
+    Route::get('/quests/daily-theme', [QuestController::class, 'dailyTheme'])->name('api.quests.daily-theme');
     Route::get('/quests/{quest}', [QuestController::class, 'show'])->name('api.quests.show');
 });
 
@@ -119,6 +147,25 @@ Route::middleware(['web', 'auth', 'throttle:30,1'])->group(function () {
 
 Route::middleware(['throttle:60,1'])->get('/map/presence', [PresenceController::class, 'mapPresence'])->name('api.map.presence');
 
+// Gamification — Nearby Interactions
+Route::middleware(['web', 'auth', 'throttle:10,1'])->group(function () {
+    Route::post('/nearby/greet/{user}', [NearbyInteractionController::class, 'greet'])->name('api.nearby.greet');
+    Route::post('/nearby/share-tip', [NearbyInteractionController::class, 'shareTip'])->name('api.nearby.share-tip');
+    Route::get('/nearby/history', [NearbyInteractionController::class, 'history'])->name('api.nearby.history');
+});
+
+// Gamification — Group Recording Events
+Route::middleware(['throttle:60,1'])->group(function () {
+    Route::get('/group-events/nearby', [GroupRecordingEventController::class, 'nearby'])->name('api.group-events.nearby');
+});
+
+Route::middleware(['web', 'auth', 'throttle:30,1'])->group(function () {
+    Route::post('/group-events', [GroupRecordingEventController::class, 'store'])->name('api.group-events.store');
+    Route::post('/group-events/{event}/join', [GroupRecordingEventController::class, 'join'])->name('api.group-events.join');
+    Route::post('/group-events/{event}/leave', [GroupRecordingEventController::class, 'leave'])->name('api.group-events.leave');
+    Route::post('/group-events/{event}/check-in', [GroupRecordingEventController::class, 'checkIn'])->name('api.group-events.check-in');
+});
+
 // Audio Analysis — Internal callback
 Route::post('/internal/audio-analysis/callback', [\App\Http\Controllers\Api\InternalAudioAnalysisController::class, 'callback'])
     ->name('api.internal.audio-analysis.callback')
@@ -143,4 +190,11 @@ Route::middleware(['web', 'auth', 'throttle:60,1'])->prefix('admin')->group(func
     Route::post('/<redacted>-points/reports/{report}', [AdminArborisisPointController::class, 'reviewReport'])->name('api.admin.<redacted>-points.reports.review');
     Route::get('/<redacted>-points/suggestions', [AdminArborisisPointController::class, 'suggestions'])->name('api.admin.<redacted>-points.suggestions');
     Route::post('/<redacted>-points/suggestions/{suggestion}', [AdminArborisisPointController::class, 'reviewSuggestion'])->name('api.admin.<redacted>-points.suggestions.review');
+});
+
+// Daily Sound Ideas
+Route::middleware(['web', 'auth', 'throttle:60,1'])->group(function () {
+    Route::get('/sound-ideas', [DailySoundIdeaController::class, 'index'])->name('api.sound-ideas.index');
+    Route::post('/sound-ideas/{idea}/toggle', [DailySoundIdeaController::class, 'toggle'])->name('api.sound-ideas.toggle');
+    Route::post('/sound-ideas/{idea}/dismiss', [DailySoundIdeaController::class, 'dismiss'])->name('api.sound-ideas.dismiss');
 });

@@ -23,9 +23,20 @@ class ArborisisPointController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $query = ArborisisPoint::public()
-            ->whereRaw("slug !~ '-[a-f0-9]{13}$'")
+        $query = ArborisisPoint::query()
             ->with(['user:id,name,slug']);
+
+        if ($query->getConnection()->getDriverName() === 'pgsql') {
+            $query->whereRaw("slug !~ '-[a-f0-9]{13}$'");
+        }
+
+        // Show public approved points, plus the current user's own points
+        $query->where(function ($q) {
+            $q->public();
+            if (auth()->check()) {
+                $q->orWhere('user_id', auth()->id());
+            }
+        });
 
         if ($request->filled('category')) {
             $query->where('category', $request->input('category'));
@@ -53,13 +64,19 @@ class ArborisisPointController extends Controller
                     'id' => $point->id,
                     'slug' => $point->slug,
                     'title' => $point->title,
+                    'description' => $point->description,
                     'category' => $point->category?->label(),
                     'category_value' => $point->category?->value,
                     'difficulty_level' => $point->difficulty_level,
                     'nature_sensitivity_level' => $point->nature_sensitivity_level?->label(),
                     'nature_sensitivity_warning' => $point->nature_sensitivity_level?->warningText(),
+                    'recommended_time' => $point->recommended_time,
+                    'audio_environment_type' => $point->audio_environment_type,
+                    'tags' => $point->tags ?? [],
                     'cover_image' => $point->cover_image,
-                    'user_name' => $point->user?->name ?? 'Anonyme',
+                    'moderation_status' => $point->moderation_status?->value,
+                    'created_at' => $point->created_at?->format('d/m/Y'),
+                    'user' => $point->user?->only('id', 'name', 'slug'),
                 ],
             ];
         });

@@ -4,17 +4,26 @@ declare(strict_types=1);
 
 namespace App\Services\Radio;
 
+use App\Enums\RadioJinglePlacement;
+use App\Models\RadioJingle;
+use App\Models\RadioPodcast;
+use App\Models\RadioSetting;
+use App\Models\RadioSchedule;
 use App\Models\Sound;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class RadioStreamService
 {
     private const CACHE_KEY_NOW_PLAYING = 'radio:now-playing';
     private const CACHE_KEY_HISTORY = 'radio:history';
     private const CACHE_KEY_LISTENERS = 'radio:listeners';
+    private const CACHE_KEY_LISTENER_SESSIONS = 'radio:listener-sessions';
+    private const CACHE_KEY_LISTENER_GENERATION = 'radio:listener-generation';
     private const CACHE_KEY_EPOCH = 'radio:epoch';
     private const CACHE_KEY_PLAYLIST = 'radio:playlist';
 
@@ -22,23 +31,43 @@ class RadioStreamService
     private int $chunkSize;
     private int $historyLimit;
     private bool $shuffle;
+    private bool $enabled;
     private int $tempUrlTtlMinutes;
     private bool $loop;
     private int $gapMs;
+    private int $listenerTtlSeconds;
+    private ?int $maxListenersDisplay;
+    private ?string $activeListenerId = null;
+    private ?int $activeListenerGeneration = null;
 
     public function __construct()
     {
-        $this->icyMetaint = config('radio.icy_metaint', 8192);
+        $settings = Schema::hasTable('radio_settings') ? RadioSetting::query()->first() : null;
+
+        $this->icyMetaint = $settings?->icy_metaint ?? config('radio.icy_metaint', 8192);
         $this->chunkSize = config('radio.chunk_size', 8192);
-        $this->historyLimit = config('radio.history_limit', 20);
-        $this->shuffle = config('radio.playlist_shuffle', true);
+        $this->historyLimit = $settings?->history_limit ?? config('radio.history_limit', 20);
+        $this->shuffle = $settings?->shuffle_enabled ?? config('radio.playlist_shuffle', true);
+        $this->enabled = $settings?->is_enabled ?? true;
         $this->tempUrlTtlMinutes = config('radio.temp_url_ttl_minutes', 60);
-        $this->loop = config('radio.loop', true);
-        $this->gapMs = config('radio.gap_ms', 500);
+        $this->loop = $settings?->loop_enabled ?? config('radio.loop', true);
+        $this->gapMs = $settings?->gap_ms ?? config('radio.gap_ms', 500);
+        $this->listenerTtlSeconds = $settings?->listener_ttl_seconds ?? config('radio.listener_ttl_seconds', 120);
+        $this->maxListenersDisplay = $settings?->max_listeners_display;
     }
 
     public function getPlaylist(): Collection
     {
+        if (! $this->enabled) {
+            return new Collection();
+        }
+
+        $scheduledPlaylist = $this->getScheduledPlaylist();
+
+        if ($scheduledPlaylist->isNotEmpty()) {
+            return $scheduledPlaylist;
+        }
+
         return Sound::public()
             ->with(['user', 'soundFile'])
             ->whereHas('soundFile', function ($query) {
@@ -48,6 +77,30 @@ class RadioStreamService
                 });
             })
             ->get();
+    }
+
+    private function getScheduledPlaylist(): Collection
+    {
+        if (! Schema::hasTable('radio_schedules') || ! Schema::hasTable('radio_schedule_sound')) {
+            return new Collection();
+        }
+
+        $schedule = RadioSchedule::query()
+            ->with(['sounds.user', 'sounds.soundFile'])
+            ->where('is_active', true)
+            ->whereHas('sounds')
+            ->orderByDesc('priority')
+            ->orderBy('starts_at')
+            ->get()
+            ->first(fn (RadioSchedule $schedule): bool => $schedule->isCurrentlyActive());
+
+        if (! $schedule) {
+            return new Collection();
+        }
+
+        return $schedule->sounds
+            ->filter(fn (Sound $sound): bool => $sound->isPublic())
+            ->values();
     }
 
     public function getPlaylistMimeType(): string
@@ -99,11 +152,9 @@ class RadioStreamService
                 }
             }
 
-            return $sounds->filter(function (Sound $sound) {
-                $mimeType = $sound->soundFile?->radio_mime_type ?? $sound->soundFile?->mime_type;
-
-                return $mimeType === 'audio/mpeg';
-            })->pluck('id')->all();
+            return $sounds->filter(fn (Sound $sound) => $this->resolvePlayableSource($sound) !== null)
+                ->pluck('id')
+                ->all();
         });
 
         if (empty($ids)) {
@@ -293,21 +344,57 @@ class RadioStreamService
 
     public function incrementListeners(): void
     {
-        Cache::increment(self::CACHE_KEY_LISTENERS);
+        $this->activeListenerId = (string) Str::uuid();
+        $this->activeListenerGeneration = $this->getListenerGeneration();
+        if (Schema::hasTable('radio_listener_sessions')) {
+            app(ListenerSessionTracker::class)->start($this->activeListenerId);
+        }
+        $this->touchActiveListener();
     }
 
     public function decrementListeners(): void
     {
-        $current = Cache::decrement(self::CACHE_KEY_LISTENERS);
+        if (! $this->activeListenerId) {
+            $this->resetLegacyListenerCount();
 
-        if ($current === false || $current < 0) {
-            Cache::put(self::CACHE_KEY_LISTENERS, 0);
+            return;
         }
+
+        $sessions = $this->getListenerSessions();
+        unset($sessions[$this->activeListenerId]);
+        Cache::put(self::CACHE_KEY_LISTENER_SESSIONS, $this->pruneListenerSessions($sessions), now()->addSeconds($this->listenerTtlSeconds * 2));
+        Cache::forget($this->listenerSessionKey($this->activeListenerId));
+        if (Schema::hasTable('radio_listener_sessions')) {
+            app(ListenerSessionTracker::class)->close($this->activeListenerId);
+        }
+        $this->activeListenerId = null;
+        $this->activeListenerGeneration = null;
+        $this->resetLegacyListenerCount();
     }
 
     public function getListenerCount(): int
     {
-        return (int) Cache::get(self::CACHE_KEY_LISTENERS, 0);
+        $sessions = $this->pruneListenerSessions($this->getListenerSessions());
+        Cache::put(self::CACHE_KEY_LISTENER_SESSIONS, $sessions, now()->addSeconds($this->listenerTtlSeconds * 2));
+        $this->resetLegacyListenerCount();
+
+        $dbCount = Schema::hasTable('radio_listener_sessions')
+            ? app(ListenerSessionTracker::class)->activeCount()
+            : 0;
+        $count = max(count($sessions), $dbCount);
+
+        return $this->maxListenersDisplay === null ? $count : min($count, $this->maxListenersDisplay);
+    }
+
+    public function resetListenerCount(): void
+    {
+        foreach (array_keys($this->getListenerSessions()) as $listenerId) {
+            Cache::forget($this->listenerSessionKey($listenerId));
+        }
+
+        Cache::forget(self::CACHE_KEY_LISTENER_SESSIONS);
+        Cache::forever(self::CACHE_KEY_LISTENER_GENERATION, (int) (microtime(true) * 1000));
+        $this->resetLegacyListenerCount();
     }
 
     public function streamToOutput(callable $outputCallback, bool $injectIcy = false): void
@@ -331,6 +418,8 @@ class RadioStreamService
             $index = $startIndex;
             $consecutiveFailures = 0;
             $playlistCount = $playlist->count();
+            $tracksStreamed = 0;
+            $podcastInterval = $this->isPodcastEnabled() ? (int) config('radio.podcast.interval_tracks', 15) : 0;
 
             while (! connection_aborted()) {
                 $sound = $playlist[$index] ?? null;
@@ -344,6 +433,7 @@ class RadioStreamService
                     $sound = $playlist[0];
                 }
 
+                $this->streamDueJingle(RadioJinglePlacement::BeforeTrack, $tracksStreamed, $outputCallback, $injectIcy);
                 $bytesStreamed = $this->streamSound($sound, $outputCallback, $injectIcy);
 
                 if ($bytesStreamed === 0) {
@@ -362,6 +452,15 @@ class RadioStreamService
                     sleep(1);
                 } else {
                     $consecutiveFailures = 0;
+                    $tracksStreamed++;
+                }
+
+                $this->streamDueJingle(RadioJinglePlacement::AfterTrack, $tracksStreamed, $outputCallback, $injectIcy);
+                $this->streamDueJingle(RadioJinglePlacement::BetweenBlocks, $tracksStreamed, $outputCallback, $injectIcy);
+                $this->streamHourlyJingles($outputCallback, $injectIcy);
+
+                if ($podcastInterval > 0 && $tracksStreamed > 0 && $tracksStreamed % $podcastInterval === 0) {
+                    $this->streamLatestPodcast($outputCallback, $injectIcy);
                 }
 
                 if ($this->gapMs > 0) {
@@ -391,19 +490,22 @@ class RadioStreamService
             return 0;
         }
 
-        $disk = $sound->soundFile->disk;
-        $path = $sound->soundFile->radio_path ?? $sound->soundFile->path;
-        $mimeType = $sound->soundFile->radio_mime_type ?? $sound->soundFile->mime_type;
+        $source = $this->resolvePlayableSource($sound);
 
-        if ($mimeType !== 'audio/mpeg') {
-            Log::warning('Radio stream: skipping non-MPEG file without radio conversion', [
+        if (! $source) {
+            Log::warning('Radio stream: no readable MPEG source for sound', [
                 'sound_id' => $sound->id,
-                'mime_type' => $mimeType,
+                'disk' => $sound->soundFile->disk,
+                'path' => $sound->soundFile->path,
+                'radio_path' => $sound->soundFile->radio_path,
+                'mime_type' => $sound->soundFile->mime_type,
+                'radio_mime_type' => $sound->soundFile->radio_mime_type,
             ]);
 
             return 0;
         }
 
+        ['disk' => $disk, 'path' => $path] = $source;
         $handle = Storage::disk($disk)->readStream($path);
 
         if (! $handle) {
@@ -430,6 +532,7 @@ class RadioStreamService
                     break;
                 }
 
+                $this->touchActiveListener();
                 $outputCallback($chunk);
                 $chunkLen = strlen($chunk);
                 $totalBytes += $chunkLen;
@@ -454,6 +557,273 @@ class RadioStreamService
         }
 
         return $totalBytes;
+    }
+
+    private function streamDueJingle(
+        RadioJinglePlacement $placement,
+        int $tracksStreamed,
+        callable $outputCallback,
+        bool $icyEnabled
+    ): void {
+        $sequence = $placement === RadioJinglePlacement::BeforeTrack ? $tracksStreamed + 1 : $tracksStreamed;
+
+        if ($sequence < 1) {
+            return;
+        }
+
+        $jingles = $this->getActiveJingles($placement)
+            ->filter(fn (RadioJingle $jingle): bool => $sequence % max(1, $jingle->frequency) === 0)
+            ->values();
+
+        if ($jingles->isEmpty()) {
+            return;
+        }
+
+        $jingle = $jingles[$sequence % $jingles->count()];
+        $this->streamJingle($jingle, $outputCallback, $icyEnabled);
+    }
+
+    private function getActiveJingles(RadioJinglePlacement $placement): Collection
+    {
+        if (! Schema::hasTable('radio_jingles')) {
+            return new Collection();
+        }
+
+        return RadioJingle::query()
+            ->where('is_active', true)
+            ->where('placement', $placement)
+            ->orderBy('id')
+            ->get()
+            ->filter(fn (RadioJingle $jingle): bool => $jingle->isCurrentlyActive())
+            ->filter(fn (RadioJingle $jingle): bool => Storage::disk($jingle->disk)->exists($jingle->path))
+            ->values();
+    }
+
+    private function streamHourlyJingles(callable $outputCallback, bool $icyEnabled): void
+    {
+        foreach ($this->getActiveJingles(RadioJinglePlacement::Hourly) as $jingle) {
+            $cacheKey = 'radio:jingle-hour:'.$jingle->id.':'.now()->format('YmdH');
+
+            if (! Cache::add($cacheKey, true, now()->addMinutes(70))) {
+                continue;
+            }
+
+            $this->streamJingle($jingle, $outputCallback, $icyEnabled);
+        }
+    }
+
+    private function isPodcastEnabled(): bool
+    {
+        return config('radio.podcast.enabled', false)
+            || config('radio.host.flash_enabled', false)
+            || config('radio.host.emission_enabled', false);
+    }
+
+    private function streamLatestPodcast(callable $outputCallback, bool $icyEnabled): void
+    {
+        $podcast = RadioPodcast::query()
+            ->readyForAir()
+            ->latest('published_at')
+            ->first();
+
+        if (! $podcast || ! $podcast->disk || ! $podcast->path) {
+            return;
+        }
+
+        if (! Storage::disk($podcast->disk)->exists($podcast->path)) {
+            Log::warning('Radio stream: podcast file not found', [
+                'podcast_id' => $podcast->id,
+                'disk' => $podcast->disk,
+                'path' => $podcast->path,
+            ]);
+
+            return;
+        }
+
+        $handle = Storage::disk($podcast->disk)->readStream($podcast->path);
+
+        if (! $handle) {
+            Log::warning('Radio stream: failed to open podcast stream', [
+                'podcast_id' => $podcast->id,
+            ]);
+
+            return;
+        }
+
+        $title = $podcast->title;
+        $bytesSinceMeta = 0;
+
+        try {
+            while (! feof($handle) && ! connection_aborted()) {
+                $chunk = fread($handle, $this->chunkSize);
+
+                if ($chunk === false || $chunk === '') {
+                    break;
+                }
+
+                $this->touchActiveListener();
+                $outputCallback($chunk);
+                $chunkLen = strlen($chunk);
+
+                if ($icyEnabled) {
+                    $bytesSinceMeta += $chunkLen;
+
+                    if ($bytesSinceMeta >= $this->icyMetaint) {
+                        $outputCallback($this->generateIcyMetadata($title, 'Arborisis Radio'));
+                        $bytesSinceMeta = 0;
+                    }
+                }
+
+                if (ob_get_level() > 0) {
+                    ob_flush();
+                }
+                flush();
+            }
+        } finally {
+            fclose($handle);
+        }
+
+        Log::info('Radio stream: podcast streamed', ['podcast_id' => $podcast->id, 'title' => $title]);
+    }
+
+    private function streamJingle(RadioJingle $jingle, callable $outputCallback, bool $icyEnabled): int
+    {
+        $handle = Storage::disk($jingle->disk)->readStream($jingle->path);
+
+        if (! $handle) {
+            Log::warning('Radio stream: failed to open jingle stream', [
+                'jingle_id' => $jingle->id,
+                'disk' => $jingle->disk,
+                'path' => $jingle->path,
+            ]);
+
+            return 0;
+        }
+
+        $totalBytes = 0;
+        $bytesSinceMeta = 0;
+
+        try {
+            while (! feof($handle) && ! connection_aborted()) {
+                $chunk = fread($handle, $this->chunkSize);
+
+                if ($chunk === false || $chunk === '') {
+                    break;
+                }
+
+                $this->touchActiveListener();
+                $outputCallback($chunk);
+                $chunkLen = strlen($chunk);
+                $totalBytes += $chunkLen;
+
+                if ($icyEnabled) {
+                    $bytesSinceMeta += $chunkLen;
+
+                    if ($bytesSinceMeta >= $this->icyMetaint) {
+                        $outputCallback($this->generateIcyMetadata($jingle->name, 'Arborisis Radio'));
+                        $bytesSinceMeta = 0;
+                    }
+                }
+
+                if (ob_get_level() > 0) {
+                    ob_flush();
+                }
+                flush();
+            }
+        } finally {
+            fclose($handle);
+        }
+
+        return $totalBytes;
+    }
+
+    private function touchActiveListener(): void
+    {
+        if (! $this->activeListenerId) {
+            return;
+        }
+
+        if ($this->activeListenerGeneration !== $this->getListenerGeneration()) {
+            return;
+        }
+
+        $expiresAt = now()->addSeconds($this->listenerTtlSeconds)->timestamp;
+        $sessions = $this->pruneListenerSessions($this->getListenerSessions());
+        $sessions[$this->activeListenerId] = $expiresAt;
+
+        Cache::put($this->listenerSessionKey($this->activeListenerId), true, now()->addSeconds($this->listenerTtlSeconds));
+        Cache::put(self::CACHE_KEY_LISTENER_SESSIONS, $sessions, now()->addSeconds($this->listenerTtlSeconds * 2));
+        if (Schema::hasTable('radio_listener_sessions')) {
+            app(ListenerSessionTracker::class)->heartbeat($this->activeListenerId);
+        }
+    }
+
+    private function getListenerSessions(): array
+    {
+        $sessions = Cache::get(self::CACHE_KEY_LISTENER_SESSIONS, []);
+
+        return is_array($sessions) ? $sessions : [];
+    }
+
+    private function pruneListenerSessions(array $sessions): array
+    {
+        $now = now()->timestamp;
+
+        return array_filter(
+            $sessions,
+            fn (mixed $expiresAt, string $listenerId): bool => (int) $expiresAt > $now
+                && Cache::has($this->listenerSessionKey($listenerId)),
+            ARRAY_FILTER_USE_BOTH
+        );
+    }
+
+    private function listenerSessionKey(string $listenerId): string
+    {
+        return 'radio:listener:'.$listenerId;
+    }
+
+    private function getListenerGeneration(): int
+    {
+        return (int) Cache::get(self::CACHE_KEY_LISTENER_GENERATION, 1);
+    }
+
+    private function resetLegacyListenerCount(): void
+    {
+        Cache::put(self::CACHE_KEY_LISTENERS, 0);
+    }
+
+    private function resolvePlayableSource(Sound $sound): ?array
+    {
+        $soundFile = $sound->soundFile;
+
+        if (! $soundFile) {
+            return null;
+        }
+
+        $disk = $soundFile->disk;
+
+        if (
+            $soundFile->radio_path
+            && $soundFile->radio_mime_type === 'audio/mpeg'
+            && Storage::disk($disk)->exists($soundFile->radio_path)
+        ) {
+            return [
+                'disk' => $disk,
+                'path' => $soundFile->radio_path,
+            ];
+        }
+
+        if (
+            $soundFile->mime_type === 'audio/mpeg'
+            && Storage::disk($disk)->exists($soundFile->path)
+        ) {
+            return [
+                'disk' => $disk,
+                'path' => $soundFile->path,
+            ];
+        }
+
+        return null;
     }
 
     private function streamGap(callable $outputCallback): void

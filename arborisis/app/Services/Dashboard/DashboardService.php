@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace App\Services\Dashboard;
 
+use App\Enums\QuestType;
+use App\Enums\SoundIdeaStatus;
+use App\Models\DailySoundIdea;
 use App\Models\Quest;
 use App\Models\User;
+use App\Models\UserSoundIdeaProgress;
 use App\Services\Echo\WalletService;
+use App\Services\Gamification\QuestService;
 use App\Services\Gamification\XpService;
 
 class DashboardService
@@ -14,6 +19,7 @@ class DashboardService
     public function __construct(
         private readonly WalletService $walletService,
         private readonly XpService $xpService,
+        private readonly QuestService $questService,
     ) {}
 
     public function getStats(User $user): array
@@ -103,40 +109,46 @@ class DashboardService
         $xpProgress = $user->xp_total - $xpForCurrent;
         $xpNeeded = $xpForNext - $xpForCurrent;
 
-        $activeQuests = $user->questProgress()
+        $activeProgress = $user->questProgress()
             ->with('quest')
+            ->whereHas('quest', fn ($q) => $q->active())
             ->whereIn('status', ['in_progress', 'completed'])
             ->latest('updated_at')
-            ->limit(3)
-            ->get()
-            ->map(fn ($progress) => [
-                'id' => $progress->id,
-                'quest_id' => $progress->quest_id,
-                'title' => $progress->quest->title,
-                'description' => $progress->quest->description,
-                'current_progress' => $progress->current_progress,
-                'target_progress' => $progress->target_progress,
-                'progress_percentage' => $progress->progressPercentage(),
-                'status' => $progress->status->value,
-                'reward_xp' => $progress->quest->reward_xp,
-                'is_repeatable' => $progress->quest->is_repeatable,
-            ])
-            ->toArray();
+            ->get();
 
-        // If user has fewer than 3 active quests, suggest available ones
-        if (count($activeQuests) < 3) {
-            $existingQuestIds = array_column($activeQuests, 'quest_id');
-            $suggestedQuests = Quest::active()
-                ->whereNotIn('id', function ($query) use ($user) {
-                    $query->select('quest_id')
-                        ->from('quest_progress')
-                        ->where('user_id', $user->id)
-                        ->whereIn('status', ['in_progress', 'completed', 'claimed']);
-                })
-                ->limit(3 - count($activeQuests))
-                ->get()
-                ->map(fn ($quest) => [
+        $startedQuestIds = $activeProgress->pluck('quest_id')->all();
+
+        $suggestedQuests = Quest::active()
+            ->whereNotIn('id', function ($query) use ($user) {
+                $query->select('quest_id')
+                    ->from('quest_progress')
+                    ->where('user_id', $user->id)
+                    ->whereIn('status', ['in_progress', 'completed', 'claimed']);
+            })
+            ->get()
+            ->map(function ($quest) use ($user) {
+                // Auto-start daily quests automatically
+                if ($quest->type === QuestType::Daily) {
+                    $progress = $this->questService->startQuest($user, $quest);
+
+                    return [
+                        'id' => $progress->id,
+                        'quest_id' => $quest->id,
+                        'title' => $quest->title,
+                        'description' => $quest->description,
+                        'current_progress' => $progress->current_progress,
+                        'target_progress' => $progress->target_progress,
+                        'progress_percentage' => $progress->progressPercentage(),
+                        'status' => $progress->status->value,
+                        'reward_xp' => $quest->reward_xp,
+                        'is_repeatable' => $quest->is_repeatable,
+                        'type' => $quest->type->value,
+                    ];
+                }
+
+                return [
                     'id' => null,
+                    'quest_id' => $quest->id,
                     'title' => $quest->title,
                     'description' => $quest->description,
                     'current_progress' => 0,
@@ -145,11 +157,36 @@ class DashboardService
                     'status' => 'available',
                     'reward_xp' => $quest->reward_xp,
                     'is_repeatable' => $quest->is_repeatable,
-                ])
-                ->toArray();
+                    'type' => $quest->type->value,
+                ];
+            });
 
-            $activeQuests = array_merge($activeQuests, $suggestedQuests);
-        }
+        $progressItems = $activeProgress->map(fn ($progress) => [
+            'id' => $progress->id,
+            'quest_id' => $progress->quest_id,
+            'title' => $progress->quest->title,
+            'description' => $progress->quest->description,
+            'current_progress' => $progress->current_progress,
+            'target_progress' => $progress->target_progress,
+            'progress_percentage' => $progress->progressPercentage(),
+            'status' => $progress->status->value,
+            'reward_xp' => $progress->quest->reward_xp,
+            'is_repeatable' => $progress->quest->is_repeatable,
+            'type' => $progress->quest->type->value,
+        ]);
+
+        // Priorité : daily disponibles > daily en cours > autres en cours > daily complétées > autres complétées
+        $activeQuests = collect()
+            ->merge($suggestedQuests->filter(fn ($q) => $q['type'] === QuestType::Daily->value))
+            ->merge($progressItems->filter(fn ($q) => $q['type'] === QuestType::Daily->value && $q['status'] === 'in_progress'))
+            ->merge($progressItems->filter(fn ($q) => $q['status'] === 'in_progress'))
+            ->merge($progressItems->filter(fn ($q) => $q['type'] === QuestType::Daily->value && $q['status'] === 'completed'))
+            ->merge($progressItems->filter(fn ($q) => $q['status'] === 'completed'))
+            ->merge($suggestedQuests->filter(fn ($q) => $q['type'] !== QuestType::Daily->value))
+            ->unique('quest_id')
+            ->take(3)
+            ->values()
+            ->toArray();
 
         $recentAchievements = $user->achievements()
             ->latest('user_achievements.unlocked_at')
@@ -202,6 +239,48 @@ class DashboardService
             })->count(),
             'achievements_unlocked' => $user->achievements()->count(),
             'medals_unlocked' => $user->medals()->count(),
+        ];
+    }
+
+    public function getDailySoundIdeas(User $user): array
+    {
+        $ideas = DailySoundIdea::today()
+            ->orderBy('id')
+            ->get();
+
+        if ($ideas->isEmpty()) {
+            return [
+                'ideas' => [],
+                'theme' => null,
+                'completed_count' => 0,
+                'total_count' => 0,
+            ];
+        }
+
+        $progress = UserSoundIdeaProgress::where('user_id', $user->id)
+            ->whereIn('daily_sound_idea_id', $ideas->pluck('id'))
+            ->get()
+            ->keyBy('daily_sound_idea_id');
+
+        $mappedIdeas = $ideas->map(fn (DailySoundIdea $idea) => [
+            'id' => $idea->id,
+            'title' => $idea->title,
+            'description' => $idea->description,
+            'difficulty' => $idea->difficulty,
+            'tags' => $idea->tags ?? [],
+            'season_context' => $idea->season_context,
+            'weather_context' => $idea->weather_context,
+            'time_of_day' => $idea->time_of_day,
+            'status' => $progress->has($idea->id) ? $progress[$idea->id]->status->value : SoundIdeaStatus::Pending->value,
+        ])->toArray();
+
+        $completedCount = $progress->where('status', SoundIdeaStatus::Completed)->count();
+
+        return [
+            'ideas' => $mappedIdeas,
+            'theme' => $ideas->first()->theme,
+            'completed_count' => $completedCount,
+            'total_count' => $ideas->count(),
         ];
     }
 }

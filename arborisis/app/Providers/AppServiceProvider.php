@@ -91,6 +91,7 @@ class AppServiceProvider extends ServiceProvider
 
         Event::listen(SoundPublished::class, SendNewSoundPushNotification::class);
         Event::listen(DiscordNotification::class, DispatchDiscordNotification::class);
+        Event::listen(Registered::class, \Illuminate\Auth\Listeners\SendEmailVerificationNotification::class);
         Event::listen(Registered::class, NotifyDiscordOnRegistration::class);
         Event::listen(SocialiteWasCalled::class, DiscordExtendSocialite::class);
 

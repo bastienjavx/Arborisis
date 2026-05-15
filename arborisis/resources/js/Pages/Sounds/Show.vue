@@ -1,5 +1,6 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
+import Breadcrumb from '@/Components/Breadcrumb.vue';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import LikeButton from '@/Components/Social/LikeButton.vue';
 import FollowButton from '@/Components/Social/FollowButton.vue';
@@ -133,13 +134,13 @@ const getMetaIcon = (type) => {
     <GuestLayout>
         <div class="pt-24 pb-16">
             <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-                <!-- Back link -->
-                <Link href="/sounds" class="inline-flex items-center text-sm text-arbor-sage hover:text-arbor-cream mb-8 transition-colors group">
-                    <svg class="w-4 h-4 mr-1 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                    </svg>
-                    Retour aux sons
-                </Link>
+                <Breadcrumb
+                    :items="[
+                        { label: 'Accueil', href: '/' },
+                        { label: 'Sons', href: '/sounds' },
+                        { label: sound.title },
+                    ]"
+                />
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <!-- Main Content -->
@@ -164,6 +165,7 @@ const getMetaIcon = (type) => {
                             <div class="flex items-center gap-4 mb-4">
                                 <button
                                     @click="togglePlay"
+                                    :aria-label="effectiveIsPlaying ? 'Pause' : 'Lire'"
                                     class="w-14 h-14 rounded-full bg-arbor-emerald flex items-center justify-center hover:bg-arbor-emerald-dark transition-colors shrink-0 shadow-lg shadow-arbor-emerald/20 group"
                                 >
                                     <svg v-if="!effectiveIsPlaying" class="w-6 h-6 text-arbor-night ml-1 transition-transform group-hover:scale-110" fill="currentColor" viewBox="0 0 24 24">

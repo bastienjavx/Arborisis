@@ -1,9 +1,13 @@
 <script setup>
 import { ref, watch, computed, onMounted, nextTick } from 'vue';
 import { usePlayerStore } from '@/Stores/player';
+import { useWakeLock } from '@/Composables/useWakeLock';
+import { usePwaStore } from '@/Stores/pwa';
 import { Link } from '@inertiajs/vue3';
 
 const player = usePlayerStore();
+const { request: requestWakeLock, release: releaseWakeLock } = useWakeLock();
+const pwaStore = usePwaStore();
 const audioRef = ref(null);
 
 const progressPercent = computed(() => {
@@ -22,8 +26,10 @@ watch(() => player.isPlaying, (playing) => {
     if (!audioRef.value) return;
     if (playing) {
         audioRef.value.play().catch(() => {});
+        requestWakeLock();
     } else {
         audioRef.value.pause();
+        releaseWakeLock();
     }
 });
 
@@ -71,7 +77,62 @@ function onLoadedMetadata() {
 
 function onEnded() {
     player.stop();
+    releaseWakeLock();
 }
+
+function setupMediaSession() {
+    if (!('mediaSession' in navigator)) return;
+
+    const sound = player.currentSound;
+    if (!sound) return;
+
+    navigator.mediaSession.metadata = new MediaMetadata({
+        title: sound.title || 'Arborisis',
+        artist: sound.userName || 'Anonyme',
+        album: 'Arborisis — Archive sonore',
+        artwork: [
+            { src: sound.coverUrl || '/pwa-icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+            { src: sound.coverUrl || '/pwa-icons/icon-512x512.png', sizes: '512x512', type: 'image/png' },
+        ],
+    });
+
+    navigator.mediaSession.setActionHandler('play', () => player.play());
+    navigator.mediaSession.setActionHandler('pause', () => player.pause());
+    navigator.mediaSession.setActionHandler('stop', () => player.stop());
+    navigator.mediaSession.setActionHandler('seekbackward', (details) => {
+        const skip = details.seekOffset || 10;
+        if (audioRef.value) {
+            audioRef.value.currentTime = Math.max(0, audioRef.value.currentTime - skip);
+            player.setTime(audioRef.value.currentTime);
+        }
+    });
+    navigator.mediaSession.setActionHandler('seekforward', (details) => {
+        const skip = details.seekOffset || 10;
+        if (audioRef.value) {
+            audioRef.value.currentTime = Math.min(audioRef.value.duration || Infinity, audioRef.value.currentTime + skip);
+            player.setTime(audioRef.value.currentTime);
+        }
+    });
+    navigator.mediaSession.setActionHandler('seekto', (details) => {
+        if (details.seekTime && audioRef.value) {
+            audioRef.value.currentTime = details.seekTime;
+            player.setTime(audioRef.value.currentTime);
+        }
+    });
+    navigator.mediaSession.setActionHandler('previoustrack', null);
+    navigator.mediaSession.setActionHandler('nexttrack', null);
+    navigator.mediaSession.playbackState = player.isPlaying ? 'playing' : 'paused';
+}
+
+watch(() => player.currentSound, () => {
+    setupMediaSession();
+});
+
+watch(() => player.isPlaying, (playing) => {
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.playbackState = playing ? 'playing' : 'paused';
+    }
+});
 
 function seek(event) {
     if (!audioRef.value || !player.duration) return;

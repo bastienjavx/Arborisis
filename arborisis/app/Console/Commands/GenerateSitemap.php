@@ -33,6 +33,7 @@ class GenerateSitemap extends Command
             'mission',
             'charte',
             'radio.index',
+            'radio.shows.index',
         ];
 
         foreach ($staticRoutes as $routeName) {

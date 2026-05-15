@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Gamification;
 
 use App\Enums\PresenceVisibilityMode;
+use App\Events\Gamification\UserLeftMap;
 use App\Events\Gamification\UserPresenceUpdated;
 use App\Models\User;
 use App\Models\UserPresence;
@@ -45,16 +46,26 @@ class PresenceService
 
     public function removePresence(User $user): void
     {
-        UserPresence::where('user_id', $user->id)->delete();
+        UserPresence::where('user_id', $user->id)->get()->each(function (UserPresence $presence) {
+            UserLeftMap::dispatch($presence->user_id);
+            $presence->delete();
+        });
     }
 
-    public function getVisiblePresences(float $south, float $north, float $west, float $east): array
+    public function getVisiblePresences(float $south, float $north, float $west, float $east, ?User $viewer = null): array
     {
         return UserPresence::visible()
             ->whereBetween('approximate_latitude', [$south, $north])
             ->whereBetween('approximate_longitude', [$west, $east])
             ->with('user:id,name')
             ->get()
+            ->filter(function (UserPresence $presence) use ($viewer) {
+                if ($presence->visibility_mode !== PresenceVisibilityMode::FriendsOnly) {
+                    return true;
+                }
+
+                return $viewer !== null && $viewer->isFriend($presence->user);
+            })
             ->map(function (UserPresence $presence) {
                 return [
                     'user_id' => $presence->user_id,
@@ -67,6 +78,7 @@ class PresenceService
                     'visibility_mode' => $presence->visibility_mode->value,
                 ];
             })
+            ->values()
             ->toArray();
     }
 

@@ -4,7 +4,9 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import PlayerProgressCard from '@/Components/Gamification/PlayerProgressCard.vue';
 import ActiveQuests from '@/Components/Gamification/ActiveQuests.vue';
 import AchievementMedalShelf from '@/Components/Gamification/AchievementMedalShelf.vue';
+import DailySoundIdeas from '@/Components/SoundIdeas/DailySoundIdeas.vue';
 import { computed, onMounted, ref } from 'vue';
+import WaveformScene from '@/Components/Three/WaveformScene.vue';
 
 const props = defineProps({
     stats: {
@@ -47,9 +49,18 @@ const props = defineProps({
             medals_unlocked: 0,
         })
     },
+    dailySoundIdeas: {
+        type: Object,
+        default: () => ({
+            ideas: [],
+            theme: null,
+            completed_count: 0,
+            total_count: 0,
+        })
+    },
 });
 
-const waveformBars = ref(48);
+// Waveform visualization is now rendered via Three.js WaveformScene component
 
 const greeting = computed(() => {
     const hour = new Date().getHours();
@@ -67,8 +78,13 @@ const animatedStats = ref({
 });
 
 const statsAnimated = ref(false);
+const prefersReducedMotion = ref(false);
 
 const animateCount = (target, key, duration = 1200) => {
+    if (prefersReducedMotion.value) {
+        animatedStats.value[key] = target;
+        return;
+    }
     const start = performance.now();
     const from = 0;
     const to = target;
@@ -82,6 +98,7 @@ const animateCount = (target, key, duration = 1200) => {
 };
 
 onMounted(() => {
+    prefersReducedMotion.value = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     // Animate stat numbers on mount with delay
     setTimeout(() => {
         statsAnimated.value = true;
@@ -198,19 +215,9 @@ const getMiniWaveform = (seed) => {
             <div class="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
                 <!-- Gradient glow -->
                 <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-hero-glow opacity-40" />
-                <!-- Floating waveform visualization -->
-                <div class="absolute bottom-0 left-0 right-0 h-48 flex items-end justify-center gap-[3px] opacity-10 px-8">
-                    <div
-                        v-for="i in waveformBars"
-                        :key="i"
-                        class="w-[3px] bg-arbor-emerald rounded-full origin-bottom"
-                        :style="{
-                            height: `${20 + Math.random() * 80}%`,
-                            animationDelay: `${i * 0.05}s`,
-                            animationDuration: `${0.8 + Math.random() * 0.6}s`
-                        }"
-                        style="animation: wave 1.2s ease-in-out infinite"
-                    />
+                <!-- Floating waveform visualization (Three.js) -->
+                <div class="absolute bottom-0 left-0 right-0 h-48 opacity-10">
+                    <WaveformScene />
                 </div>
                 <!-- Subtle noise texture overlay -->
                 <div class="absolute inset-0 opacity-[0.015]" style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 256 256%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.9%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22/%3E%3C/svg%3E'); background-repeat: repeat;"
@@ -242,7 +249,17 @@ const getMiniWaveform = (seed) => {
                 <!-- Stats Row -->
                 <section class="pb-12 section-padding">
                     <div class="max-w-7xl mx-auto">
-                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+                        <!-- Skeleton stats -->
+                        <div v-if="!statsAnimated" class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+                            <div v-for="n in 4" :key="n" class="stat-card">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <div class="w-10 h-10 rounded-xl bg-arbor-charcoal animate-pulse" />
+                                    <div class="h-3 bg-arbor-charcoal rounded animate-pulse w-20" />
+                                </div>
+                                <div class="h-8 bg-arbor-charcoal rounded animate-pulse w-16" />
+                            </div>
+                        </div>
+                        <div v-else class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
                             <!-- Stat: Sounds -->
                             <div class="stat-card group">
                                 <div class="flex items-center gap-3 mb-4">
@@ -348,6 +365,14 @@ const getMiniWaveform = (seed) => {
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                             <!-- Left Column (2/3) -->
                             <div class="lg:col-span-2 space-y-8">
+                                <!-- Daily Sound Ideas -->
+                                <DailySoundIdeas
+                                    :initial-ideas="dailySoundIdeas.ideas"
+                                    :initial-theme="dailySoundIdeas.theme"
+                                    :initial-completed-count="dailySoundIdeas.completed_count"
+                                    :initial-total-count="dailySoundIdeas.total_count"
+                                />
+
                                 <!-- Recent Sounds -->
                                 <div class="glass-card p-6 lg:p-8">
                                     <div class="flex items-center justify-between mb-6">
@@ -376,7 +401,7 @@ const getMiniWaveform = (seed) => {
                                                 v-for="(sound, index) in recentSounds.slice(0, 5)"
                                                 :key="sound.id"
                                                 :href="route('sounds.show', sound.slug)"
-                                                class="flex items-center gap-4 p-4 rounded-xl bg-arbor-charcoal/50 border border-arbor-fog/50 hover:border-arbor-moss/50 hover:bg-arbor-charcoal transition-all duration-300 group"
+                                                class="flex items-center gap-4 p-4 rounded-xl bg-arbor-charcoal/50 border border-arbor-fog/50 hover:border-arbor-moss/50 hover:bg-arbor-charcoal transition-colors duration-300 group"
                                                 :style="`animation: slideInRight 0.4s ease-out forwards; animation-delay: ${index * 0.08}s; opacity: 0;`"
                                             >
                                                 <!-- Cover / Play button -->
@@ -392,9 +417,9 @@ const getMiniWaveform = (seed) => {
                                                         </svg>
                                                     </div>
                                                     <!-- Play overlay -->
-                                                    <div class="sound-card-overlay rounded-xl">
+                                                    <div class="sound-card-overlay rounded-xl" aria-hidden="true">
                                                         <div class="w-8 h-8 rounded-full bg-arbor-emerald/90 flex items-center justify-center">
-                                                            <svg class="w-4 h-4 text-arbor-night ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                                                            <svg class="w-4 h-4 text-arbor-night ml-0.5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                                                 <path d="M8 5v14l11-7z" />
                                                             </svg>
                                                         </div>

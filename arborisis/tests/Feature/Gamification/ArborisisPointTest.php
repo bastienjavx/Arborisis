@@ -67,8 +67,28 @@ describe('création de point', function () {
 
         $point = ArborisisPoint::latest()->first();
 
-        expect($point->latitude)->toBe($point->approximate_latitude);
-        expect($point->longitude)->toBe($point->approximate_longitude);
+        expect((float) $point->latitude)->toBe(48.8566)
+            ->and((float) $point->longitude)->toBe(2.3522)
+            ->and((float) $point->approximate_latitude)->toBe(48.86)
+            ->and((float) $point->approximate_longitude)->toBe(2.35);
+    });
+
+    it('conserve la position publique exacte pour les lieux non sensibles', function () {
+        $response = $this->actingAs($this->user)
+            ->postJson('/api/<redacted>-points', [
+                'title' => 'Clairière ouverte',
+                'latitude' => 48.85661234,
+                'longitude' => 2.35222345,
+                'category' => ArborisisCategory::Forest->value,
+                'nature_sensitivity_level' => NatureSensitivityLevel::Normal->value,
+            ]);
+
+        $response->assertStatus(201);
+
+        $point = ArborisisPoint::latest()->first();
+
+        expect((float) $point->approximate_latitude)->toBe(48.85661234)
+            ->and((float) $point->approximate_longitude)->toBe(2.35222345);
     });
 });
 
