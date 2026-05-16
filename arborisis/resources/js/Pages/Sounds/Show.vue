@@ -1,5 +1,5 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 import Breadcrumb from '@/Components/Breadcrumb.vue';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import LikeButton from '@/Components/Social/LikeButton.vue';
@@ -21,12 +21,21 @@ const props = defineProps({
     analysis: Object,
 });
 
+const page = usePage();
 const player = usePlayerStore();
 const isPlaying = ref(false);
 const currentTime = ref(0);
 const duration = ref(props.sound.duration || 0);
 const waveSurferRef = ref(null);
 const copied = ref(false);
+const xenoCanto = ref(null);
+const xenoCantoLoading = ref(false);
+const xenoCantoError = ref(null);
+const xenoCantoId = ref('');
+
+const isOwner = computed(() =>
+    page.props.auth.user && page.props.auth.user.id === props.sound.user_id
+);
 
 const isCurrentInPlayer = computed(() =>
     player.currentSound?.id === props.sound.id
@@ -114,6 +123,79 @@ const shareLink = () => {
     navigator.clipboard.writeText(window.location.href);
     copied.value = true;
     setTimeout(() => copied.value = false, 2000);
+};
+
+const csrfToken = () => document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+const prepareXenoCanto = async () => {
+    if (xenoCantoLoading.value) return;
+    xenoCantoLoading.value = true;
+    xenoCantoError.value = null;
+
+    try {
+        const response = await fetch(route('sounds.xeno-canto.prepare', props.sound.id), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken(),
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+            xenoCantoError.value = data.message || data.errors?.sound?.[0] || 'Préparation impossible.';
+            return;
+        }
+
+        xenoCanto.value = data;
+    } catch (error) {
+        xenoCantoError.value = 'Préparation impossible.';
+        console.error(error);
+    } finally {
+        xenoCantoLoading.value = false;
+    }
+};
+
+const openXenoCantoUpload = () => {
+    if (!xenoCanto.value?.xeno_canto_upload_url) return;
+    window.open(xenoCanto.value.xeno_canto_upload_url, '_blank', 'noopener,noreferrer');
+};
+
+const markXenoCantoSubmitted = async () => {
+    if (!xenoCanto.value || xenoCantoLoading.value) return;
+    xenoCantoLoading.value = true;
+    xenoCantoError.value = null;
+
+    try {
+        const response = await fetch(route('sounds.xeno-canto.submitted', props.sound.id), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken(),
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: JSON.stringify({ xeno_canto_id: xenoCantoId.value || null }),
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+            xenoCantoError.value = data.message || 'Mise à jour impossible.';
+            return;
+        }
+
+        xenoCanto.value = data;
+    } catch (error) {
+        xenoCantoError.value = 'Mise à jour impossible.';
+        console.error(error);
+    } finally {
+        xenoCantoLoading.value = false;
+    }
+};
+
+const copyXenoCantoAudioUrl = () => {
+    if (!xenoCanto.value?.audio_download_url) return;
+    navigator.clipboard.writeText(xenoCanto.value.audio_download_url);
 };
 
 const getMetaIcon = (type) => {
@@ -318,8 +400,103 @@ const getMetaIcon = (type) => {
                         <AudioAnalysisPanel
                             :analysis="analysis"
                             :sound="sound"
-                            :is-owner="$page.props.auth.user && $page.props.auth.user.id === sound.user_id"
+                            :is-owner="isOwner"
                         />
+
+                        <!-- xeno-canto -->
+                        <div v-if="isOwner" class="glass-card p-6">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                <div>
+                                    <h2 class="font-semibold text-arbor-cream">xeno-canto</h2>
+                                    <p class="text-sm text-arbor-sage mt-1">
+                                        Paquet de soumission avec fichier audio temporaire, espèce probable et coordonnées publiques.
+                                    </p>
+                                </div>
+                                <button
+                                    @click="prepareXenoCanto"
+                                    :disabled="xenoCantoLoading"
+                                    class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-arbor-emerald text-arbor-night text-sm font-semibold hover:bg-arbor-emerald-dark disabled:opacity-50 transition-colors"
+                                >
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v12m0-12l-4 4m4-4l4 4M4 20h16" />
+                                    </svg>
+                                    Préparer
+                                </button>
+                            </div>
+
+                            <p v-if="xenoCantoError" class="mt-4 text-sm text-red-300">
+                                {{ xenoCantoError }}
+                            </p>
+
+                            <div v-if="xenoCanto" class="mt-5 space-y-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                                    <div class="rounded-lg bg-arbor-glass p-3">
+                                        <div class="text-xs text-arbor-sage mb-1">Espèce principale</div>
+                                        <div class="text-arbor-cream">
+                                            {{ xenoCanto.metadata.species.common_name || 'À confirmer' }}
+                                        </div>
+                                        <div v-if="xenoCanto.metadata.species.scientific_name" class="text-xs text-arbor-sage italic">
+                                            {{ xenoCanto.metadata.species.scientific_name }}
+                                        </div>
+                                    </div>
+                                    <div class="rounded-lg bg-arbor-glass p-3">
+                                        <div class="text-xs text-arbor-sage mb-1">Lieu exporté</div>
+                                        <div class="text-arbor-cream">
+                                            {{ xenoCanto.metadata.location.name || 'Lieu non renseigné' }}
+                                        </div>
+                                        <div v-if="xenoCanto.metadata.location.latitude" class="text-xs text-arbor-sage">
+                                            {{ xenoCanto.metadata.location.latitude }}, {{ xenoCanto.metadata.location.longitude }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div v-if="xenoCanto.metadata.license_warning" class="rounded-lg border border-amber-400/30 bg-amber-400/10 p-3 text-sm text-amber-100">
+                                    {{ xenoCanto.metadata.license_warning }}
+                                </div>
+
+                                <div class="flex flex-col sm:flex-row gap-3">
+                                    <button
+                                        @click="copyXenoCantoAudioUrl"
+                                        class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-arbor-glass border border-arbor-glass-border text-arbor-sage text-sm hover:text-arbor-cream transition-colors"
+                                    >
+                                        Copier l'URL audio
+                                    </button>
+                                    <button
+                                        @click="openXenoCantoUpload"
+                                        class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-arbor-glass border border-arbor-glass-border text-arbor-sage text-sm hover:text-arbor-cream transition-colors"
+                                    >
+                                        Ouvrir xeno-canto
+                                    </button>
+                                </div>
+
+                                <div class="flex flex-col sm:flex-row gap-3">
+                                    <input
+                                        v-model="xenoCantoId"
+                                        type="text"
+                                        inputmode="numeric"
+                                        placeholder="ID xeno-canto"
+                                        class="flex-1 rounded-lg border border-arbor-glass-border bg-arbor-night/60 px-3 py-2 text-sm text-arbor-cream placeholder:text-arbor-sage/60 focus:border-arbor-emerald focus:ring-arbor-emerald"
+                                    >
+                                    <button
+                                        @click="markXenoCantoSubmitted"
+                                        :disabled="xenoCantoLoading"
+                                        class="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-arbor-moss text-white text-sm font-semibold hover:bg-arbor-moss-light disabled:opacity-50 transition-colors"
+                                    >
+                                        Marquer soumis
+                                    </button>
+                                </div>
+
+                                <a
+                                    v-if="xenoCanto.xeno_canto_url"
+                                    :href="xenoCanto.xeno_canto_url"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="inline-flex text-sm text-arbor-emerald hover:text-arbor-cream transition-colors"
+                                >
+                                    Voir la fiche xeno-canto
+                                </a>
+                            </div>
+                        </div>
 
                         <!-- Comments -->
                         <CommentSection

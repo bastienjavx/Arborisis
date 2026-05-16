@@ -50,7 +50,7 @@ const showingExploreDropdown = ref(false);
                                     <template #trigger>
                                         <button
                                             type="button"
-                                            class="inline-flex items-center px-3 py-2 text-sm font-medium leading-5 text-arbor-sage hover:text-arbor-cream transition duration-150 ease-in-out"
+                                            class="inline-flex items-center px-3 py-2 text-sm font-medium leading-5 text-arbor-sage hover:text-arbor-cream transition duration-150 ease-in-out cursor-pointer rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-arbor-emerald/50 focus-visible:ring-offset-2 focus-visible:ring-offset-arbor-night"
                                             :class="route().current('sounds.*') || route().current('map.index') || route().current('creators.*') ? 'text-arbor-cream' : ''"
                                         >
                                             Explorer
@@ -124,7 +124,7 @@ const showingExploreDropdown = ref(false);
                                     <span class="inline-flex rounded-md">
                                         <button
                                             type="button"
-                                            class="inline-flex items-center gap-2 rounded-xl border border-arbor-glass-border bg-arbor-glass px-3 py-2 text-sm font-medium leading-4 text-arbor-cream transition duration-150 ease-in-out hover:bg-white/10 focus:outline-none"
+                                            class="inline-flex items-center gap-2 rounded-xl border border-arbor-glass-border bg-arbor-glass px-3 py-2 text-sm font-medium leading-4 text-arbor-cream transition duration-150 ease-in-out hover:bg-white/10 focus:outline-none cursor-pointer focus-visible:ring-2 focus-visible:ring-arbor-emerald/50 focus-visible:ring-offset-2 focus-visible:ring-offset-arbor-night"
                                         >
                                             <div class="w-7 h-7 rounded-full bg-arbor-moss/30 flex items-center justify-center text-xs font-medium text-arbor-emerald">
                                                 {{ $page.props.auth.user.name.charAt(0).toUpperCase() }}

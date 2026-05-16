@@ -3,6 +3,7 @@ import os
 from typing import Any
 
 from app.core.logger import get_logger
+from app.services.environment_classifier import EnvironmentClassifier
 from app.services.r2_storage import R2Storage
 
 logger = get_logger(__name__)
@@ -112,16 +113,23 @@ class SummaryBuilder:
     ) -> str:
         main_species = []
         seen_species = set()
-        for detection in sorted(detections, key=lambda x: x["confidence"], reverse=True):
+        for detection in sorted(detections, key=lambda x: x.get("aggregate_confidence", x["confidence"]), reverse=True):
             species_key = detection["common_name"].lower()
             if species_key in seen_species:
                 continue
             seen_species.add(species_key)
-            main_species.append({"name": detection["common_name"], "confidence": detection["confidence"]})
+            main_species.append({
+                "name": detection["common_name"],
+                "scientific_name": detection.get("scientific_name"),
+                "confidence": detection.get("aggregate_confidence", detection["confidence"]),
+                "segments": detection.get("species_detection_count", 1),
+            })
             if len(main_species) >= 5:
                 break
 
-        suggested_tags = self._suggest_tags(detections, features)
+        environment_classifier = EnvironmentClassifier()
+        acoustic_environments = environment_classifier.classify(features, detections)
+        suggested_tags = self._suggest_tags(detections, features, environment_classifier)
 
         # Acoustic profile
         acoustic_profile = {
@@ -136,6 +144,7 @@ class SummaryBuilder:
             "duration_seconds": round(duration, 2),
             "main_detected_species": main_species,
             "suggested_tags": suggested_tags,
+            "acoustic_environments": acoustic_environments,
             "acoustic_profile": acoustic_profile,
             "quality": {
                 "noise_level": self._noise_level_label(quality.get("noise_floor_db", -60)),
@@ -163,7 +172,12 @@ class SummaryBuilder:
         logger.info("summary_built", sound_id=sound_id, r2_key=r2_key, tags=suggested_tags)
         return r2_key
 
-    def _suggest_tags(self, detections: list[dict[str, Any]], features: dict[str, Any]) -> list[str]:
+    def _suggest_tags(
+        self,
+        detections: list[dict[str, Any]],
+        features: dict[str, Any],
+        environment_classifier: EnvironmentClassifier | None = None,
+    ) -> list[str]:
         tags = set()
 
         # Tags from BirdNET detections
@@ -174,8 +188,9 @@ class SummaryBuilder:
                 if any(kw.lower() in sci or kw.lower() in com for kw in keywords):
                     tags.add(tag)
 
-        # Tags from acoustic heuristics
-        tags.update(_heuristic_tags(features))
+        # Tags from acoustic environment scoring
+        classifier = environment_classifier or EnvironmentClassifier()
+        tags.update(classifier.tags(features, detections))
 
         # Fallback
         if not tags:

@@ -1,6 +1,8 @@
 <script setup>
-import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted, onUnmounted, watch, defineAsyncComponent } from 'vue';
 import L from 'leaflet';
+
+const MapParticleOverlay = defineAsyncComponent(() => import('@/Components/Map/MapParticleOverlay.vue'));
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
@@ -28,6 +30,7 @@ const props = defineProps({
 const emit = defineEmits(['marker-click']);
 
 const mapContainer = ref(null);
+const rippleContainer = ref(null);
 const map = ref(null);
 const markerClusterGroup = ref(null);
 const activePopupSound = ref(null);
@@ -92,6 +95,7 @@ const createCustomIcon = (categoryName, isHighlighted = false) => {
         className: `custom-marker ${catClass}`,
         html: `<div class="sound-marker" style="transform: ${scale}; transition: transform 0.25s ease;">
             <div class="sound-marker-pulse" style="background: ${color}4d;"></div>
+            <div class="sound-marker-pulse-slow" style="background: ${color}26;"></div>
             <div class="sound-marker-dot" style="background: ${color}; box-shadow: ${glow};"></div>
         </div>`,
         iconSize: [20, 20],
@@ -240,6 +244,25 @@ const openPopup = (soundId) => {
     }
 };
 
+/* ── Ripple effect ──────────────────────────────────── */
+const triggerRipple = (lat, lng, color) => {
+    if (!map.value || !rippleContainer.value) return;
+    const point = map.value.latLngToContainerPoint([lat, lng]);
+
+    const createRipple = (delayClass = '') => {
+        const el = document.createElement('div');
+        el.className = `map-ripple ${delayClass}`;
+        el.style.left = `${point.x}px`;
+        el.style.top = `${point.y}px`;
+        el.style.color = color;
+        rippleContainer.value.appendChild(el);
+        setTimeout(() => el.remove(), delayClass ? 2400 : 2100);
+    };
+
+    createRipple();
+    createRipple('map-ripple-delayed');
+};
+
 defineExpose({
     flyToSound,
     highlightMarker,
@@ -298,6 +321,8 @@ watch(() => props.sounds, updateMarkers, { deep: true });
 <template>
     <div class="relative w-full h-full">
         <div ref="mapContainer" class="w-full h-full" />
+        <MapParticleOverlay />
+        <div ref="rippleContainer" class="map-ripple-container" />
 
         <!-- Empty state overlay -->
         <div
@@ -346,9 +371,21 @@ watch(() => props.sounds, updateMarkers, { deep: true });
     animation: markerPulse 2s ease-out infinite;
 }
 
+.sound-marker-pulse-slow {
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    animation: markerPulseSlow 3.5s ease-out infinite;
+}
+
 @keyframes markerPulse {
     0% { transform: scale(0.5); opacity: 1; }
     100% { transform: scale(2); opacity: 0; }
+}
+
+@keyframes markerPulseSlow {
+    0% { transform: scale(0.4); opacity: 0.7; }
+    100% { transform: scale(2.8); opacity: 0; }
 }
 
 /* Cluster styles */

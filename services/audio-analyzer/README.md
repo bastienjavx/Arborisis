@@ -53,7 +53,10 @@ docker-compose up --build
 | `R2_BUCKET` | Nom du bucket (défaut: `arborisis`) |
 | `MAX_FILE_SIZE_MB` | Taille max fichier audio (défaut: 500) |
 | `MAX_DURATION_SECONDS` | Durée max audio (défaut: 600) |
-| `BIRDNET_CONFIDENCE_THRESHOLD` | Seuil BirdNET (défaut: 0.5) |
+| `BIRDNET_CONFIDENCE_THRESHOLD` | Seuil bas envoye a BirdNET pour collecter les candidats (defaut: 0.25) |
+| `BIRDNET_PUBLISH_CONFIDENCE_THRESHOLD` | Seuil minimal pour publier une detection isolee (defaut: 0.45) |
+| `BIRDNET_REPEATED_CONFIDENCE_THRESHOLD` | Seuil moyen pour conserver une espece repetee dans plusieurs segments (defaut: 0.32) |
+| `BIRDNET_MAX_DETECTIONS` | Nombre maximal de segments BirdNET conserves apres filtrage (defaut: 80) |
 | `LOG_LEVEL` | Niveau de log (défaut: INFO) |
 
 ## Endpoints

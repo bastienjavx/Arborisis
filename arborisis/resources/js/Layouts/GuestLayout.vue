@@ -10,6 +10,13 @@ const showingMobileMenu = ref(false);
 const showingMoreDropdown = ref(false);
 const consentStore = useConsentStore();
 const isScrolled = ref(false);
+const moreDropdownContainer = ref(null);
+
+function handleClickOutside(event) {
+    if (moreDropdownContainer.value && !moreDropdownContainer.value.contains(event.target)) {
+        showingMoreDropdown.value = false;
+    }
+}
 
 function openCookieSettings() {
     consentStore.openBanner();
@@ -21,10 +28,12 @@ function handleScroll() {
 
 onMounted(() => {
     window.addEventListener('scroll', handleScroll, { passive: true });
+    document.addEventListener('click', handleClickOutside);
 });
 
 onUnmounted(() => {
     window.removeEventListener('scroll', handleScroll);
+    document.removeEventListener('click', handleClickOutside);
 });
 </script>
 
@@ -44,25 +53,24 @@ onUnmounted(() => {
 
                     <!-- Desktop Navigation -->
                     <div class="hidden md:flex items-center gap-1">
-                        <Link href="/sounds" class="nav-link px-3 py-2 rounded-lg text-sm text-arbor-sage hover:text-arbor-cream transition-colors">
+                        <Link href="/sounds" class="nav-link px-3 py-2 rounded-lg text-sm text-arbor-sage hover:text-arbor-cream transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-arbor-emerald/50 focus-visible:ring-offset-2 focus-visible:ring-offset-arbor-night">
                             Sons
                         </Link>
-                        <Link href="/map" class="nav-link px-3 py-2 rounded-lg text-sm text-arbor-sage hover:text-arbor-cream transition-colors">
+                        <Link href="/map" class="nav-link px-3 py-2 rounded-lg text-sm text-arbor-sage hover:text-arbor-cream transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-arbor-emerald/50 focus-visible:ring-offset-2 focus-visible:ring-offset-arbor-night">
                             Carte
                         </Link>
-                        <Link href="/creators" class="nav-link px-3 py-2 rounded-lg text-sm text-arbor-sage hover:text-arbor-cream transition-colors">
+                        <Link href="/creators" class="nav-link px-3 py-2 rounded-lg text-sm text-arbor-sage hover:text-arbor-cream transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-arbor-emerald/50 focus-visible:ring-offset-2 focus-visible:ring-offset-arbor-night">
                             Créateurs
                         </Link>
-                        <Link href="/radio" class="nav-link px-3 py-2 rounded-lg text-sm text-arbor-sage hover:text-arbor-cream transition-colors">
+                        <Link href="/radio" class="nav-link px-3 py-2 rounded-lg text-sm text-arbor-sage hover:text-arbor-cream transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-arbor-emerald/50 focus-visible:ring-offset-2 focus-visible:ring-offset-arbor-night">
                             Radio
                         </Link>
 
                         <!-- More Dropdown -->
-                        <div class="relative">
+                        <div ref="moreDropdownContainer" class="relative">
                             <button
                                 @click="showingMoreDropdown = !showingMoreDropdown"
-                                @blur="showingMoreDropdown = false"
-                                class="nav-link px-3 py-2 rounded-lg text-sm text-arbor-sage hover:text-arbor-cream transition-colors inline-flex items-center gap-1"
+                                class="nav-link px-3 py-2 rounded-lg text-sm text-arbor-sage hover:text-arbor-cream transition-colors inline-flex items-center gap-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-arbor-emerald/50 focus-visible:ring-offset-2 focus-visible:ring-offset-arbor-night"
                                 aria-haspopup="true"
                                 :aria-expanded="showingMoreDropdown"
                             >
@@ -75,13 +83,13 @@ onUnmounted(() => {
                                 v-if="showingMoreDropdown"
                                 class="absolute right-0 mt-2 w-48 bg-arbor-deep/95 backdrop-blur-xl border border-arbor-glass-border rounded-xl shadow-xl py-1 z-dropdown"
                             >
-                                <Link href="/blog" class="block px-4 py-2 text-sm text-arbor-sage hover:text-arbor-cream hover:bg-arbor-glass transition-colors">
+                                <Link href="/blog" class="block px-4 py-2 text-sm text-arbor-sage hover:text-arbor-cream hover:bg-arbor-glass transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-arbor-emerald/50 focus-visible:ring-offset-2 focus-visible:ring-offset-arbor-night">
                                     Chroniques
                                 </Link>
-                                <Link href="/mission" class="block px-4 py-2 text-sm text-arbor-sage hover:text-arbor-cream hover:bg-arbor-glass transition-colors">
+                                <Link href="/mission" class="block px-4 py-2 text-sm text-arbor-sage hover:text-arbor-cream hover:bg-arbor-glass transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-arbor-emerald/50 focus-visible:ring-offset-2 focus-visible:ring-offset-arbor-night">
                                     Mission
                                 </Link>
-                                <Link href="/contact" class="block px-4 py-2 text-sm text-arbor-sage hover:text-arbor-cream hover:bg-arbor-glass transition-colors">
+                                <Link href="/contact" class="block px-4 py-2 text-sm text-arbor-sage hover:text-arbor-cream hover:bg-arbor-glass transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-arbor-emerald/50 focus-visible:ring-offset-2 focus-visible:ring-offset-arbor-night">
                                     Contact
                                 </Link>
                             </div>

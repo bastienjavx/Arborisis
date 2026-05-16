@@ -43,4 +43,16 @@
 @include('mail.components.spacer', ['height' => 24])
 
 @include('mail.components.cta-button', ['url' => url('/contact'), 'label' => 'Retour au site'])
+
+<!-- Reply note -->
+@include('mail.components.spacer', ['height' => 24])
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+    <tr>
+        <td>
+            <p style="margin: 0; font-family: 'DM Sans', system-ui, sans-serif; font-size: 13px; color: #8FA68E; line-height: 1.6; font-style: italic; mso-line-height-rule: exactly;">
+                Vous pouvez répondre directement à cet e-mail : votre message sera ajouté automatiquement au suivi de votre demande.
+            </p>
+        </td>
+    </tr>
+</table>
 @endsection

@@ -22,7 +22,12 @@ class GenerateDailyBlogPost implements ShouldQueue
 
     public int $tries = 3;
 
-    public array $backoff = [60, 300, 600];
+    public int $timeout = 300;
+
+    public function backoff(): array
+    {
+        return [60, 300, 600];
+    }
 
     public function handle(): void
     {

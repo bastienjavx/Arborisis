@@ -72,9 +72,9 @@ const playSound = (e) => {
             <button
                 @click="playSound"
                 :aria-label="isPlaying ? `Mettre en pause ${sound.title}` : `Lire ${sound.title}`"
-                class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer"
             >
-                <div class="w-14 h-14 rounded-full bg-arbor-emerald/90 hover:bg-arbor-emerald flex items-center justify-center shadow-lg shadow-arbor-emerald/20 transition-colors duration-200 active:scale-95">
+                <div class="w-14 h-14 rounded-full bg-arbor-emerald/90 hover:bg-arbor-emerald flex items-center justify-center shadow-lg shadow-arbor-emerald/20 transition-all duration-200 active:scale-95 hover:scale-105">
                     <svg v-if="!isPlaying" class="w-6 h-6 text-arbor-night ml-1" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M8 5v14l11-7z" />
                     </svg>

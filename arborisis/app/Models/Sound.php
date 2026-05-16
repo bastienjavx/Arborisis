@@ -90,6 +90,11 @@ class Sound extends Model
         return $this->hasOne(SoundAnalysis::class);
     }
 
+    public function xenoCantoSubmission(): HasOne
+    {
+        return $this->hasOne(XenoCantoSubmission::class);
+    }
+
     public function likes(): HasMany
     {
         return $this->hasMany(Like::class);

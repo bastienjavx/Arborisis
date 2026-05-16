@@ -3,6 +3,8 @@
 use App\Enums\SoundStatus;
 use App\Models\Sound;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 it('displays the landing page', function () {
     $response = $this->get('/');
@@ -87,4 +89,25 @@ it('redirects guests from sound creation', function () {
     $response = $this->get('/sounds/create');
 
     $response->assertRedirect('/login');
+});
+
+it('allows authenticated users to upload a sound', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)->post('/sounds', [
+        'audio_file' => UploadedFile::fake()->create('morning.wav', 128, 'audio/wav'),
+        'title' => 'Chant du matin',
+        'description' => 'Test upload',
+        'latitude' => 48.8566,
+        'longitude' => 2.3522,
+        'license' => 'cc_by',
+        'visibility' => 'public',
+    ]);
+
+    $sound = Sound::where('title', 'Chant du matin')->first();
+
+    expect($sound)->not->toBeNull();
+    $response->assertRedirect(route('sounds.show', $sound->slug));
 });

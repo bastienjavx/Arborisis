@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Web;
 
+use App\Enums\ContactTicketReplySource;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Contact\StoreContactRequest;
 use App\Http\Requests\Contact\TrackContactTicketRequest;
@@ -42,7 +43,7 @@ class ContactController extends Controller
                     'replies' => $ticket->replies->map(fn ($reply) => [
                         'reply' => $reply->reply,
                         'created_at' => $reply->created_at->toIso8601String(),
-                        'author' => $reply->user?->name ?? 'Équipe Arborisis',
+                        'author' => $reply->source === ContactTicketReplySource::Customer ? $ticket->name : ($reply->user?->name ?? 'Équipe Arborisis'),
                     ])->values(),
                 ];
             }

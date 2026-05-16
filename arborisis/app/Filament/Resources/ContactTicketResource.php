@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources;
 
+use App\Enums\ContactTicketReplySource;
 use App\Enums\ContactTicketStatus;
 use App\Enums\ContactTicketType;
 use App\Filament\Resources\ContactTicketResource\Pages;
@@ -73,7 +74,7 @@ class ContactTicketResource extends Resource
                                 }
 
                                 $html = $record->replies->map(function ($reply) {
-                                    $author = e($reply->user?->name ?? 'Équipe Arborisis');
+                                    $author = e($reply->source === ContactTicketReplySource::Customer ? $record->name : ($reply->user?->name ?? 'Équipe Arborisis'));
                                     $date = $reply->created_at->format('d/m/Y à H:i');
                                     $message = nl2br(e($reply->reply));
 
