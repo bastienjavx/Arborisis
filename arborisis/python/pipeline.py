@@ -18,6 +18,7 @@ from core.utils import ensure_dir, save_json, setup_plot_style
 from features.temporal import extract_temporal_features
 from features.spectral import extract_spectral_features
 from features.cepstral import extract_cepstral_features, extract_mfcc
+from features.biodiversity import extract_acoustic_events, compute_acoustic_diversity_index
 from visualizations.spectrograms import plot_combined_spectrograms
 from visualizations.heatmaps import plot_feature_correlation
 
@@ -92,10 +93,16 @@ def run_analysis(audio_path: str, output_dir: str = None, config_dict: dict = No
     spectral = extract_spectral_features(y, sr, n_fft, hop_length)
     cepstral = extract_cepstral_features(y, sr, n_mfcc, n_fft, hop_length)
 
+    # 4b. Biodiversity features
+    biodiversity = extract_acoustic_events(y, sr, hop_length=hop_length)
+    adi = compute_acoustic_diversity_index(y, sr, n_bands=10)
+
     features = {
         "temporal": temporal,
         "spectral": spectral,
         "cepstral": cepstral,
+        "biodiversity": biodiversity,
+        "acoustic_diversity_index": adi,
     }
 
     # 5. Visualisations

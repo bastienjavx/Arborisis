@@ -1,5 +1,5 @@
 import { t as _sfc_main$1 } from "./GuestLayout-CqMC9M4d.js";
-import { t as _sfc_main$2 } from "./FollowButton-Bo36dbLy.js";
+import { t as _sfc_main$2 } from "./FollowButton-BRPBIklU.js";
 import { Head, Link } from "@inertiajs/vue3";
 import { Fragment, createBlock, createCommentVNode, createTextVNode, createVNode, openBlock, renderList, toDisplayString, unref, useSSRContext, withCtx } from "vue";
 import { ssrInterpolate, ssrRenderAttr, ssrRenderComponent, ssrRenderList } from "vue/server-renderer";

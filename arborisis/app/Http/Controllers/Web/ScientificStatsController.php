@@ -28,6 +28,9 @@ class ScientificStatsController extends Controller
             'topLocations' => $this->statsService->getTopLocations(),
             'equipmentDistribution' => $this->statsService->getEquipmentDistribution(),
             'rawDataSample' => $this->statsService->getRawDataSample(50),
+            'listeningPoints' => $this->statsService->getListeningPointsOverview(),
+            'speciesDistribution' => $this->statsService->getSpeciesDistribution(),
+            'globalMetrics' => $this->statsService->getGlobalMetricsOverview(),
         ]);
     }
 }

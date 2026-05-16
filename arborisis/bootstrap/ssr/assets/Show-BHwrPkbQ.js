@@ -1,6 +1,6 @@
 import { n as usePlayerStore, t as _sfc_main$7 } from "./GuestLayout-CqMC9M4d.js";
-import { t as _sfc_main$8 } from "./Breadcrumb-BDceMv5P.js";
-import { t as _sfc_main$9 } from "./FollowButton-Bo36dbLy.js";
+import { t as _sfc_main$8 } from "./Breadcrumb-Cl9EPnkX.js";
+import { t as _sfc_main$9 } from "./FollowButton-BRPBIklU.js";
 import { Head, Link, useForm, usePage } from "@inertiajs/vue3";
 import { Fragment, computed, createBlock, createCommentVNode, createTextVNode, createVNode, mergeProps, onMounted, onUnmounted, openBlock, ref, renderList, toDisplayString, unref, useSSRContext, vModelText, watch, withCtx, withDirectives } from "vue";
 import { ssrIncludeBooleanAttr, ssrInterpolate, ssrLooseContain, ssrLooseEqual, ssrRenderAttr, ssrRenderAttrs, ssrRenderClass, ssrRenderComponent, ssrRenderList, ssrRenderStyle } from "vue/server-renderer";

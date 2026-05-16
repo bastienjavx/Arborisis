@@ -31,18 +31,23 @@ Route::post('/inbound/contact-ticket-replies', InboundContactTicketReplyControll
     ->middleware('throttle:30,1')
     ->name('api.inbound.contact-ticket-replies');
 
-Route::get('/scientific-stats/global', [\App\Http\Controllers\Api\ScientificStatsController::class, 'globalStats'])->name('api.scientific-stats.global');
-Route::get('/scientific-stats/categories', [\App\Http\Controllers\Api\ScientificStatsController::class, 'categories'])->name('api.scientific-stats.categories');
-Route::get('/scientific-stats/environments', [\App\Http\Controllers\Api\ScientificStatsController::class, 'environments'])->name('api.scientific-stats.environments');
-Route::get('/scientific-stats/temporal', [\App\Http\Controllers\Api\ScientificStatsController::class, 'temporal'])->name('api.scientific-stats.temporal');
-Route::get('/scientific-stats/geo-heatmap', [\App\Http\Controllers\Api\ScientificStatsController::class, 'geoHeatmap'])->name('api.scientific-stats.geo-heatmap');
-Route::get('/scientific-stats/audio-features', [\App\Http\Controllers\Api\ScientificStatsController::class, 'audioFeatures'])->name('api.scientific-stats.audio-features');
-Route::get('/scientific-stats/top-locations', [\App\Http\Controllers\Api\ScientificStatsController::class, 'topLocations'])->name('api.scientific-stats.top-locations');
-Route::get('/scientific-stats/equipment', [\App\Http\Controllers\Api\ScientificStatsController::class, 'equipment'])->name('api.scientific-stats.equipment');
-Route::get('/scientific-stats/raw-data', [\App\Http\Controllers\Api\ScientificStatsController::class, 'rawData'])->name('api.scientific-stats.raw-data');
+Route::middleware(['throttle:scientific-api'])->group(function () {
+    Route::get('/scientific-stats/global', [\App\Http\Controllers\Api\ScientificStatsController::class, 'globalStats'])->name('api.scientific-stats.global');
+    Route::get('/scientific-stats/categories', [\App\Http\Controllers\Api\ScientificStatsController::class, 'categories'])->name('api.scientific-stats.categories');
+    Route::get('/scientific-stats/environments', [\App\Http\Controllers\Api\ScientificStatsController::class, 'environments'])->name('api.scientific-stats.environments');
+    Route::get('/scientific-stats/temporal', [\App\Http\Controllers\Api\ScientificStatsController::class, 'temporal'])->name('api.scientific-stats.temporal');
+    Route::get('/scientific-stats/geo-heatmap', [\App\Http\Controllers\Api\ScientificStatsController::class, 'geoHeatmap'])->name('api.scientific-stats.geo-heatmap');
+    Route::get('/scientific-stats/audio-features', [\App\Http\Controllers\Api\ScientificStatsController::class, 'audioFeatures'])->name('api.scientific-stats.audio-features');
+    Route::get('/scientific-stats/top-locations', [\App\Http\Controllers\Api\ScientificStatsController::class, 'topLocations'])->name('api.scientific-stats.top-locations');
+    Route::get('/scientific-stats/equipment', [\App\Http\Controllers\Api\ScientificStatsController::class, 'equipment'])->name('api.scientific-stats.equipment');
+    Route::get('/scientific-stats/species', [\App\Http\Controllers\Api\ScientificStatsController::class, 'species'])->name('api.scientific-stats.species');
+    Route::get('/scientific-stats/quality', [\App\Http\Controllers\Api\ScientificStatsController::class, 'quality'])->name('api.scientific-stats.quality');
+    Route::get('/scientific-stats/dataset-completeness', [\App\Http\Controllers\Api\ScientificStatsController::class, 'datasetCompleteness'])->name('api.scientific-stats.dataset-completeness');
+    Route::get('/scientific-stats/raw-data', [\App\Http\Controllers\Api\ScientificStatsController::class, 'rawData'])->name('api.scientific-stats.raw-data');
+});
 
 Route::get('/map/sounds', [MapController::class, 'sounds'])->name('api.map.sounds');
-Route::get('/map/sounds/search', [MapController::class, 'search'])->name('api.map.sounds.search');
+Route::get('/map/sounds/search', [MapController::class, 'search'])->middleware('throttle:search')->name('api.map.sounds.search');
 
 Route::get('/sounds/featured', [\App\Http\Controllers\Api\FeaturedController::class, 'sounds'])->name('api.sounds.featured');
 Route::get('/creators/featured', [\App\Http\Controllers\Api\FeaturedController::class, 'creators'])->name('api.creators.featured');

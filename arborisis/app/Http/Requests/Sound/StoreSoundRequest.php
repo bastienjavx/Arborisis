@@ -37,6 +37,11 @@ class StoreSoundRequest extends FormRequest
             'category_id' => ['nullable', 'integer', 'exists:categories,id'],
             'environment_id' => ['nullable', 'integer', 'exists:environments,id'],
             'equipment' => ['nullable', 'string', 'max:500'],
+            'weather_notes' => ['nullable', 'string', 'max:2000'],
+            'perceived_activity_level' => ['nullable', 'integer', 'between:1,5'],
+            'listening_point_id' => ['nullable', 'integer', 'exists:listening_points,id'],
+            'create_new_listening_point' => ['boolean'],
+            'listening_point_title' => ['nullable', 'string', 'max:255'],
             'license' => ['required', Rule::enum(LicenseType::class)],
             'visibility' => ['required', Rule::enum(SoundVisibility::class)],
             'cover_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'], // 10 MB
@@ -59,6 +64,7 @@ class StoreSoundRequest extends FormRequest
     {
         $this->merge([
             'is_sensitive_location' => $this->boolean('is_sensitive_location'),
+            'create_new_listening_point' => $this->boolean('create_new_listening_point'),
         ]);
     }
 }

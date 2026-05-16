@@ -100,6 +100,14 @@ return [
         'max_file_size_mb' => env('AUDIO_MAX_FILE_SIZE_MB', 500),
     ],
 
+    'opensearch' => [
+        'hosts' => array_filter(array_map('trim', explode(',', env('OPENSEARCH_HOSTS', 'http://localhost:9200')))),
+        'username' => env('OPENSEARCH_USERNAME'),
+        'password' => env('OPENSEARCH_PASSWORD'),
+        'index_prefix' => env('OPENSEARCH_INDEX_PREFIX', '<redacted>'),
+        'enabled' => env('OPENSEARCH_ENABLED', true),
+    ],
+
     'openrouter' => [
         'api_key' => env('OPENROUTER_API_KEY'),
         'model' => env('OPENROUTER_MODEL', 'openai/gpt-4o-mini'),

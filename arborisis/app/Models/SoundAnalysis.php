@@ -51,6 +51,9 @@ class SoundAnalysis extends Model
         'preview_r2_key',
         'quality_label',
         'quality_json',
+        'birdnet_raw_json',
+        'acoustic_event_count',
+        'acoustic_diversity_index',
     ];
 
     protected $casts = [

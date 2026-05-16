@@ -1,11 +1,11 @@
 import { t as _sfc_main$1 } from "./GuestLayout-CqMC9M4d.js";
-import { t as _sfc_main$2 } from "./FollowButton-Bo36dbLy.js";
+import { t as _sfc_main$2 } from "./FollowButton-BRPBIklU.js";
 import { Head, Link } from "@inertiajs/vue3";
 import { Fragment, createBlock, createCommentVNode, createTextVNode, createVNode, openBlock, renderList, toDisplayString, unref, useSSRContext, withCtx } from "vue";
 import { ssrInterpolate, ssrRenderAttr, ssrRenderComponent, ssrRenderList } from "vue/server-renderer";
-//#region resources/js/Pages/Social/Followers.vue
+//#region resources/js/Pages/Social/Following.vue
 var _sfc_main = {
-	__name: "Followers",
+	__name: "Following",
 	__ssrInlineRender: true,
 	props: {
 		user: Object,
@@ -14,7 +14,7 @@ var _sfc_main = {
 	setup(__props) {
 		return (_ctx, _push, _parent, _attrs) => {
 			_push(`<!--[-->`);
-			_push(ssrRenderComponent(unref(Head), { title: `Abonnés de ${__props.user.name}` }, null, _parent));
+			_push(ssrRenderComponent(unref(Head), { title: `Abonnements de ${__props.user.name}` }, null, _parent));
 			_push(ssrRenderComponent(_sfc_main$1, null, {
 				default: withCtx((_, _push, _parent, _scopeId) => {
 					if (_push) {
@@ -39,7 +39,7 @@ var _sfc_main = {
 							}),
 							_: 1
 						}, _parent, _scopeId));
-						_push(`<h1 class="font-display text-2xl font-bold text-arbor-cream"${_scopeId}> Abonnés de ${ssrInterpolate(__props.user.name)}</h1><p class="text-arbor-sage text-sm mt-1"${_scopeId}>${ssrInterpolate(__props.list.total)} personne${ssrInterpolate(__props.list.total > 1 ? "s" : "")}</p></div>`);
+						_push(`<h1 class="font-display text-2xl font-bold text-arbor-cream"${_scopeId}> Abonnements de ${ssrInterpolate(__props.user.name)}</h1><p class="text-arbor-sage text-sm mt-1"${_scopeId}>${ssrInterpolate(__props.list.total)} personne${ssrInterpolate(__props.list.total > 1 ? "s" : "")}</p></div>`);
 						if (__props.list.data.length > 0) {
 							_push(`<div class="space-y-3"${_scopeId}><!--[-->`);
 							ssrRenderList(__props.list.data, (person) => {
@@ -82,14 +82,14 @@ var _sfc_main = {
 								_push(`</div>`);
 								if (_ctx.$page.props.auth.user && _ctx.$page.props.auth.user.id !== person.id) _push(ssrRenderComponent(_sfc_main$2, {
 									"user-id": person.id,
-									"initial-following": person.is_following ?? false,
+									"initial-following": true,
 									size: "sm"
 								}, null, _parent, _scopeId));
 								else _push(`<!---->`);
 								_push(`</div>`);
 							});
 							_push(`<!--]--></div>`);
-						} else _push(`<div class="text-center py-12"${_scopeId}><p class="text-arbor-sage"${_scopeId}>Aucun abonné pour le moment.</p></div>`);
+						} else _push(`<div class="text-center py-12"${_scopeId}><p class="text-arbor-sage"${_scopeId}>Aucun abonnement pour le moment.</p></div>`);
 						if (__props.list.links.length > 3) {
 							_push(`<div class="mt-6 flex justify-center"${_scopeId}><div class="flex gap-2"${_scopeId}><!--[-->`);
 							ssrRenderList(__props.list.links, (link, index) => {
@@ -125,7 +125,7 @@ var _sfc_main = {
 								})])), createTextVNode(" Retour au profil ")]),
 								_: 1
 							}, 8, ["href"]),
-							createVNode("h1", { class: "font-display text-2xl font-bold text-arbor-cream" }, " Abonnés de " + toDisplayString(__props.user.name), 1),
+							createVNode("h1", { class: "font-display text-2xl font-bold text-arbor-cream" }, " Abonnements de " + toDisplayString(__props.user.name), 1),
 							createVNode("p", { class: "text-arbor-sage text-sm mt-1" }, toDisplayString(__props.list.total) + " personne" + toDisplayString(__props.list.total > 1 ? "s" : ""), 1)
 						]),
 						__props.list.data.length > 0 ? (openBlock(), createBlock("div", {
@@ -164,14 +164,14 @@ var _sfc_main = {
 								_ctx.$page.props.auth.user && _ctx.$page.props.auth.user.id !== person.id ? (openBlock(), createBlock(_sfc_main$2, {
 									key: 0,
 									"user-id": person.id,
-									"initial-following": person.is_following ?? false,
+									"initial-following": true,
 									size: "sm"
-								}, null, 8, ["user-id", "initial-following"])) : createCommentVNode("", true)
+								}, null, 8, ["user-id"])) : createCommentVNode("", true)
 							]);
 						}), 128))])) : (openBlock(), createBlock("div", {
 							key: 1,
 							class: "text-center py-12"
-						}, [createVNode("p", { class: "text-arbor-sage" }, "Aucun abonné pour le moment.")])),
+						}, [createVNode("p", { class: "text-arbor-sage" }, "Aucun abonnement pour le moment.")])),
 						__props.list.links.length > 3 ? (openBlock(), createBlock("div", {
 							key: 2,
 							class: "mt-6 flex justify-center"
@@ -202,7 +202,7 @@ var _sfc_main = {
 var _sfc_setup = _sfc_main.setup;
 _sfc_main.setup = (props, ctx) => {
 	const ssrContext = useSSRContext();
-	(ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Social/Followers.vue");
+	(ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Social/Following.vue");
 	return _sfc_setup ? _sfc_setup(props, ctx) : void 0;
 };
 //#endregion
