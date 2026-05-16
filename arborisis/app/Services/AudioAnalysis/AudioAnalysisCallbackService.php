@@ -15,6 +15,9 @@ use Illuminate\Support\Facades\Log;
 
 class AudioAnalysisCallbackService
 {
+    public function __construct(
+        private readonly BirdnetDetectionFilterService $detectionFilter,
+    ) {}
     /**
      * Traite le callback du service Python Analyzer.
      *
@@ -129,6 +132,24 @@ class AudioAnalysisCallbackService
     private function syncBirdnetDetections(SoundAnalysis $analysis, Sound $sound, array $detections): void
     {
         if (empty($detections)) {
+            // Nettoyage si le callback renvoie un tableau vide
+            BirdnetDetection::where('sound_analysis_id', $analysis->id)->delete();
+
+            return;
+        }
+
+        // Filtre : confiance, durée, déduplication, limite max
+        $filtered = $this->detectionFilter->filter($detections);
+
+        if (empty($filtered)) {
+            BirdnetDetection::where('sound_analysis_id', $analysis->id)->delete();
+
+            Log::info('AudioAnalysisCallback: all BirdNET detections filtered out.', [
+                'sound_id' => $sound->id,
+                'analysis_id' => $analysis->id,
+                'raw_count' => count($detections),
+            ]);
+
             return;
         }
 
@@ -136,9 +157,8 @@ class AudioAnalysisCallbackService
         BirdnetDetection::where('sound_analysis_id', $analysis->id)->delete();
 
         $records = [];
-        foreach ($detections as $detection) {
+        foreach ($filtered as $detection) {
             $records[] = [
-                'sound_analysis_id' => $analysis->id,
                 'sound_id' => $sound->id,
                 'scientific_name' => $detection['scientific_name'],
                 'common_name' => $detection['common_name'],
@@ -148,11 +168,16 @@ class AudioAnalysisCallbackService
                 'frequency_min' => $detection['frequency_min'] ?? null,
                 'frequency_max' => $detection['frequency_max'] ?? null,
                 'source' => $detection['source'] ?? 'birdnet',
-                'created_at' => now(),
-                'updated_at' => now(),
             ];
         }
 
-        BirdnetDetection::insert($records);
+        $analysis->birdnetDetections()->createMany($records);
+
+        Log::info('AudioAnalysisCallback: BirdNET detections synced.', [
+            'sound_id' => $sound->id,
+            'analysis_id' => $analysis->id,
+            'raw_count' => count($detections),
+            'filtered_count' => count($filtered),
+        ]);
     }
 }
