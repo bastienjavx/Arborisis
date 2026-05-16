@@ -27,12 +27,15 @@ class Sound extends Model
         'user_id',
         'category_id',
         'environment_id',
+        'listening_point_id',
         'title',
         'slug',
         'description',
         'recorded_at',
         'duration',
         'equipment',
+        'weather_notes',
+        'perceived_activity_level',
         'license',
         'visibility',
         'status',
@@ -68,6 +71,16 @@ class Sound extends Model
     public function environment(): BelongsTo
     {
         return $this->belongsTo(Environment::class);
+    }
+
+    public function listeningPoint(): BelongsTo
+    {
+        return $this->belongsTo(ListeningPoint::class);
+    }
+
+    public function environmentalObservation(): HasOne
+    {
+        return $this->hasOne(EnvironmentalObservation::class);
     }
 
     public function tags(): BelongsToMany

@@ -12,7 +12,11 @@ use App\Events\Gamification\ProfileUpdated;
 use App\Events\Gamification\SoundLiked;
 use App\Events\Gamification\SoundListened;
 use App\Events\Gamification\UserLoggedIn;
+use App\Events\SoundAnalyzed;
 use App\Events\SoundPublished;
+use App\Jobs\OpenSearch\IndexSoundInOpenSearch;
+use App\Jobs\OpenSearch\IndexListeningPointInOpenSearch;
+use App\Jobs\Scientific\ComputeScientificMetricsJob;
 use App\Listeners\AwardMedals;
 use App\Listeners\AwardMedalsOnPointApproved;
 use App\Listeners\AwardMedalsOnSoundListened;
@@ -101,6 +105,20 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(ArborisisPointVisited::class, AwardXp::class);
         Event::listen(ArborisisPointVisited::class, AwardMedals::class);
 
+        // Scientific / OpenSearch listeners — Sound published
+        Event::listen(SoundPublished::class, function (SoundPublished $event) {
+            IndexSoundInOpenSearch::dispatch($event->sound->id)->onQueue('search');
+        });
+
+        Event::listen(SoundAnalyzed::class, function (SoundAnalyzed $event) {
+            IndexSoundInOpenSearch::dispatch($event->sound->id)->onQueue('search');
+            ComputeScientificMetricsJob::dispatch($event->sound->id)->onQueue('metrics');
+
+            if ($event->sound->listening_point_id) {
+                IndexListeningPointInOpenSearch::dispatch($event->sound->listening_point_id)->onQueue('search');
+            }
+        });
+
         // Gamification listeners — Sound published
         Event::listen(SoundPublished::class, UpdateQuestProgressOnSoundPublished::class);
         Event::listen(SoundPublished::class, CheckAchievementsOnSoundPublished::class);
@@ -131,6 +149,18 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('discord', function () {
             return Limit::perMinute(60);
+        });
+
+        RateLimiter::for('search', function ($request) {
+            return Limit::perMinute(30)->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('scientific-api', function ($request) {
+            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('listening-points', function ($request) {
+            return Limit::perMinute(45)->by($request->user()?->id ?: $request->ip());
         });
     }
 }

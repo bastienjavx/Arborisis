@@ -3,6 +3,7 @@
 use App\Jobs\CleanExpiredPresence;
 use App\Jobs\GenerateDailyQuests;
 use App\Jobs\GenerateWeeklyQuests;
+use App\Jobs\Stats\RefreshStatsCacheJob;
 use App\Jobs\ValidateSuspiciousVisits;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -44,3 +45,6 @@ Schedule::call(function () {
     $liqPath = storage_path('app/radio-cache/playlist.liq');
     file_put_contents($liqPath, $export->liq(), LOCK_EX);
 })->everyFiveMinutes();
+
+// Scientific stats cache refresh (every 15 minutes)
+Schedule::job(new RefreshStatsCacheJob)->everyFifteenMinutes();

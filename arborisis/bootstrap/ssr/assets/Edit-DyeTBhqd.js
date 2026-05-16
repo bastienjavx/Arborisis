@@ -1,9 +1,9 @@
 import { t as _sfc_main$1 } from "./AuthenticatedLayout-BFjA2KJR.js";
-import _sfc_main$2 from "./DeleteUserForm-CUH_4ZST.js";
-import _sfc_main$3 from "./DiscordConnectionForm-Brxyytqq.js";
-import _sfc_main$4 from "./UpdatePasswordForm-CU_vycKy.js";
-import _sfc_main$5 from "./UpdateProfileInformationForm-e-azjtWv.js";
-import _sfc_main$6 from "./UpdateAvatarForm-JqSJgFsS.js";
+import _sfc_main$2 from "./DeleteUserForm-BHdkzsng.js";
+import _sfc_main$3 from "./DiscordConnectionForm-D8qnSOyZ.js";
+import _sfc_main$4 from "./UpdatePasswordForm-o-I24Uo2.js";
+import _sfc_main$5 from "./UpdateProfileInformationForm-DP-3h89d.js";
+import _sfc_main$6 from "./UpdateAvatarForm-CYKWz68Q.js";
 import { Head } from "@inertiajs/vue3";
 import { createVNode, unref, useSSRContext, withCtx } from "vue";
 import { ssrRenderComponent } from "vue/server-renderer";

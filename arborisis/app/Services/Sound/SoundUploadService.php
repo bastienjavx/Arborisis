@@ -11,6 +11,9 @@ use App\Jobs\RequestAudioAnalysis;
 use App\Models\Sound;
 use App\Services\Audio\AudioDurationService;
 use App\Services\Discord\DiscordNotificationService;
+use App\Services\Scientific\ListeningPointService;
+use App\Enums\Season;
+use App\Enums\TimeOfDay;
 use App\Models\SoundFile;
 use App\Models\SoundLocation;
 use App\Models\Tag;
@@ -24,6 +27,7 @@ class SoundUploadService
     public function __construct(
         private readonly AudioDurationService $durationService,
         private readonly DiscordNotificationService $discordNotification,
+        private readonly ListeningPointService $listeningPointService,
     ) {}
 
     /**
@@ -92,7 +96,7 @@ class SoundUploadService
 
                 $publicCoords = SoundLocation::obscure($exactLat, $exactLng);
 
-                SoundLocation::create([
+                $soundLocation = SoundLocation::create([
                     'sound_id' => $sound->id,
                     'exact_latitude' => $exactLat,
                     'exact_longitude' => $exactLng,
@@ -101,6 +105,9 @@ class SoundUploadService
                     'location_name' => $data['location_name'] ?? null,
                     'is_sensitive' => $isSensitive,
                 ]);
+
+                // 3b. Listening point association
+                $this->handleListeningPoint($sound, $soundLocation, $data);
 
                 // 4. Store cover image if provided
                 if (! empty($data['cover_image'])) {
@@ -111,6 +118,18 @@ class SoundUploadService
                     $coverImage->storeAs(dirname($coverPath), basename($coverPath), $disk);
                     $storedPaths[] = ['disk' => $disk, 'path' => $coverPath];
                     $sound->update(['cover_image' => $coverPath]);
+                }
+
+                // 4b. Environmental observation
+                if (! empty($data['weather_notes']) || ! empty($data['perceived_activity_level'])) {
+                    \App\Models\EnvironmentalObservation::create([
+                        'sound_id' => $sound->id,
+                        'listening_point_id' => $sound->listening_point_id,
+                        'season' => $sound->recorded_at ? Season::fromDate($sound->recorded_at)->value : null,
+                        'time_of_day' => $sound->recorded_at ? TimeOfDay::fromHour((int) $sound->recorded_at->format('H'))->value : null,
+                        'weather_condition' => $data['weather_notes'] ?? null,
+                        'source' => 'user',
+                    ]);
                 }
 
                 // 5. Attach tags
@@ -202,5 +221,47 @@ class SoundUploadService
         }
 
         return new \DateTimeImmutable("{$date} {$time}");
+    }
+
+    /**
+     * Gère l'association du son à un point d'écoute existant ou nouveau.
+     */
+    private function handleListeningPoint(Sound $sound, SoundLocation $soundLocation, array $data): void
+    {
+        // Cas 1 : l'utilisateur a explicitement choisi un point existant
+        if (! empty($data['listening_point_id']) && empty($data['create_new_listening_point'])) {
+            $point = \App\Models\ListeningPoint::find($data['listening_point_id']);
+            if ($point && $point->isApproved()) {
+                $this->listeningPointService->attachSoundToPoint($sound, $point);
+                return;
+            }
+        }
+
+        // Cas 2 : l'utilisateur veut forcément créer un nouveau point
+        if (! empty($data['create_new_listening_point'])) {
+            $point = $this->listeningPointService->createFromSound($sound, [
+                'title' => $data['listening_point_title'] ?? ($data['location_name'] ?? null),
+                'nature_sensitivity_level' => $data['is_sensitive_location']
+                    ? \App\Enums\NatureSensitivityLevel::Fragile
+                    : \App\Enums\NatureSensitivityLevel::Normal,
+            ]);
+            return;
+        }
+
+        // Cas 3 : détection automatique de proximité
+        $suggestion = $this->listeningPointService->suggestPointForSound($sound);
+
+        if ($suggestion['suggestion_found']) {
+            // Par défaut, on attache au point existant le plus proche
+            $this->listeningPointService->attachSoundToPoint($sound, $suggestion['point']);
+        } else {
+            // Aucun point proche : création automatique
+            $this->listeningPointService->createFromSound($sound, [
+                'title' => $data['location_name'] ?? null,
+                'nature_sensitivity_level' => $data['is_sensitive_location']
+                    ? \App\Enums\NatureSensitivityLevel::Fragile
+                    : \App\Enums\NatureSensitivityLevel::Normal,
+            ]);
+        }
     }
 }

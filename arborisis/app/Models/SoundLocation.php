@@ -41,6 +41,11 @@ class SoundLocation extends Model
         return $this->belongsTo(Sound::class);
     }
 
+    public function listeningPoint(): BelongsTo
+    {
+        return $this->belongsTo(ListeningPoint::class);
+    }
+
     /**
      * Obscure exact coordinates by rounding them for public display.
      */

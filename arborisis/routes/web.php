@@ -97,7 +97,14 @@ Route::get('/users/{user:slug}/followers', [\App\Http\Controllers\Web\SocialList
 Route::get('/users/{user:slug}/following', [\App\Http\Controllers\Web\SocialListController::class, 'following'])->name('users.following');
 Route::get('/users/{user:slug}/friends', [\App\Http\Controllers\Web\SocialListController::class, 'friends'])->name('users.friends');
 
-Route::get('/scientific-stats', [\App\Http\Controllers\Web\ScientificStatsController::class, 'index'])->name('scientific-stats.index');
+Route::middleware(['throttle:scientific-api'])->group(function () {
+    Route::get('/scientific-stats', [\App\Http\Controllers\Web\ScientificStatsController::class, 'index'])->name('scientific-stats.index');
+});
+
+Route::middleware(['throttle:listening-points'])->group(function () {
+    Route::get('/listening-points', [\App\Http\Controllers\Web\ListeningPointController::class, 'index'])->name('listening-points.index');
+    Route::get('/listening-points/{slug}', [\App\Http\Controllers\Web\ListeningPointController::class, 'show'])->name('listening-points.show');
+});
 
 Route::get('/transparency', [PageController::class, 'transparency'])->name('transparency');
 Route::get('/echo', [PageController::class, 'echoInfo'])->name('echo.info');

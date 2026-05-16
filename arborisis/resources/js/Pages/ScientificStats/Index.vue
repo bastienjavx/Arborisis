@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref, defineAsyncComponent } from 'vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import StatCard from '@/Components/Scientific/StatCard.vue';
 
@@ -24,6 +24,9 @@ const props = defineProps({
     topLocations: Array,
     equipmentDistribution: Array,
     rawDataSample: Array,
+    listeningPoints: Object,
+    speciesDistribution: Array,
+    globalMetrics: Object,
 });
 
 const activeTab = ref('overview');
@@ -91,6 +94,9 @@ const qualityChecks = [
 
 const tabs = [
     { key: 'overview', label: 'Vue d\'ensemble' },
+    { key: 'listening-points', label: 'Points d\'écoute' },
+    { key: 'species', label: 'Espèces' },
+    { key: 'models', label: 'Modèles' },
     { key: 'geo', label: 'Géographie' },
     { key: 'audio', label: 'Analyse audio' },
     { key: 'data', label: 'Données brutes' },
@@ -196,6 +202,182 @@ function formatDuration(seconds) {
                             </div>
                         </div>
                         <EquipmentChart :data="props.equipmentDistribution" />
+                    </div>
+                </div>
+
+                <!-- Listening Points -->
+                <div v-if="activeTab === 'listening-points'" class="space-y-6 animate-fade-in">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="glass-card p-5 text-center">
+                            <p class="text-xs uppercase tracking-wider text-arbor-sage">Points d'écoute</p>
+                            <p class="mt-2 font-display text-3xl font-bold text-arbor-cream">{{ props.listeningPoints?.total_points ?? 0 }}</p>
+                        </div>
+                        <div class="glass-card p-5 text-center">
+                            <p class="text-xs uppercase tracking-wider text-arbor-sage">Avec enregistrements</p>
+                            <p class="mt-2 font-display text-3xl font-bold text-arbor-emerald">{{ props.listeningPoints?.points_with_recordings ?? 0 }}</p>
+                        </div>
+                        <div class="glass-card p-5 text-center">
+                            <p class="text-xs uppercase tracking-wider text-arbor-sage">Habitats</p>
+                            <p class="mt-2 font-display text-3xl font-bold text-arbor-cream">{{ props.listeningPoints?.by_habitat?.length ?? 0 }}</p>
+                        </div>
+                        <div class="glass-card p-5 text-center">
+                            <p class="text-xs uppercase tracking-wider text-arbor-sage">Espèces détectées</p>
+                            <p class="mt-2 font-display text-3xl font-bold text-arbor-emerald">{{ props.stats?.total_species ?? props.speciesDistribution?.length ?? 0 }}</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="glass-card p-6">
+                            <h3 class="font-display text-xl font-semibold text-arbor-cream mb-4">Répartition par habitat</h3>
+                            <div class="space-y-2">
+                                <div
+                                    v-for="(item, i) in props.listeningPoints?.by_habitat"
+                                    :key="item.habitat"
+                                    class="flex items-center justify-between p-2 rounded-lg bg-arbor-deep/30"
+                                >
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-xs font-mono text-arbor-sage">{{ i + 1 }}</span>
+                                        <span class="text-sm text-arbor-cream capitalize">{{ item.habitat }}</span>
+                                    </div>
+                                    <span class="text-xs font-mono text-arbor-emerald">{{ item.count }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="glass-card p-6">
+                            <h3 class="font-display text-xl font-semibold text-arbor-cream mb-4">Points les plus actifs</h3>
+                            <div class="space-y-2">
+                                <Link
+                                    v-for="item in props.listeningPoints?.most_active"
+                                    :key="item.slug"
+                                    :href="route('listening-points.show', item.slug)"
+                                    class="flex items-center justify-between p-2.5 rounded-lg bg-arbor-deep/30 hover:bg-arbor-deep/50 transition-colors"
+                                >
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-sm text-arbor-cream">{{ item.title }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-xs text-arbor-sage">{{ item.species_count }} esp.</span>
+                                        <span class="text-xs font-mono text-arbor-emerald">{{ item.recordings_count }}</span>
+                                    </div>
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Species -->
+                <div v-if="activeTab === 'species'" class="space-y-6 animate-fade-in">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="glass-card p-5 text-center">
+                            <p class="text-xs uppercase tracking-wider text-arbor-sage">Espèces détectées</p>
+                            <p class="mt-2 font-display text-3xl font-bold text-arbor-cream">{{ props.speciesDistribution?.length ?? 0 }}</p>
+                        </div>
+                        <div class="glass-card p-5 text-center">
+                            <p class="text-xs uppercase tracking-wider text-arbor-sage">Détections totales</p>
+                            <p class="mt-2 font-display text-3xl font-bold text-arbor-emerald">{{ props.speciesDistribution?.reduce((a, s) => a + s.detections_count, 0) ?? 0 }}</p>
+                        </div>
+                        <div class="glass-card p-5 text-center">
+                            <p class="text-xs uppercase tracking-wider text-arbor-sage">Confiance moy.</p>
+                            <p class="mt-2 font-display text-3xl font-bold text-arbor-cream">
+                                {{ props.speciesDistribution?.length
+                                    ? Math.round((props.speciesDistribution.reduce((a, s) => a + s.mean_confidence, 0) / props.speciesDistribution.length) * 100)
+                                    : 0 }}%
+                            </p>
+                        </div>
+                        <div class="glass-card p-5 text-center">
+                            <p class="text-xs uppercase tracking-wider text-arbor-sage">Sons concernés</p>
+                            <p class="mt-2 font-display text-3xl font-bold text-arbor-emerald">{{ props.speciesDistribution?.reduce((a, s) => a + s.sounds_count, 0) ?? 0 }}</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-6">
+                        <h3 class="font-display text-xl font-semibold text-arbor-cream mb-4">Top espèces détectées</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div
+                                v-for="s in props.speciesDistribution?.slice(0, 30)"
+                                :key="s.scientific_name"
+                                class="p-4 rounded-xl bg-arbor-deep/30 border border-arbor-glass-border/30"
+                            >
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <h4 class="text-sm font-medium text-arbor-cream">{{ s.common_name }}</h4>
+                                        <p class="text-xs text-arbor-sage italic">{{ s.scientific_name }}</p>
+                                    </div>
+                                    <span class="text-xs font-mono text-arbor-emerald">{{ s.sounds_count }} son{{ s.sounds_count > 1 ? 's' : '' }}</span>
+                                </div>
+                                <div class="mt-2 flex items-center justify-between text-xs text-arbor-sage">
+                                    <span>{{ s.detections_count }} détection{{ s.detections_count > 1 ? 's' : '' }}</span>
+                                    <span>conf. {{ Math.round(s.mean_confidence * 100) }}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Models -->
+                <div v-if="activeTab === 'models'" class="space-y-6 animate-fade-in">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="glass-card p-6">
+                            <h3 class="font-display text-xl font-semibold text-arbor-cream mb-4">Score de biodiversité sonore (SBS)</h3>
+                            <div v-if="props.globalMetrics?.biodiversity_score?.count" class="space-y-3">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-arbor-sage">Moyenne</span>
+                                    <span class="text-arbor-cream font-mono">{{ props.globalMetrics.biodiversity_score.mean }}</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-arbor-sage">Médiane</span>
+                                    <span class="text-arbor-cream font-mono">{{ props.globalMetrics.biodiversity_score.median }}</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-arbor-sage">Min / Max</span>
+                                    <span class="text-arbor-cream font-mono">{{ props.globalMetrics.biodiversity_score.min }} / {{ props.globalMetrics.biodiversity_score.max }}</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-arbor-sage">Échantillon</span>
+                                    <span class="text-arbor-cream font-mono">{{ props.globalMetrics.biodiversity_score.count }}</span>
+                                </div>
+                            </div>
+                            <p v-else class="text-sm text-arbor-sage">Aucune métrique de biodiversité calculée pour le moment.</p>
+                        </div>
+                        <div class="glass-card p-6">
+                            <h3 class="font-display text-xl font-semibold text-arbor-cream mb-4">Score d'activité acoustique (AAS)</h3>
+                            <div v-if="props.globalMetrics?.acoustic_activity_score?.count" class="space-y-3">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-arbor-sage">Moyenne</span>
+                                    <span class="text-arbor-cream font-mono">{{ props.globalMetrics.acoustic_activity_score.mean }}</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-arbor-sage">Médiane</span>
+                                    <span class="text-arbor-cream font-mono">{{ props.globalMetrics.acoustic_activity_score.median }}</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-arbor-sage">Min / Max</span>
+                                    <span class="text-arbor-cream font-mono">{{ props.globalMetrics.acoustic_activity_score.min }} / {{ props.globalMetrics.acoustic_activity_score.max }}</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-arbor-sage">Échantillon</span>
+                                    <span class="text-arbor-cream font-mono">{{ props.globalMetrics.acoustic_activity_score.count }}</span>
+                                </div>
+                            </div>
+                            <p v-else class="text-sm text-arbor-sage">Aucune métrique d'activité calculée pour le moment.</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-6">
+                        <h3 class="font-display text-xl font-semibold text-arbor-cream mb-4">Méthodologie des modèles</h3>
+                        <div class="space-y-4 text-sm text-arbor-sage">
+                            <p>Les scores présentés sont des <strong class="text-arbor-cream">indicateurs descriptifs</strong> calculés à partir des features audio et des détections d'espèces. Ils ne remplacent pas une expertise naturaliste.</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                <div class="p-4 rounded-xl bg-arbor-deep/30 border border-arbor-glass-border/30">
+                                    <h4 class="text-arbor-cream font-medium mb-2">SBS — Sound Biodiversity Score</h4>
+                                    <p>Combinaison pondérée du nombre d'espèces, de l'ADI (Acoustic Diversity Index), de la diversité des tags et de l'équilibre spectral.</p>
+                                </div>
+                                <div class="p-4 rounded-xl bg-arbor-deep/30 border border-arbor-glass-border/30">
+                                    <h4 class="text-arbor-cream font-medium mb-2">AAS — Acoustic Activity Score</h4>
+                                    <p>Basé sur la loudness LUFS, la densité d'événements sonores, le ratio de silence et l'énergie RMS moyenne.</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Scientific\ScientificStatsRequest;
 use App\Services\Scientific\ScientificStatsService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class ScientificStatsController extends Controller
 {
@@ -15,71 +15,97 @@ class ScientificStatsController extends Controller
         private readonly ScientificStatsService $statsService
     ) {}
 
-    public function globalStats(): JsonResponse
+    public function globalStats(ScientificStatsRequest $request): JsonResponse
     {
-        return response()->json([
-            'data' => $this->statsService->getGlobalStats(),
-        ]);
+        return $this->scientificResponse($this->statsService->getGlobalStats($request->filters()), $request);
     }
 
-    public function categories(): JsonResponse
+    public function categories(ScientificStatsRequest $request): JsonResponse
     {
-        return response()->json([
-            'data' => $this->statsService->getCategoryDistribution(),
-        ]);
+        return $this->scientificResponse($this->statsService->getCategoryDistribution($request->filters()), $request);
     }
 
-    public function environments(): JsonResponse
+    public function environments(ScientificStatsRequest $request): JsonResponse
     {
-        return response()->json([
-            'data' => $this->statsService->getEnvironmentDistribution(),
-        ]);
+        return $this->scientificResponse($this->statsService->getEnvironmentDistribution($request->filters()), $request);
     }
 
-    public function temporal(): JsonResponse
+    public function temporal(ScientificStatsRequest $request): JsonResponse
     {
-        return response()->json([
-            'data' => $this->statsService->getTemporalDistribution(),
-        ]);
+        return $this->scientificResponse($this->statsService->getTemporalDistribution($request->filters()), $request);
     }
 
-    public function geoHeatmap(): JsonResponse
+    public function geoHeatmap(ScientificStatsRequest $request): JsonResponse
     {
-        return response()->json([
-            'data' => $this->statsService->getGeoHeatmap(),
-        ]);
+        return $this->scientificResponse($this->statsService->getGeoHeatmap($request->filters()), $request);
     }
 
-    public function audioFeatures(): JsonResponse
+    public function audioFeatures(ScientificStatsRequest $request): JsonResponse
+    {
+        return $this->scientificResponse([
+            'averages' => $this->statsService->getAudioFeatureAverages($request->filters()),
+            'distributions' => $this->statsService->getAudioFeatureDistribution($request->filters()),
+        ], $request);
+    }
+
+    public function topLocations(ScientificStatsRequest $request): JsonResponse
+    {
+        return $this->scientificResponse(
+            $this->statsService->getTopLocations($request->resultLimit(20, 100), $request->filters()),
+            $request
+        );
+    }
+
+    public function equipment(ScientificStatsRequest $request): JsonResponse
+    {
+        return $this->scientificResponse(
+            $this->statsService->getEquipmentDistribution($request->resultLimit(15, 100), $request->filters()),
+            $request
+        );
+    }
+
+    public function species(ScientificStatsRequest $request): JsonResponse
+    {
+        return $this->scientificResponse(
+            $this->statsService->getSpeciesDistribution($request->resultLimit(50, 250), $request->filters()),
+            $request
+        );
+    }
+
+    public function quality(ScientificStatsRequest $request): JsonResponse
+    {
+        return $this->scientificResponse($this->statsService->getQualityOverview($request->filters()), $request);
+    }
+
+    public function datasetCompleteness(ScientificStatsRequest $request): JsonResponse
+    {
+        return $this->scientificResponse($this->statsService->getDatasetCompleteness($request->filters()), $request);
+    }
+
+    public function rawData(ScientificStatsRequest $request): JsonResponse
+    {
+        return $this->scientificResponse(
+            $this->statsService->getRawDataSample($request->resultLimit(100, 1000), $request->filters()),
+            $request
+        );
+    }
+
+    /**
+     * @param array<string|int, mixed> $data
+     */
+    private function scientificResponse(array $data, ScientificStatsRequest $request): JsonResponse
     {
         return response()->json([
-            'data' => [
-                'averages' => $this->statsService->getAudioFeatureAverages(),
-                'distributions' => $this->statsService->getAudioFeatureDistribution(),
+            'data' => $data,
+            'meta' => [
+                'schema_version' => 1,
+                'generated_at' => now()->toIso8601String(),
+                'filters' => $request->filters(),
+                'privacy' => [
+                    'scope' => 'public_published_sounds_only',
+                    'coordinates' => 'public_obfuscated_coordinates_only',
+                ],
             ],
-        ]);
-    }
-
-    public function topLocations(): JsonResponse
-    {
-        return response()->json([
-            'data' => $this->statsService->getTopLocations(),
-        ]);
-    }
-
-    public function equipment(): JsonResponse
-    {
-        return response()->json([
-            'data' => $this->statsService->getEquipmentDistribution(),
-        ]);
-    }
-
-    public function rawData(Request $request): JsonResponse
-    {
-        $limit = min($request->integer('limit', 100), 1000);
-
-        return response()->json([
-            'data' => $this->statsService->getRawDataSample($limit),
         ]);
     }
 }

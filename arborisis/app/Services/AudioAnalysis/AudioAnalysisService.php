@@ -7,6 +7,7 @@ namespace App\Services\AudioAnalysis;
 use App\Enums\AnalysisStatus;
 use App\Enums\FrequencyScale;
 use App\Enums\SpectrogramType;
+use App\Events\SoundAnalyzed;
 use App\Models\Sound;
 use App\Models\SoundAnalysis;
 use App\Models\SoundVisualization;
@@ -67,14 +68,21 @@ class AudioAnalysisService
                 $sound->update(['duration' => (int) round($result['audio_info']['duration'])]);
             }
 
+            $biodiversity = $result['features']['biodiversity'] ?? [];
+            $adi = $result['features']['acoustic_diversity_index'] ?? [];
+
             $analysis->update([
                 'features_json' => $result['features'] ?? null,
                 'features_detailed_json' => null,
                 'status' => AnalysisStatus::COMPLETED,
                 'processed_at' => now(),
+                'acoustic_event_count' => $biodiversity['event_count'] ?? null,
+                'acoustic_diversity_index' => $adi['adi_normalized'] ?? ($adi['adi'] ?? null),
             ]);
 
             $this->storeVisualizations($analysis, $outputDir, $config);
+
+            SoundAnalyzed::dispatch($sound, $analysis);
 
             return $analysis->fresh('visualizations');
         } catch (\Throwable $e) {
