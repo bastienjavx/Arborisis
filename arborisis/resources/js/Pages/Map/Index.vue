@@ -171,6 +171,9 @@ onMounted(() => {
             <!-- Grain texture -->
             <div class="absolute inset-0 z-[6] pointer-events-none map-grain"></div>
 
+            <!-- Fog vignette for depth -->
+            <div class="absolute inset-0 z-[5] pointer-events-none map-fog-vignette"></div>
+
             <!-- Floating header title -->
             <div
                 class="absolute top-6 left-1/2 -translate-x-1/2 z-map text-center map-title-fade pointer-events-none"

@@ -41,6 +41,10 @@ return [
         'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
     ],
 
+    'contact' => [
+        'inbound_mail_token' => env('CONTACT_INBOUND_MAIL_TOKEN'),
+    ],
+
     'python' => [
         'path' => env('PYTHON_PATH', 'python3'),
         'timeout' => env('PYTHON_TIMEOUT', 300),

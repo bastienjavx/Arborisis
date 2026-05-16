@@ -79,10 +79,6 @@ Pour exercer ces droits, contactez-nous à l'adresse indiquée ci-dessous. Nous 
 
 **E-mail** : privacy@<redacted>.com
 
-**Adresse postale** :
-Arborisis — Délégué à la protection des données
-[Adresse à compléter]
-
 Dernière mise à jour : mai 2026.`,
     },
 ];

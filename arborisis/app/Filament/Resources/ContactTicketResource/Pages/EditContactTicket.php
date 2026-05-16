@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\ContactTicketResource\Pages;
 
+use App\Enums\ContactTicketReplySource;
 use App\Enums\ContactTicketStatus;
 use App\Filament\Resources\ContactTicketResource;
 use App\Mail\ContactTicketReplied;
@@ -30,6 +31,7 @@ class EditContactTicket extends EditRecord
         if (! empty($data['new_reply'])) {
             $record->replies()->create([
                 'user_id' => auth()->id(),
+                'source' => ContactTicketReplySource::Team,
                 'reply' => $data['new_reply'],
             ]);
 

@@ -84,11 +84,12 @@ const submit = () => {
                 :class="mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'"
                 style="transition: all 0.7s ease-out 0.2s"
             >
-                <div class="glass-card p-8 sm:p-10 relative overflow-hidden"
+                <div class="glass-card-glow p-8 sm:p-10 relative overflow-hidden"
                     :class="mounted ? 'opacity-100 scale-100' : 'opacity-0 scale-95'"
                     style="transition: all 0.6s ease-out 0.3s"
                 >
                     <div class="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-transparent via-arbor-emerald/40 to-transparent" />
+                    <div class="organic-blob w-40 h-40 bg-arbor-emerald/10 -top-10 -right-10" />
 
                     <div class="text-center mb-8"
                         :class="mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'"

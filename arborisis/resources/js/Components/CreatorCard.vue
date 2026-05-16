@@ -21,7 +21,7 @@ const formatNumber = (num) => {
 </script>
 
 <template>
-    <div class="creator-card group">
+    <div class="creator-card group cursor-pointer transition-all duration-200 hover:-translate-y-0.5">
         <div class="flex items-center gap-4">
             <!-- Avatar -->
             <div class="shrink-0">
@@ -41,7 +41,7 @@ const formatNumber = (num) => {
             <div class="flex-1 min-w-0">
                 <Link
                     :href="route('profile.show', creator.id)"
-                    class="block font-medium text-arbor-cream truncate group-hover:text-arbor-emerald transition-colors"
+                    class="block font-medium text-arbor-cream truncate group-hover:text-arbor-emerald transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-arbor-emerald/50 focus-visible:ring-offset-2 focus-visible:ring-offset-arbor-night rounded"
                 >
                     {{ creator.name }}
                 </Link>
@@ -68,7 +68,7 @@ const formatNumber = (num) => {
             <div v-if="featuredSound" class="hidden sm:block shrink-0 w-24">
                 <Link
                     :href="route('sounds.show', featuredSound.slug)"
-                    class="block relative aspect-square rounded-xl overflow-hidden bg-arbor-charcoal group/sound"
+                    class="block relative aspect-square rounded-xl overflow-hidden bg-arbor-charcoal group/sound cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-arbor-emerald/50 focus-visible:ring-offset-2 focus-visible:ring-offset-arbor-night"
                 >
                     <img
                         v-if="featuredSound.cover_url"

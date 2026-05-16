@@ -335,13 +335,13 @@ const getMiniWaveform = (seed) => {
                                 v-for="tab in tabs"
                                 :key="tab.id"
                                 @click="activeTab = tab.id"
-                                class="px-4 py-3 text-sm font-medium transition-colors relative"
+                                class="px-4 py-3 text-sm font-medium transition-all duration-200 relative cursor-pointer rounded-lg hover:bg-arbor-glass/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-arbor-emerald/50 focus-visible:ring-offset-2 focus-visible:ring-offset-arbor-night"
                                 :class="activeTab === tab.id ? 'text-arbor-emerald' : 'text-arbor-sage hover:text-arbor-cream'"
                             >
                                 {{ tab.label }}
                                 <span
                                     v-if="activeTab === tab.id"
-                                    class="absolute bottom-0 left-0 right-0 h-0.5 bg-arbor-emerald rounded-full"
+                                    class="absolute bottom-0 left-2 right-2 h-0.5 bg-arbor-emerald rounded-full transition-all duration-300"
                                 />
                             </button>
                         </div>
@@ -362,7 +362,7 @@ const getMiniWaveform = (seed) => {
                                 />
 
                                 <!-- Recent Sounds -->
-                                <div class="glass-card p-6 lg:p-8">
+                                <div class="glass-card-glow p-6 lg:p-8">
                                     <div class="flex items-center justify-between mb-6">
                                         <div>
                                             <h2 class="font-display text-2xl font-semibold text-arbor-cream">
@@ -473,7 +473,7 @@ const getMiniWaveform = (seed) => {
                             <!-- Right Column (1/3) -->
                             <div class="space-y-8">
                                 <!-- ECHO Balance -->
-                                <div class="glass-card p-6 relative overflow-hidden">
+                                <div class="glass-card-glow p-6 relative overflow-hidden">
                                     <div class="absolute top-0 right-0 w-32 h-32 bg-arbor-amber/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
                                     <div class="relative z-10">
                                         <div class="flex items-center gap-2 mb-4">
@@ -501,7 +501,7 @@ const getMiniWaveform = (seed) => {
                                 </div>
 
                                 <!-- Quick Actions -->
-                                <div class="glass-card p-6">
+                                <div class="glass-card-glow p-6">
                                     <h3 class="font-display text-lg font-semibold text-arbor-cream mb-4">
                                         Actions rapides
                                     </h3>
@@ -536,7 +536,7 @@ const getMiniWaveform = (seed) => {
                                 </div>
 
                                 <!-- Tip Card -->
-                                <div class="glass-card p-6 bg-gradient-to-br from-arbor-moss/10 to-transparent hover-lift">
+                                <div class="glass-card-glow p-6 bg-gradient-to-br from-arbor-moss/10 to-transparent">
                                     <div class="flex items-start gap-3">
                                         <div class="w-8 h-8 rounded-lg bg-arbor-emerald/20 flex items-center justify-center shrink-0 mt-0.5">
                                             <svg class="w-4 h-4 text-arbor-emerald" fill="none" stroke="currentColor" viewBox="0 0 24 24">

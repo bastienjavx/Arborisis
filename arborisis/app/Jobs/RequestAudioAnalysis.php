@@ -64,6 +64,7 @@ class RequestAudioAnalysis implements ShouldQueue
                         'force' => $this->force,
                         'lat' => $sound?->exact_latitude ?? $sound?->approximate_latitude ?? null,
                         'lon' => $sound?->exact_longitude ?? $sound?->approximate_longitude ?? null,
+                        'recorded_at' => $sound->recorded_at?->toIso8601String(),
                     ], fn ($v) => $v !== null));
 
                 if ($response->successful()) {

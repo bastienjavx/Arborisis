@@ -20,7 +20,10 @@ class Settings(BaseSettings):
     max_file_size_mb: int = 500
     max_duration_seconds: int = 600
 
-    birdnet_confidence_threshold: float = 0.5
+    birdnet_confidence_threshold: float = 0.25
+    birdnet_publish_confidence_threshold: float = 0.45
+    birdnet_repeated_confidence_threshold: float = 0.32
+    birdnet_max_detections: int = 80
     birdnet_model_path: str = "/opt/birdnet/checkpoints/V2.4/BirdNET_GLOBAL_6K_V2.4_Model_FP32.tflite"
 
     log_level: str = "INFO"

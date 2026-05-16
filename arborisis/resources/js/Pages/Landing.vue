@@ -2,7 +2,9 @@
 import { Head, Link } from '@inertiajs/vue3';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import { ref, onMounted, onUnmounted, defineAsyncComponent } from 'vue';
+import { useParallax } from '@/Composables/useParallax.js';
 import ParticleField from '@/Components/Three/ParticleField.vue';
+import NatureScene from '@/Components/Three/NatureScene.vue';
 import SoundCard from '@/Components/SoundCard.vue';
 import CreatorCard from '@/Components/CreatorCard.vue';
 
@@ -77,6 +79,11 @@ const categories = ref([
 const mapSounds = ref([]);
 const mapLoading = ref(true);
 const mapError = ref(false);
+
+// Parallax refs
+const audioDemoTitle = useParallax(0.15);
+const howItWorksTitle = useParallax(0.1);
+const missionTitle = useParallax(0.12);
 
 const animatedStats = ref({ sounds: 0, creators: 0, countries: 0 });
 const statsVisible = ref(false);
@@ -244,10 +251,13 @@ const loadMapSounds = async () => {
             </div>
 
             <!-- Scroll indicator -->
-            <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-                <svg class="w-6 h-6 text-arbor-sage" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                </svg>
+            <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-scroll-indicator" aria-hidden="true">
+                <div class="flex flex-col items-center gap-2">
+                    <span class="text-[10px] uppercase tracking-[0.2em] text-arbor-sage/60">Scroll</span>
+                    <svg class="w-5 h-5 text-arbor-sage/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                    </svg>
+                </div>
             </div>
         </section>
 
@@ -280,7 +290,7 @@ const loadMapSounds = async () => {
         <!-- Audio Demo Section -->
         <section class="py-24">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-16">
+                <div ref="audioDemoTitle.elementRef" :style="audioDemoTitle.style.value" class="text-center mb-16">
                     <h2 class="font-display text-3xl sm:text-4xl font-bold text-arbor-cream mb-4">
                         Écoutez avant d'explorer
                     </h2>
@@ -353,7 +363,7 @@ const loadMapSounds = async () => {
                             Naviguez, filtrez et plongez dans l'acoustique des paysages.
                         </p>
                         <div class="flex flex-wrap gap-3 mb-8">
-                            <span v-for="cat in categories" :key="cat.name" class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200 hover:scale-105 cursor-default" :class="cat.color">
+                            <span v-for="cat in categories" :key="cat.name" class="px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 hover:scale-105 cursor-pointer select-none" :class="cat.color">
                                 {{ cat.name }}
                             </span>
                         </div>
@@ -394,7 +404,7 @@ const loadMapSounds = async () => {
         <!-- How it works Section -->
         <section class="py-24">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-16">
+                <div ref="howItWorksTitle.elementRef" :style="howItWorksTitle.style.value" class="text-center mb-16">
                     <h2 class="font-display text-3xl sm:text-4xl font-bold text-arbor-cream mb-4">
                         Comment ça marche
                     </h2>
@@ -407,7 +417,7 @@ const loadMapSounds = async () => {
                     <div
                         v-for="(step, index) in steps"
                         :key="step.number"
-                        class="glass-card p-8 text-center hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/20 transition-all duration-300"
+                        class="glass-card-glow p-8 text-center cursor-pointer"
                         :style="`animation: fadeInUp 0.6s ease-out forwards; animation-delay: ${index * 0.15}s; opacity: 0;`"
                     >
                         <div class="font-display text-5xl text-arbor-emerald/20 font-bold mb-4">
@@ -421,6 +431,57 @@ const loadMapSounds = async () => {
                         <h3 class="text-lg font-semibold text-arbor-cream mb-3">{{ step.title }}</h3>
                         <p class="text-arbor-sage text-sm leading-relaxed">{{ step.description }}</p>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3D Nature Scene Section with Parallax -->
+        <section data-parallax-section class="relative py-32 overflow-hidden min-h-[80vh] flex items-center">
+            <!-- Three.js Nature Scene background -->
+            <NatureScene class="absolute inset-0 z-0" />
+
+            <!-- Gradient overlays for seamless blending -->
+            <div class="absolute inset-0 bg-gradient-to-b from-arbor-night via-transparent to-arbor-night z-[1] pointer-events-none" />
+            <div class="absolute inset-0 bg-arbor-night/30 z-[1] pointer-events-none" />
+
+            <!-- Content overlay -->
+            <div class="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <div class="glass-card-glow p-10 sm:p-14 inline-block max-w-2xl">
+                    <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-arbor-moss/20 mb-6 ring-1 ring-arbor-emerald/20">
+                        <svg class="w-7 h-7 text-arbor-emerald" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                        </svg>
+                    </div>
+                    <h2 class="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-arbor-cream mb-5 leading-tight">
+                        Une forêt sonore<br />
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-arbor-emerald to-arbor-moss">en perpétuel mouvement</span>
+                    </h2>
+                    <p class="text-arbor-sage text-base sm:text-lg leading-relaxed max-w-lg mx-auto mb-8">
+                        Chaque arbre, chaque feuille, chaque brise porte une mélodie.
+                        Notre archive capture l'âme vivante des paysages naturels du monde entier.
+                    </p>
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <Link href="/sounds" class="btn-primary group">
+                            <svg class="w-5 h-5 mr-2 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Écouter la forêt
+                        </Link>
+                        <Link href="/map" class="btn-secondary group">
+                            Explorer sur la carte
+                            <svg class="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                            </svg>
+                        </Link>
+                    </div>
+                </div>
+
+                <!-- Scroll hint -->
+                <div class="mt-12 animate-scroll-indicator" aria-hidden="true">
+                    <p class="text-[10px] uppercase tracking-[0.2em] text-arbor-sage/40 mb-2">Déplacez votre souris et scrollez</p>
+                    <svg class="w-5 h-5 text-arbor-sage/40 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                    </svg>
                 </div>
             </div>
         </section>
@@ -493,8 +554,9 @@ const loadMapSounds = async () => {
         <!-- ECHO Section -->
         <section class="py-24">
             <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <div class="glass-card p-12 relative overflow-hidden hover-lift">
+                <div class="glass-card-glow p-12 relative overflow-hidden">
                     <div class="absolute top-0 right-0 w-64 h-64 bg-arbor-moss/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+                    <div class="organic-blob w-48 h-48 bg-arbor-emerald/20 -top-10 -right-10" />
                     <div class="relative z-10">
                         <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-arbor-emerald/20 mb-6 animate-glow-pulse">
                             <span class="text-2xl font-display font-bold text-arbor-emerald">E</span>
@@ -522,6 +584,7 @@ const loadMapSounds = async () => {
         <!-- Mission Section -->
         <section class="py-24 bg-arbor-deep/30 border-y border-arbor-glass-border">
             <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <div ref="missionTitle.elementRef" :style="missionTitle.style.value">
                 <h2 class="font-display text-3xl font-bold text-arbor-cream mb-6">
                     Préserver l'écoute du monde vivant
                 </h2>
@@ -536,6 +599,7 @@ const loadMapSounds = async () => {
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                     </svg>
                     <span>Respect de la nature. Confidentialité des lieux sensibles. Transparence.</span>
+                </div>
                 </div>
             </div>
         </section>

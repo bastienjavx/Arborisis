@@ -4,7 +4,7 @@ import * as THREE from 'three';
 
 const canvasContainer = ref(null);
 let renderer, scene, camera, barsGroup, animationId;
-let clock = new THREE.Clock();
+let startTime = 0;
 
 const BAR_COUNT = 48;
 const BAR_WIDTH = 0.06;
@@ -16,6 +16,7 @@ onMounted(() => {
     if (prefersReducedMotion) return;
 
     if (!canvasContainer.value) return;
+    startTime = performance.now();
 
     const width = canvasContainer.value.clientWidth;
     const height = canvasContainer.value.clientHeight;
@@ -83,7 +84,7 @@ onMounted(() => {
     // Animation loop
     const animate = () => {
         animationId = requestAnimationFrame(animate);
-        const elapsed = clock.getElapsedTime();
+        const elapsed = (performance.now() - startTime) / 1000;
 
         barsGroup.children.forEach((bar) => {
             const t = elapsed * 1.2 + bar.userData.phase;

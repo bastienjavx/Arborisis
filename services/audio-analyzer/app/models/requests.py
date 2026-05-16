@@ -8,6 +8,7 @@ class AnalyzeRequest(BaseModel):
     force: bool = False
     lat: Optional[float] = Field(None, ge=-90, le=90)
     lon: Optional[float] = Field(None, ge=-180, le=180)
+    recorded_at: Optional[str] = Field(None, max_length=64)
 
     @field_validator("original_r2_key")
     @classmethod

@@ -28,6 +28,7 @@ use App\Http\Controllers\Web\ChatRoomController;
 use App\Http\Controllers\Web\BlogController;
 use App\Http\Controllers\Web\SoundController;
 use App\Http\Controllers\Web\WalletController;
+use App\Http\Controllers\Web\XenoCantoSubmissionController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
 
@@ -72,6 +73,9 @@ Route::get('/sounds/{sound}/analysis', [AudioAnalysisController::class, 'show'])
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/sounds/{sound}/analysis', [AudioAnalysisController::class, 'analyze'])->name('sounds.analysis.store');
     Route::get('/sounds/{sound}/analysis/export/{format}', [AudioAnalysisController::class, 'export'])->name('sounds.analysis.export');
+    Route::post('/sounds/{sound}/xeno-canto', [XenoCantoSubmissionController::class, 'prepare'])->name('sounds.xeno-canto.prepare');
+    Route::get('/sounds/{sound}/xeno-canto', [XenoCantoSubmissionController::class, 'show'])->name('sounds.xeno-canto.show');
+    Route::post('/sounds/{sound}/xeno-canto/submitted', [XenoCantoSubmissionController::class, 'markSubmitted'])->name('sounds.xeno-canto.submitted');
 });
 
 Route::get('/api/sounds/{sound}/analysis', [AudioAnalysisController::class, 'show'])->name('api.sounds.analysis.show');

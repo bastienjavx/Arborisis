@@ -71,6 +71,7 @@ async def analyze(
         lock_key=lock_key,
         lat=request.lat,
         lon=request.lon,
+        recorded_at=request.recorded_at,
         force=request.force,
     )
 
@@ -82,12 +83,12 @@ async def analyze(
     )
 
 
-async def _run_analysis(sound_id: int, original_r2_key: str, analysis_id: str, lock_key: str, lat: float | None = None, lon: float | None = None, force: bool = False) -> None:
+async def _run_analysis(sound_id: int, original_r2_key: str, analysis_id: str, lock_key: str, lat: float | None = None, lon: float | None = None, recorded_at: str | None = None, force: bool = False) -> None:
     # Run the blocking analysis pipeline in a thread pool so the event loop stays responsive
-    await asyncio.to_thread(_run_analysis_sync, sound_id, original_r2_key, analysis_id, lock_key, lat, lon, force)
+    await asyncio.to_thread(_run_analysis_sync, sound_id, original_r2_key, analysis_id, lock_key, lat, lon, recorded_at, force)
 
 
-def _run_analysis_sync(sound_id: int, original_r2_key: str, analysis_id: str, lock_key: str, lat: float | None = None, lon: float | None = None, force: bool = False) -> None:
+def _run_analysis_sync(sound_id: int, original_r2_key: str, analysis_id: str, lock_key: str, lat: float | None = None, lon: float | None = None, recorded_at: str | None = None, force: bool = False) -> None:
     temp_dir = f"/tmp/analyzer/{analysis_id}"
     local_path: str | None = None
 
@@ -127,7 +128,7 @@ def _run_analysis_sync(sound_id: int, original_r2_key: str, analysis_id: str, lo
 
         # 8. BirdNET
         birdnet_r2_key, detections = BirdnetRunner(storage).analyze_and_upload(
-            local_path, sound_id, duration, quality["usable_for_analysis"], lat=lat, lon=lon
+            local_path, sound_id, duration, quality["usable_for_analysis"], lat=lat, lon=lon, recorded_at=recorded_at
         )
 
         # 9. Summary

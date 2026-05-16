@@ -96,6 +96,22 @@ class FeatureExtractor:
         mid_energy = float(np.sum(stft[(freqs_stft >= 500) & (freqs_stft < 4000)] ** 2)) / total_spec_energy
         high_energy = float(np.sum(stft[freqs_stft >= 4000] ** 2)) / total_spec_energy
 
+        def _band_ratio(low: int, high: int) -> float:
+            mask = (freqs_stft >= low) & (freqs_stft < high)
+            return float(np.sum(stft[mask] ** 2)) / total_spec_energy
+
+        sub_bass_energy = _band_ratio(20, 120)
+        bass_energy = _band_ratio(120, 500)
+        low_mid_energy = _band_ratio(500, 1500)
+        presence_energy = _band_ratio(1500, 4000)
+        bird_band_energy = _band_ratio(2000, 8000)
+        insect_band_energy = _band_ratio(6000, 11000)
+
+        # Spectral flux captures rapid acoustic changes such as birdsong syllables
+        # without storing frame-level data.
+        stft_norm = stft / (np.sum(stft, axis=0, keepdims=True) + 1e-10)
+        spectral_flux = np.sqrt(np.sum(np.diff(stft_norm, axis=1) ** 2, axis=0))
+
         # ── Peak / RMS / Noise floor (dB) ──
         peak = float(np.max(np.abs(y)))
         peak_db = round(20 * np.log10(peak + 1e-10), 2) if peak > 0 else -120.0
@@ -174,6 +190,14 @@ class FeatureExtractor:
             "low_freq_ratio": round(low_energy, 4),
             "mid_freq_ratio": round(mid_energy, 4),
             "high_freq_ratio": round(high_energy, 4),
+            "sub_bass_ratio": round(sub_bass_energy, 4),
+            "bass_ratio": round(bass_energy, 4),
+            "low_mid_ratio": round(low_mid_energy, 4),
+            "presence_ratio": round(presence_energy, 4),
+            "bird_band_ratio": round(bird_band_energy, 4),
+            "insect_band_ratio": round(insect_band_energy, 4),
+            "spectral_flux": round(float(np.mean(spectral_flux)), 4) if spectral_flux.size else 0.0,
+            "spectral_flux_std": round(float(np.std(spectral_flux)), 4) if spectral_flux.size else 0.0,
             "tempo_bpm": round(tempo_float, 1),
             "beat_count": len(beat_frames),
             "harmonic_ratio": harmonic_ratio,

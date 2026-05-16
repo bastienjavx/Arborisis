@@ -4,7 +4,7 @@ import * as THREE from 'three';
 
 const canvasContainer = ref(null);
 let renderer, scene, camera, particles, animationId;
-let clock = new THREE.Clock();
+let startTime = 0;
 
 const COLORS = [
     0x34D399, // arbor-emerald
@@ -18,6 +18,7 @@ onMounted(() => {
     if (prefersReducedMotion) return;
 
     if (!canvasContainer.value) return;
+    startTime = performance.now();
 
     const width = canvasContainer.value.clientWidth;
     const height = canvasContainer.value.clientHeight;
@@ -116,7 +117,7 @@ onMounted(() => {
     // Animation loop
     const animate = () => {
         animationId = requestAnimationFrame(animate);
-        const elapsed = clock.getElapsedTime();
+        const elapsed = (performance.now() - startTime) / 1000;
         material.uniforms.uTime.value = elapsed;
         renderer.render(scene, camera);
     };

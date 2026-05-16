@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\Gamification\PresenceController;
 use App\Http\Controllers\Api\Gamification\QuestController;
 use App\Http\Controllers\Api\Gamification\UserProgressController;
 use App\Http\Controllers\Api\BlogController as ApiBlogController;
+use App\Http\Controllers\Api\InboundContactTicketReplyController;
 use App\Http\Controllers\Api\MapController;
 use App\Http\Controllers\Api\SoundIdeas\DailySoundIdeaController;
 use App\Http\Controllers\Web\RadioController;
@@ -25,6 +26,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/health', HealthController::class)->name('api.health');
 Route::get('/health/radio', HealthRadioController::class)->name('api.health.radio');
+
+Route::post('/inbound/contact-ticket-replies', InboundContactTicketReplyController::class)
+    ->middleware('throttle:30,1')
+    ->name('api.inbound.contact-ticket-replies');
 
 Route::get('/scientific-stats/global', [\App\Http\Controllers\Api\ScientificStatsController::class, 'globalStats'])->name('api.scientific-stats.global');
 Route::get('/scientific-stats/categories', [\App\Http\Controllers\Api\ScientificStatsController::class, 'categories'])->name('api.scientific-stats.categories');
