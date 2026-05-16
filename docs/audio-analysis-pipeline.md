@@ -15,8 +15,11 @@ Cloudflare Queue : audio-analysis-queue
     ↓
 Worker Cloudflare : audio-analysis-orchestrator
     ↓  (random + failover — ANALYZER_URLS)
-VPS Worker 1 : Nginx LB + 3× FastAPI
-VPS Worker 2 : Nginx LB + 3× FastAPI
+Cloudflare Worker : audio-analyzer-container
+    ↓
+Cloudflare Containers : Python FastAPI
+    ↓  (fallback possible pendant migration)
+VPS Worker 1/2 : Nginx LB + 3× FastAPI
     ↓
 Résultats dans R2 (waveform, spectrogram, features, birdnet, summary)
     ↓
@@ -59,7 +62,7 @@ Vue.js : AudioAnalysisPanel.vue
 - `GET /health` — disponibilité
 - `POST /analyze` — déclenche analyse asynchrone
 
-**Scaling :** Le service est stateless et déployé en 3 instances sur un VPS worker dédié, derrière un load balancer Nginx (`least_conn`). Voir `infrastructure/audio-analyzer-worker/`.
+**Scaling :** Le service est stateless. La cible privilégiée est Cloudflare Containers via `workers/audio-analyzer-container/`. Les VPS workers restent utilisables comme fallback ou comme déploiement alternatif, derrière un load balancer Nginx (`least_conn`). Voir `infrastructure/audio-analyzer-worker/`.
 
 **Modules :**
 - `metadata_extractor` — ffprobe
@@ -77,6 +80,12 @@ Vue.js : AudioAnalysisPanel.vue
 **Chemin :** `workers/audio-analysis-orchestrator/`
 
 Consomme la Queue `audio-analysis-queue`, filtre les fichiers audio, et appelle le service Python.
+
+### 3b. Cloudflare Containers Gateway
+
+**Chemin :** `workers/audio-analyzer-container/`
+
+Expose `/health` et `/analyze`, puis route vers des instances Cloudflare Containers qui exécutent l'image Docker existante `services/audio-analyzer/`.
 
 ### 4. Vue.js — Interface
 
@@ -150,10 +159,10 @@ ANALYZER_SECRET
 ### Phase 1 — Base de données
 - [ ] `php artisan migrate`
 
-### Phase 2 — Service Python
+### Phase 2 — Service Python / Containers
 - [ ] `cd services/audio-analyzer && docker build -t <redacted>-audio-analyzer .`
-- [ ] Pusher l'image vers un registre
-- [ ] Déployer (Cloudflare Containers ou VPS Docker)
+- [ ] Déployer `workers/audio-analyzer-container/` avec `wrangler deploy`
+- [ ] Configurer les secrets Containers (`ANALYZER_SECRET`, `LARAVEL_API_SECRET`, R2...)
 - [ ] Vérifier `/health`
 
 ### Phase 3 — Worker Cloudflare
