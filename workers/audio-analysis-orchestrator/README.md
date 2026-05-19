@@ -50,7 +50,7 @@ dead_letter_queue = "audio-analysis-dlq"
 ## R2 Event Notification
 
 Dans le dashboard Cloudflare R2 :
-1. Sélectionner le bucket `<redacted>`
+1. Sélectionner le bucket `arborisis`
 2. Event Notifications → Add notification
 3. Prefix: `sounds/original/`
 4. Destination: Queue `audio-analysis-queue`

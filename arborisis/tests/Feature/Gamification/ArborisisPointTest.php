@@ -17,7 +17,7 @@ beforeEach(function () {
 describe('création de point', function () {
     it('permet à un utilisateur vérifié de créer un point', function () {
         $response = $this->actingAs($this->user)
-            ->postJson('/api/<redacted>-points', [
+            ->postJson('/api/arborisis-points', [
                 'title' => 'Point de test',
                 'description' => 'Description test',
                 'latitude' => 48.8566,
@@ -29,7 +29,7 @@ describe('création de point', function () {
             ->assertJsonPath('point.title', 'Point de test')
             ->assertJsonPath('point.moderation_status', 'En attente');
 
-        $this->assertDatabaseHas('<redacted>_points', [
+        $this->assertDatabaseHas('arborisis_points', [
             'title' => 'Point de test',
             'moderation_status' => ModerationStatus::Pending->value,
             'user_id' => $this->user->id,
@@ -45,7 +45,7 @@ describe('création de point', function () {
             'moderation_status' => ModerationStatus::Approved,
         ]);
 
-        $response = $this->getJson("/api/<redacted>-points/{$point->slug}");
+        $response = $this->getJson("/api/arborisis-points/{$point->slug}");
 
         $response->assertStatus(200)
             ->assertJsonPath('latitude', 48.86)
@@ -55,7 +55,7 @@ describe('création de point', function () {
 
     it('floute automatiquement les coordonnées pour les lieux sensibles', function () {
         $response = $this->actingAs($this->user)
-            ->postJson('/api/<redacted>-points', [
+            ->postJson('/api/arborisis-points', [
                 'title' => 'Nid d\'aigle',
                 'latitude' => 48.8566,
                 'longitude' => 2.3522,
@@ -75,7 +75,7 @@ describe('création de point', function () {
 
     it('conserve la position publique exacte pour les lieux non sensibles', function () {
         $response = $this->actingAs($this->user)
-            ->postJson('/api/<redacted>-points', [
+            ->postJson('/api/arborisis-points', [
                 'title' => 'Clairière ouverte',
                 'latitude' => 48.85661234,
                 'longitude' => 2.35222345,
@@ -103,7 +103,7 @@ describe('modération', function () {
             'moderation_status' => ModerationStatus::Pending,
         ]);
 
-        $response = $this->getJson('/api/<redacted>-points');
+        $response = $this->getJson('/api/arborisis-points');
 
         $response->assertStatus(200)
             ->assertJsonCount(1, 'features')
@@ -119,7 +119,7 @@ describe('signalements', function () {
         $reporter = User::factory()->create(['email_verified_at' => now()]);
 
         $response = $this->actingAs($reporter)
-            ->postJson("/api/<redacted>-points/{$point->slug}/report", [
+            ->postJson("/api/arborisis-points/{$point->slug}/report", [
                 'reason' => 'inaccurate_location',
                 'description' => 'La position est incorrecte',
             ]);
@@ -127,7 +127,7 @@ describe('signalements', function () {
         $response->assertStatus(200);
 
         $this->assertDatabaseHas('point_reports', [
-            '<redacted>_point_id' => $point->id,
+            'arborisis_point_id' => $point->id,
             'user_id' => $reporter->id,
             'reason' => 'inaccurate_location',
         ]);

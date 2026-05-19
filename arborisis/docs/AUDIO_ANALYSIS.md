@@ -116,10 +116,10 @@ GET  /api/sounds/{sound}/analysis/realtime → Données temps réel
 
 ```bash
 # Déclencher une analyse
-curl -X POST https://<redacted>.com/sounds/123/analysis \
+curl -X POST https://arborisis.com/sounds/123/analysis \
   -H "Content-Type: application/json" \
   -d '{"n_fft": 2048, "frequency_scale": "mel"}'
 
 # Récupérer l'aperçu public
-curl https://<redacted>.com/api/sounds/123/analysis
+curl https://arborisis.com/api/sounds/123/analysis
 ```

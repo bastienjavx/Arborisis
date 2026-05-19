@@ -15,10 +15,10 @@ var _sfc_main$1 = {
 		const props = __props;
 		const processedContent = computed(() => {
 			let html = props.content;
-			html = html.replace(/<a[^>]*data-<redacted>-type="sound"[^>]*data-<redacted>-id="(\d+)"[^>]*>/g, "<a data-inertia-link href=\"/sounds/$1\" class=\"text-arbor-emerald hover:text-arbor-emerald-dark hover:underline transition-colors font-medium\">");
-			html = html.replace(/<a[^>]*data-<redacted>-type="creator"[^>]*data-<redacted>-id="(\d+)"[^>]*>/g, "<a data-inertia-link href=\"/creators/$1\" class=\"text-arbor-emerald hover:text-arbor-emerald-dark hover:underline transition-colors font-medium\">");
-			html = html.replace(/<a[^>]*data-<redacted>-type="map"[^>]*>/g, "<a data-inertia-link href=\"/map\" class=\"text-arbor-emerald hover:text-arbor-emerald-dark hover:underline transition-colors font-medium\">");
-			html = html.replace(/<a[^>]*data-<redacted>-type="<redacted>-map"[^>]*>/g, "<a data-inertia-link href=\"/<redacted>-map\" class=\"text-arbor-emerald hover:text-arbor-emerald-dark hover:underline transition-colors font-medium\">");
+			html = html.replace(/<a[^>]*data-arborisis-type="sound"[^>]*data-arborisis-id="(\d+)"[^>]*>/g, "<a data-inertia-link href=\"/sounds/$1\" class=\"text-arbor-emerald hover:text-arbor-emerald-dark hover:underline transition-colors font-medium\">");
+			html = html.replace(/<a[^>]*data-arborisis-type="creator"[^>]*data-arborisis-id="(\d+)"[^>]*>/g, "<a data-inertia-link href=\"/creators/$1\" class=\"text-arbor-emerald hover:text-arbor-emerald-dark hover:underline transition-colors font-medium\">");
+			html = html.replace(/<a[^>]*data-arborisis-type="map"[^>]*>/g, "<a data-inertia-link href=\"/map\" class=\"text-arbor-emerald hover:text-arbor-emerald-dark hover:underline transition-colors font-medium\">");
+			html = html.replace(/<a[^>]*data-arborisis-type="arborisis-map"[^>]*>/g, "<a data-inertia-link href=\"/arborisis-map\" class=\"text-arbor-emerald hover:text-arbor-emerald-dark hover:underline transition-colors font-medium\">");
 			return html;
 		});
 		return (_ctx, _push, _parent, _attrs) => {

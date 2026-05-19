@@ -1,3 +1,3 @@
 <template>
-    <img src="/images/<redacted>-site-logo-white.svg" alt="Arborisis" />
+    <img src="/images/arborisis-site-logo-white.svg" alt="Arborisis" />
 </template>

@@ -1,4 +1,4 @@
-const STORAGE_KEY = '<redacted>-radio-session-token';
+const STORAGE_KEY = 'arborisis-radio-session-token';
 
 function uuid() {
     if (typeof crypto !== 'undefined' && crypto.randomUUID) {

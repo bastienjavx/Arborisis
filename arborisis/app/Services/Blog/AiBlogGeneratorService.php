@@ -225,10 +225,10 @@ Créateurs actifs récents :
 
 ━━ LIENS DYNAMIQUES ━━
 Pour chaque son ou créateur mentionné, utilise ce format exact dans le HTML :
-<a href="/sounds/{slug}" data-<redacted>-type="sound" data-<redacted>-id="{id}">titre du son</a>
-<a href="/creators/{slug}" data-<redacted>-type="creator" data-<redacted>-id="{id}">nom du créateur</a>
-<a href="/map" data-<redacted>-type="map">carte sonore</a>
-<a href="/<redacted>-map" data-<redacted>-type="<redacted>-map">points d'écoute</a>
+<a href="/sounds/{slug}" data-arborisis-type="sound" data-arborisis-id="{id}">titre du son</a>
+<a href="/creators/{slug}" data-arborisis-type="creator" data-arborisis-id="{id}">nom du créateur</a>
+<a href="/map" data-arborisis-type="map">carte sonore</a>
+<a href="/arborisis-map" data-arborisis-type="arborisis-map">points d'écoute</a>
 
 ━━ FORMAT JSON STRICT ━━
 {

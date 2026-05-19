@@ -147,7 +147,7 @@ class RadioController extends Controller
 
         return response($content, 200, [
             'Content-Type' => 'audio/x-mpegurl',
-            'Content-Disposition' => 'attachment; filename="<redacted>-radio.m3u"',
+            'Content-Disposition' => 'attachment; filename="arborisis-radio.m3u"',
         ]);
     }
 

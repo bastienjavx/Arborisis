@@ -19,7 +19,7 @@ class OpenSearchIndexService
     public function __construct(
         private readonly Client $client,
     ) {
-        $this->prefix = config('services.opensearch.index_prefix', '<redacted>');
+        $this->prefix = config('services.opensearch.index_prefix', 'arborisis');
         $this->enabled = config('services.opensearch.enabled', true);
     }
 

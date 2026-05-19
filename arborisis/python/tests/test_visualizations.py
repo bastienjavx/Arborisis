@@ -12,7 +12,7 @@ from core.utils import ensure_dir
 
 class TestVisualizations:
     def setup_method(self):
-        self.output_dir = "/tmp/<redacted>_test_viz"
+        self.output_dir = "/tmp/arborisis_test_viz"
         ensure_dir(self.output_dir)
         self.y = np.random.randn(22050) * 0.1
         self.sr = 22050

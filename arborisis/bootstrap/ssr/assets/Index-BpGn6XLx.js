@@ -37,7 +37,7 @@ _sfc_main$6.setup = (props, ctx) => {
 };
 //#endregion
 //#region resources/js/Composables/useRadioSession.js
-var STORAGE_KEY = "<redacted>-radio-session-token";
+var STORAGE_KEY = "arborisis-radio-session-token";
 function uuid() {
 	if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
 	return `radio-${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -625,7 +625,7 @@ var _sfc_main = {
 						_push(`</button><button class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-arbor-glass border border-arbor-glass-border text-arbor-sage text-sm hover:text-arbor-cream hover:bg-white/10 transition-colors"${_scopeId}><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"${_scopeId}><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"${_scopeId}></path></svg>`);
 						if (copiedM3u.value) _push(`<span${_scopeId}>M3U copié !</span>`);
 						else _push(`<span${_scopeId}>Copier le lien M3U</span>`);
-						_push(`</button><a href="/radio/stream.m3u" download="<redacted>-radio.m3u" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-arbor-emerald/15 border border-arbor-emerald/30 text-arbor-emerald text-sm hover:bg-arbor-emerald/25 transition-colors"${_scopeId}><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"${_scopeId}><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"${_scopeId}></path></svg> Télécharger M3U </a></div></div><div class="space-y-6"${_scopeId}><div class="glass-card p-6"${_scopeId}><h3 class="font-semibold text-arbor-cream mb-4 text-sm"${_scopeId}>Prochainement</h3>`);
+						_push(`</button><a href="/radio/stream.m3u" download="arborisis-radio.m3u" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-arbor-emerald/15 border border-arbor-emerald/30 text-arbor-emerald text-sm hover:bg-arbor-emerald/25 transition-colors"${_scopeId}><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"${_scopeId}><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"${_scopeId}></path></svg> Télécharger M3U </a></div></div><div class="space-y-6"${_scopeId}><div class="glass-card p-6"${_scopeId}><h3 class="font-semibold text-arbor-cream mb-4 text-sm"${_scopeId}>Prochainement</h3>`);
 						if (nextUp.value) {
 							_push(`<div class="flex items-center gap-3"${_scopeId}><div class="w-12 h-12 rounded-lg bg-arbor-deep overflow-hidden shrink-0"${_scopeId}>`);
 							if (nextUp.value.cover_url) _push(`<img${ssrRenderAttr("src", nextUp.value.cover_url)} class="w-full h-full object-cover" alt=""${_scopeId}>`);
@@ -863,7 +863,7 @@ var _sfc_main = {
 								})])), copiedM3u.value ? (openBlock(), createBlock("span", { key: 0 }, "M3U copié !")) : (openBlock(), createBlock("span", { key: 1 }, "Copier le lien M3U"))]),
 								createVNode("a", {
 									href: "/radio/stream.m3u",
-									download: "<redacted>-radio.m3u",
+									download: "arborisis-radio.m3u",
 									class: "inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-arbor-emerald/15 border border-arbor-emerald/30 text-arbor-emerald text-sm hover:bg-arbor-emerald/25 transition-colors"
 								}, [(openBlock(), createBlock("svg", {
 									class: "w-4 h-4",

@@ -72,8 +72,8 @@ COPY --from=assets /app/public/sw.js ./public/sw.js
 RUN cp -a public public.dist \
     && chown -R www-data:www-data storage bootstrap/cache public public.dist
 
-COPY docker/scripts/entrypoint.sh /usr/local/bin/<redacted>-entrypoint
-RUN chmod +x /usr/local/bin/<redacted>-entrypoint
+COPY docker/scripts/entrypoint.sh /usr/local/bin/arborisis-entrypoint
+RUN chmod +x /usr/local/bin/arborisis-entrypoint
 
-ENTRYPOINT ["<redacted>-entrypoint"]
+ENTRYPOINT ["arborisis-entrypoint"]
 CMD ["php-fpm"]

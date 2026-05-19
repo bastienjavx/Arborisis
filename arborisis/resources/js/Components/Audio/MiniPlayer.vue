@@ -194,7 +194,7 @@ watch(() => player.currentSound, async (sound) => {
 });
 
 onMounted(() => {
-    window.addEventListener('<redacted>:play-sound', onDirectPlayRequest);
+    window.addEventListener('arborisis:play-sound', onDirectPlayRequest);
 
     if (audioRef.value && player.currentSound) {
         audioRef.value.currentTime = player.currentTime || 0;
@@ -302,7 +302,7 @@ function seek(event) {
 }
 
 onUnmounted(() => {
-    window.removeEventListener('<redacted>:play-sound', onDirectPlayRequest);
+    window.removeEventListener('arborisis:play-sound', onDirectPlayRequest);
     stopVisualizer();
     if (audioContext && audioContext.state !== 'closed') {
         audioContext.close().catch(() => {});

@@ -29,7 +29,7 @@ const DOC_MAP = [
   { src: 'wiki-content/developpeur/guide-onboarding.md', wikiPath: 'developpeur/onboarding', title: 'Onboarding Nouveau Developpeur' },
   { src: 'wiki-content/developpeur/sso-wiki-js.md', wikiPath: 'developpeur/sso-wiki-js', title: 'SSO OAuth2 Laravel vers Wiki.js' },
   { src: 'docs/audio-analysis-pipeline.md', wikiPath: 'developpeur/pipeline-analyse-audio', title: 'Pipeline Analyse Audio' },
-  { src: '<redacted>/docs/AUDIO_ANALYSIS.md', wikiPath: 'developpeur/pipeline-analyse-audio-legacy', title: 'Pipeline Analyse Audio (Legacy)' },
+  { src: 'arborisis/docs/AUDIO_ANALYSIS.md', wikiPath: 'developpeur/pipeline-analyse-audio-legacy', title: 'Pipeline Analyse Audio (Legacy)' },
   { src: 'docs/migration-r2.md', wikiPath: 'developpeur/migration-r2', title: 'Migration Contabo S3 vers R2' },
   { src: 'docs/deploiement-gitlab-vps.md', wikiPath: 'developpeur/deploiement-gitlab-vps', title: 'Deploiement GitLab vers VPS' },
   { src: 'services/audio-analyzer/README.md', wikiPath: 'developpeur/services/audio-analyzer', title: 'Service Audio Analyzer (Python)' },
@@ -41,10 +41,10 @@ const DOC_MAP = [
   { src: 'infrastructure/radio/README.md', wikiPath: 'developpeur/infrastructure/radio', title: 'Infrastructure Radio' },
   { src: 'infrastructure/cloudflare/README.md', wikiPath: 'developpeur/infrastructure/cloudflare', title: 'Infrastructure Cloudflare' },
   { src: 'infrastructure/uptime-kuma/README.md', wikiPath: 'developpeur/infrastructure/uptime-kuma', title: 'Uptime Kuma' },
-  { src: '<redacted>/python/README.md', wikiPath: 'developpeur/python-module', title: 'Module Python' },
+  { src: 'arborisis/python/README.md', wikiPath: 'developpeur/python-module', title: 'Module Python' },
   { src: 'wiki-content/admin/guide-admin-filament.md', wikiPath: 'admin/guide-admin-filament', title: 'Guide Admin Filament' },
   { src: 'design.md', wikiPath: 'reference/design-system', title: 'Design System' },
-  { src: 'docs/audit-ui-ux-strategique-<redacted>.md', wikiPath: 'reference/audit-ui-ux-strategique', title: 'Audit UI/UX Strategique' },
+  { src: 'docs/audit-ui-ux-strategique-arborisis.md', wikiPath: 'reference/audit-ui-ux-strategique', title: 'Audit UI/UX Strategique' },
   { src: 'docs/audit-ux-frontend.md', wikiPath: 'reference/audit-ux-frontend', title: 'Audit UX Frontend' },
 ];
 
@@ -154,7 +154,7 @@ async function main() {
       continue;
     }
 
-    const tags = doc.wikiPath.split('/').slice(0, -1).concat(['import-auto', '<redacted>']);
+    const tags = doc.wikiPath.split('/').slice(0, -1).concat(['import-auto', 'arborisis']);
     const status = await importPage(doc.title, doc.wikiPath, content, tags);
     if (status === 'ok' || status === 'dryrun') imported++;
     else failed++;

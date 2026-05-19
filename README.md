@@ -6,15 +6,15 @@
 
 *Capturez, partagez et explorez le monde sonore sauvage.*
 
-[![Pipeline](https://gitlab.com/bastienjavaux/<redacted>.com/badges/main/pipeline.svg)](https://gitlab.com/bastienjavaux/<redacted>.com/-/commits/main)
-[![Coverage](https://gitlab.com/bastienjavaux/<redacted>.com/badges/main/coverage.svg)](https://gitlab.com/bastienjavaux/<redacted>.com/-/commits/main)
+[![Pipeline](https://gitlab.com/bastienjavaux/arborisis.com/badges/main/pipeline.svg)](https://gitlab.com/bastienjavaux/arborisis.com/-/commits/main)
+[![Coverage](https://gitlab.com/bastienjavaux/arborisis.com/badges/main/coverage.svg)](https://gitlab.com/bastienjavaux/arborisis.com/-/commits/main)
 [![PHP Version](https://img.shields.io/badge/PHP-8.3%2B-777BB4?logo=php&logoColor=white)](https://php.net)
 [![Laravel Version](https://img.shields.io/badge/Laravel-12.x-FF2D20?logo=laravel&logoColor=white)](https://laravel.com)
 [![Vue.js Version](https://img.shields.io/badge/Vue.js-3.x-4FC08D?logo=vuedotjs&logoColor=white)](https://vuejs.org)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.x-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-[🌐 Site web](https://<redacted>.com) · [📖 Documentation](#documentation) · [🚀 Installation](#installation-rapide) · [🤝 Contribuer](#contribuer)
+[🌐 Site web](https://arborisis.com) · [📖 Documentation](#documentation) · [🚀 Installation](#installation-rapide) · [🤝 Contribuer](#contribuer)
 
 </div>
 
@@ -121,8 +121,8 @@ Arborisis est une **plateforme sociale immersive** pensée pour les *field recor
 
 ### 1. Cloner le projet
 ```bash
-git clone https://gitlab.com/bastienjavaux/<redacted>.com.git
-cd <redacted>.com/<redacted>
+git clone https://gitlab.com/bastienjavaux/arborisis.com.git
+cd arborisis.com/arborisis
 ```
 
 ### 2. Installer les dépendances
@@ -142,8 +142,8 @@ php artisan key:generate
 DB_CONNECTION=pgsql
 DB_HOST=127.0.0.1
 DB_PORT=5432
-DB_DATABASE=<redacted>
-DB_USERNAME=<redacted>
+DB_DATABASE=arborisis
+DB_USERNAME=arborisis
 DB_PASSWORD=secret
 
 CACHE_DRIVER=redis
@@ -154,7 +154,7 @@ REDIS_HOST=127.0.0.1
 AWS_ACCESS_KEY_ID=xxx
 AWS_SECRET_ACCESS_KEY=xxx
 AWS_DEFAULT_REGION=eu2
-AWS_BUCKET=<redacted>-audio
+AWS_BUCKET=arborisis-audio
 AWS_ENDPOINT=https://eu2.contabostorage.com
 AWS_USE_PATH_STYLE_ENDPOINT=true
 ```
@@ -176,7 +176,7 @@ npm run dev   # dans un autre terminal
 ## 📂 Structure du Projet
 
 ```
-<redacted>/
+arborisis/
 ├── app/
 │   ├── Http/Controllers/      # Web + API controllers
 │   ├── Http/Requests/         # Form Requests (validation)

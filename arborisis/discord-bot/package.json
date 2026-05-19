@@ -1,5 +1,5 @@
 {
-  "name": "<redacted>-discord-bot",
+  "name": "arborisis-discord-bot",
   "version": "1.0.0",
   "description": "Bot Discord officiel d'Arborisis",
   "main": "src/index.js",
@@ -11,7 +11,7 @@
   "keywords": [
     "discord",
     "bot",
-    "<redacted>"
+    "arborisis"
   ],
   "license": "MIT",
   "dependencies": {

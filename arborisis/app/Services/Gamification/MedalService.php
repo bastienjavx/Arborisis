@@ -56,10 +56,10 @@ class MedalService
         $value = $medal->unlock_condition_value ?? [];
 
         return match ($medal->unlock_condition_type) {
-            'first_visit' => $user-><redacted>Visits()->valid()->exists(),
-            'visit_count' => $user-><redacted>Visits()->valid()->count() >= ($value['count'] ?? 10),
+            'first_visit' => $user->arborisisVisits()->valid()->exists(),
+            'visit_count' => $user->arborisisVisits()->valid()->count() >= ($value['count'] ?? 10),
             'visit_category_count' => $this->hasVisitedCategoryCount($user, $value['category'] ?? '', $value['count'] ?? 5),
-            'create_point_count' => $user-><redacted>Points()->where('moderation_status', 'approved')->count() >= ($value['count'] ?? 10),
+            'create_point_count' => $user->arborisisPoints()->where('moderation_status', 'approved')->count() >= ($value['count'] ?? 10),
             'report_valid_count' => $user->pointReports()->where('status', 'resolved')->count() >= ($value['count'] ?? 5),
             'listen_count' => $user->soundListens()->count() >= ($value['count'] ?? 10),
             default => false,
@@ -68,9 +68,9 @@ class MedalService
 
     private function hasVisitedCategoryCount(User $user, string $category, int $count): bool
     {
-        return $user-><redacted>Visits()
+        return $user->arborisisVisits()
             ->valid()
-            ->whereHas('<redacted>Point', function ($q) use ($category) {
+            ->whereHas('arborisisPoint', function ($q) use ($category) {
                 $q->where('category', $category);
             })
             ->count() >= $count;

@@ -12,7 +12,7 @@ class BlogHtmlSanitizer
 {
     /** @var array<string, list<string>> */
     private const ALLOWED_ATTRIBUTES = [
-        'a' => ['href', 'data-<redacted>-type', 'data-<redacted>-id'],
+        'a' => ['href', 'data-arborisis-type', 'data-arborisis-id'],
     ];
 
     /** @var list<string> */

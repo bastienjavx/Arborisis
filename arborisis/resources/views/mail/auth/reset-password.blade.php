@@ -1,4 +1,4 @@
-@extends('mail.layouts.<redacted>', ['subject' => 'Réinitialisez votre mot de passe'])
+@extends('mail.layouts.arborisis', ['subject' => 'Réinitialisez votre mot de passe'])
 
 @section('content')
 <!-- Hero icon -->

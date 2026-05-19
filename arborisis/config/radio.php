@@ -7,7 +7,7 @@ return [
     'internal_token' => env('RADIO_INTERNAL_TOKEN'),
     'public_stream_url' => env('RADIO_PUBLIC_STREAM_URL'),
     'icecast_base_url' => env('ICECAST_BASE_URL', 'http://127.0.0.1:8000'),
-    'icecast_mount' => env('ICECAST_MOUNT', '/<redacted>.mp3'),
+    'icecast_mount' => env('ICECAST_MOUNT', '/arborisis.mp3'),
     'icecast_admin_user' => env('ICECAST_ADMIN_USER', 'admin'),
     'icecast_admin_password' => env('ICECAST_ADMIN_PASSWORD'),
     'icy_metaint' => env('RADIO_ICY_METAINT', 8192),

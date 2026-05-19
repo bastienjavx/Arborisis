@@ -153,7 +153,7 @@ class ArborisisPointResource extends Resource
                         Forms\Components\FileUpload::make('cover_image')
                             ->label('Image de couverture')
                             ->image()
-                            ->directory('<redacted>/covers')
+                            ->directory('arborisis/covers')
                             ->disk(config('filesystems.default', 'local'))
                             ->visibility('public')
                             ->maxSize(5120),

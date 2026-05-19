@@ -1,11 +1,11 @@
 # Worker Cloudflare R2 — Arborisis
 
-Ce Worker sert de proxy sécurisé devant le bucket R2 `<redacted>` via le custom domain `storage.<redacted>.com`.
+Ce Worker sert de proxy sécurisé devant le bucket R2 `arborisis` via le custom domain `storage.arborisis.com`.
 
 ## Architecture
 
 ```
-Utilisateur → storage.<redacted>.com/audio/3/xxx.wav?expires=...&signature=...
+Utilisateur → storage.arborisis.com/audio/3/xxx.wav?expires=...&signature=...
               ↓
          [Worker Cloudflare]
               ↓
@@ -40,11 +40,11 @@ wrangler deploy
 
 ### 3. Route du Worker
 
-Ajoute le route `storage.<redacted>.com/*` au Worker dans le dashboard Cloudflare :
+Ajoute le route `storage.arborisis.com/*` au Worker dans le dashboard Cloudflare :
 
-1. Dashboard → Workers & Pages → `<redacted>-r2-proxy`
+1. Dashboard → Workers & Pages → `arborisis-r2-proxy`
 2. Triggers → Custom Domains → Add Custom Domain
-3. `storage.<redacted>.com`
+3. `storage.arborisis.com`
 
 > **Important** : Retire le custom domain natif R2 du bucket avant, sinon il y aura conflit.
 

@@ -1,5 +1,5 @@
 {
-  "name": "<redacted>-audio-analysis-orchestrator",
+  "name": "arborisis-audio-analysis-orchestrator",
   "version": "1.0.0",
   "description": "Cloudflare Worker orchestrating audio analysis pipeline via Queue",
   "main": "src/index.ts",

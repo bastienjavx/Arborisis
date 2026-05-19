@@ -1,7 +1,7 @@
 set("log.stdout", true)
 set("log.file", false)
 
-laravel_base_url = getenv("https://<redacted>.com", "LARAVEL_BASE_URL")
+laravel_base_url = getenv("https://arborisis.com", "LARAVEL_BASE_URL")
 radio_token = getenv("", "RADIO_INTERNAL_TOKEN")
 now_playing_url_base = "#{laravel_base_url}/api/internal/radio/now-playing"
 crossfade_seconds = float_of_string(getenv("4", "RADIO_CROSSFADE_SECONDS"))
@@ -9,7 +9,7 @@ crossfade_seconds = float_of_string(getenv("4", "RADIO_CROSSFADE_SECONDS"))
 icecast_host = getenv("icecast", "ICECAST_HOST")
 icecast_port = int_of_string(getenv("8000", "ICECAST_PORT"))
 icecast_password = getenv("", "ICECAST_SOURCE_PASSWORD")
-icecast_mount = getenv("/<redacted>.mp3", "ICECAST_MOUNT")
+icecast_mount = getenv("/arborisis.mp3", "ICECAST_MOUNT")
 
 # Include generated playlist
 %include "/radio-cache/playlist.liq"
@@ -39,7 +39,7 @@ def enrich_meta(m)
   end
 end
 
-radio_playlist = mksafe(request.dynamic(id="<redacted>_playlist", playlist_next_request))
+radio_playlist = mksafe(request.dynamic(id="arborisis_playlist", playlist_next_request))
 radio_playlist = map_metadata(enrich_meta, radio_playlist)
 radio_playlist = crossfade(duration=crossfade_seconds, radio_playlist)
 

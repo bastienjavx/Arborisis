@@ -15,7 +15,7 @@ class PointReport extends Model
 
     protected $fillable = [
         'user_id',
-        '<redacted>_point_id',
+        'arborisis_point_id',
         'reason',
         'description',
         'status',
@@ -37,7 +37,7 @@ class PointReport extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function <redacted>Point(): BelongsTo
+    public function arborisisPoint(): BelongsTo
     {
         return $this->belongsTo(ArborisisPoint::class);
     }

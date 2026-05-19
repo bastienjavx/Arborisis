@@ -493,7 +493,7 @@ class ScientificStatsService
 
         return [
             'dataset' => [
-                'name' => '<redacted>_public_soundscape_research_dataset',
+                'name' => 'arborisis_public_soundscape_research_dataset',
                 'schema_version' => 2,
                 'row_count' => $total,
                 'returned' => count($rows),

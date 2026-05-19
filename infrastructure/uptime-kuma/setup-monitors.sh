@@ -96,33 +96,33 @@ create_monitor() {
 # Monitors Arborisis
 # ---------------------------------------------------------------------------
 
-create_monitor "Laravel Health Check" "https://<redacted>.com/api/health" 60 10 3 "GET"
-create_monitor "Landing Page" "https://<redacted>.com/" 120 15 3
-create_monitor "Sounds Page" "https://<redacted>.com/sounds" 120 15 3
-create_monitor "Map Page" "https://<redacted>.com/map" 120 15 3
-create_monitor "API — Map Sounds" "https://<redacted>.com/api/map/sounds" 60 10 3
-create_monitor "API — Map Search" "https://<redacted>.com/api/map/sounds/search" 120 10 3
-create_monitor "Radio Page" "https://<redacted>.com/radio" 120 15 3
-create_monitor "API — Radio Now Playing" "https://<redacted>.com/api/radio/now-playing" 60 10 3
-create_monitor "Creators Page" "https://<redacted>.com/creators" 120 15 3
-create_monitor "API — Scientific Stats (Global)" "https://<redacted>.com/api/scientific-stats/global" 120 10 3
-create_monitor "API — Arborisis Points" "https://<redacted>.com/api/<redacted>-points" 120 10 3
-create_monitor "API — Quests" "https://<redacted>.com/api/quests" 120 10 3
-create_monitor "API — Achievements" "https://<redacted>.com/api/achievements" 120 10 3
-create_monitor "API — Medals" "https://<redacted>.com/api/medals" 120 10 3
-create_monitor "API — Map Presence" "https://<redacted>.com/api/map/presence" 120 10 3
-create_monitor "Transparency Page" "https://<redacted>.com/transparency" 300 15 3
-create_monitor "Auth — Login Page" "https://<redacted>.com/login" 300 15 3
-create_monitor "Contact Page" "https://<redacted>.com/contact" 300 15 3
-create_monitor "Mission Page" "https://<redacted>.com/mission" 300 15 3
-create_monitor "ECHO Info Page" "https://<redacted>.com/echo" 300 15 3
-create_monitor "API — VAPID Public Key" "https://<redacted>.com/api/vapid-public-key" 300 10 3
+create_monitor "Laravel Health Check" "https://arborisis.com/api/health" 60 10 3 "GET"
+create_monitor "Landing Page" "https://arborisis.com/" 120 15 3
+create_monitor "Sounds Page" "https://arborisis.com/sounds" 120 15 3
+create_monitor "Map Page" "https://arborisis.com/map" 120 15 3
+create_monitor "API — Map Sounds" "https://arborisis.com/api/map/sounds" 60 10 3
+create_monitor "API — Map Search" "https://arborisis.com/api/map/sounds/search" 120 10 3
+create_monitor "Radio Page" "https://arborisis.com/radio" 120 15 3
+create_monitor "API — Radio Now Playing" "https://arborisis.com/api/radio/now-playing" 60 10 3
+create_monitor "Creators Page" "https://arborisis.com/creators" 120 15 3
+create_monitor "API — Scientific Stats (Global)" "https://arborisis.com/api/scientific-stats/global" 120 10 3
+create_monitor "API — Arborisis Points" "https://arborisis.com/api/arborisis-points" 120 10 3
+create_monitor "API — Quests" "https://arborisis.com/api/quests" 120 10 3
+create_monitor "API — Achievements" "https://arborisis.com/api/achievements" 120 10 3
+create_monitor "API — Medals" "https://arborisis.com/api/medals" 120 10 3
+create_monitor "API — Map Presence" "https://arborisis.com/api/map/presence" 120 10 3
+create_monitor "Transparency Page" "https://arborisis.com/transparency" 300 15 3
+create_monitor "Auth — Login Page" "https://arborisis.com/login" 300 15 3
+create_monitor "Contact Page" "https://arborisis.com/contact" 300 15 3
+create_monitor "Mission Page" "https://arborisis.com/mission" 300 15 3
+create_monitor "ECHO Info Page" "https://arborisis.com/echo" 300 15 3
+create_monitor "API — VAPID Public Key" "https://arborisis.com/api/vapid-public-key" 300 10 3
 
 if [[ -n "$DISCORD_TOKEN" ]]; then
-    create_monitor "Discord Bot Internal API" "https://<redacted>.com/api/internal/discord/stats" 60 10 3 "GET" \
+    create_monitor "Discord Bot Internal API" "https://arborisis.com/api/internal/discord/stats" 60 10 3 "GET" \
         "{\"X-Internal-Token\": \"$DISCORD_TOKEN\"}"
 else
-    create_monitor "Discord Bot Internal API" "https://<redacted>.com/api/internal/discord/stats" 60 10 3
+    create_monitor "Discord Bot Internal API" "https://arborisis.com/api/internal/discord/stats" 60 10 3
 fi
 
 echo ""

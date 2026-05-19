@@ -14,7 +14,7 @@ class SoundWalkPoint extends Model
 
     protected $fillable = [
         'sound_walk_id',
-        '<redacted>_point_id',
+        'arborisis_point_id',
         'title',
         'description',
         'latitude',
@@ -43,7 +43,7 @@ class SoundWalkPoint extends Model
         return $this->belongsTo(SoundWalk::class);
     }
 
-    public function <redacted>Point(): BelongsTo
+    public function arborisisPoint(): BelongsTo
     {
         return $this->belongsTo(ArborisisPoint::class);
     }

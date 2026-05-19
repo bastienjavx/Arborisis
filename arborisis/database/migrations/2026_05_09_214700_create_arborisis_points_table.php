@@ -10,7 +10,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('<redacted>_points', function (Blueprint $table) {
+        Schema::create('arborisis_points', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('title');
@@ -46,6 +46,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('<redacted>_points');
+        Schema::dropIfExists('arborisis_points');
     }
 };

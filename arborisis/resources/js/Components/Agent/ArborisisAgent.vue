@@ -49,7 +49,7 @@ function clearLocation() {
 
 const currentUser = computed(() => page.props.auth?.user ?? null);
 const firstName = computed(() => currentUser.value?.name?.split(' ')?.[0] ?? null);
-const storageKey = computed(() => `<redacted>:sylve:${currentUser.value?.id ?? 'guest'}`);
+const storageKey = computed(() => `arborisis:sylve:${currentUser.value?.id ?? 'guest'}`);
 
 const messages = ref([
     {
@@ -449,7 +449,7 @@ function toolCards(message) {
 
 function labelForTool(tool) {
     return {
-        create_<redacted>_point: 'Point créé',
+        create_arborisis_point: 'Point créé',
         create_sound_walk: 'Balade créée',
         resolve_sound_walk_route: 'Itinéraire vérifié',
         get_radio_now_playing: 'Radio en direct',
@@ -471,7 +471,7 @@ function summaryForTool(tc) {
 
 function sectionFromPath(path) {
     if (path.startsWith('/sounds')) return 'sounds';
-    if (path.startsWith('/map') || path.startsWith('/<redacted>-map')) return 'map';
+    if (path.startsWith('/map') || path.startsWith('/arborisis-map')) return 'map';
     if (path.startsWith('/radio')) return 'radio';
     if (path.startsWith('/scientific-stats')) return 'scientific_stats';
     if (path.startsWith('/dashboard')) return 'dashboard';
@@ -615,7 +615,7 @@ onBeforeUnmount(() => {
                                     :key="tcIndex"
                                     class="rounded-[8px] border border-arbor-firefly/25 bg-arbor-firefly/10 p-3"
                                 >
-                                    <div v-if="tc.tool === 'create_<redacted>_point' && tc.result.point" class="flex items-center gap-3">
+                                    <div v-if="tc.tool === 'create_arborisis_point' && tc.result.point" class="flex items-center gap-3">
                                         <div class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-arbor-firefly/20 text-arbor-firefly">
                                             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                         </div>
@@ -624,7 +624,7 @@ onBeforeUnmount(() => {
                                             <p class="text-xs text-arbor-sage">Point créé · {{ tc.result.point.moderation_status === 'pending' ? 'En attente de modération' : 'Approuvé' }}</p>
                                         </div>
                                         <Link
-                                            :href="`/<redacted>-map`"
+                                            :href="`/arborisis-map`"
                                             class="ml-auto shrink-0 rounded-[6px] bg-arbor-firefly/20 px-2.5 py-1 text-xs text-arbor-firefly transition hover:bg-arbor-firefly/30"
                                         >
                                             Voir la carte

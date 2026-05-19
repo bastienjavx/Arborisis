@@ -87,29 +87,29 @@ class ArborisisPointController extends Controller
         ]);
     }
 
-    public function show(Request $request, ArborisisPoint $<redacted>Point): JsonResponse
+    public function show(Request $request, ArborisisPoint $arborisisPoint): JsonResponse
     {
-        $this->authorize('view', $<redacted>Point);
+        $this->authorize('view', $arborisisPoint);
 
         return response()->json([
-            'id' => $<redacted>Point->id,
-            'slug' => $<redacted>Point->slug,
-            'title' => $<redacted>Point->title,
-            'description' => $<redacted>Point->description,
-            'latitude' => $<redacted>Point->getPublicLatitude(),
-            'longitude' => $<redacted>Point->getPublicLongitude(),
-            'category' => $<redacted>Point->category?->label(),
-            'category_value' => $<redacted>Point->category?->value,
-            'tags' => $<redacted>Point->tags,
-            'difficulty_level' => $<redacted>Point->difficulty_level,
-            'nature_sensitivity_level' => $<redacted>Point->nature_sensitivity_level?->label(),
-            'nature_sensitivity_warning' => $<redacted>Point->nature_sensitivity_level?->warningText(),
-            'recommended_time' => $<redacted>Point->recommended_time,
-            'audio_environment_type' => $<redacted>Point->audio_environment_type,
-            'cover_image' => $<redacted>Point->cover_image,
-            'user' => $<redacted>Point->user?->only('id', 'name', 'slug'),
-            'created_at' => $<redacted>Point->created_at?->format('d/m/Y'),
-            'moderation_status' => $<redacted>Point->moderation_status?->value,
+            'id' => $arborisisPoint->id,
+            'slug' => $arborisisPoint->slug,
+            'title' => $arborisisPoint->title,
+            'description' => $arborisisPoint->description,
+            'latitude' => $arborisisPoint->getPublicLatitude(),
+            'longitude' => $arborisisPoint->getPublicLongitude(),
+            'category' => $arborisisPoint->category?->label(),
+            'category_value' => $arborisisPoint->category?->value,
+            'tags' => $arborisisPoint->tags,
+            'difficulty_level' => $arborisisPoint->difficulty_level,
+            'nature_sensitivity_level' => $arborisisPoint->nature_sensitivity_level?->label(),
+            'nature_sensitivity_warning' => $arborisisPoint->nature_sensitivity_level?->warningText(),
+            'recommended_time' => $arborisisPoint->recommended_time,
+            'audio_environment_type' => $arborisisPoint->audio_environment_type,
+            'cover_image' => $arborisisPoint->cover_image,
+            'user' => $arborisisPoint->user?->only('id', 'name', 'slug'),
+            'created_at' => $arborisisPoint->created_at?->format('d/m/Y'),
+            'moderation_status' => $arborisisPoint->moderation_status?->value,
         ]);
     }
 
@@ -131,10 +131,10 @@ class ArborisisPointController extends Controller
         ], 201);
     }
 
-    public function update(UpdateArborisisPointRequest $request, ArborisisPoint $<redacted>Point): JsonResponse
+    public function update(UpdateArborisisPointRequest $request, ArborisisPoint $arborisisPoint): JsonResponse
     {
         $point = $this->pointService->updatePoint(
-            $<redacted>Point,
+            $arborisisPoint,
             $request->validated()
         );
 
@@ -148,24 +148,24 @@ class ArborisisPointController extends Controller
         ]);
     }
 
-    public function destroy(Request $request, ArborisisPoint $<redacted>Point): JsonResponse
+    public function destroy(Request $request, ArborisisPoint $arborisisPoint): JsonResponse
     {
-        $this->authorize('delete', $<redacted>Point);
+        $this->authorize('delete', $arborisisPoint);
 
-        $<redacted>Point->delete();
+        $arborisisPoint->delete();
 
         return response()->json([
             'message' => 'Point supprimé avec succès.',
         ]);
     }
 
-    public function report(ReportPointRequest $request, ArborisisPoint $<redacted>Point): JsonResponse
+    public function report(ReportPointRequest $request, ArborisisPoint $arborisisPoint): JsonResponse
     {
-        $this->authorize('report', $<redacted>Point);
+        $this->authorize('report', $arborisisPoint);
 
         $this->pointService->reportPoint(
             $request->user(),
-            $<redacted>Point,
+            $arborisisPoint,
             $request->validated()
         );
 
@@ -174,9 +174,9 @@ class ArborisisPointController extends Controller
         ]);
     }
 
-    public function suggestEdit(Request $request, ArborisisPoint $<redacted>Point): JsonResponse
+    public function suggestEdit(Request $request, ArborisisPoint $arborisisPoint): JsonResponse
     {
-        $this->authorize('suggestEdit', $<redacted>Point);
+        $this->authorize('suggestEdit', $arborisisPoint);
 
         $validated = $request->validate([
             'field' => ['required', 'string', 'in:title,description,category,tags,recommended_time,audio_environment_type'],
@@ -186,7 +186,7 @@ class ArborisisPointController extends Controller
 
         $this->pointService->suggestEdit(
             $request->user(),
-            $<redacted>Point,
+            $arborisisPoint,
             $validated
         );
 

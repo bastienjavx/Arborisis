@@ -16,7 +16,7 @@ class RadioChannelSeeder extends Seeder
             ['slug' => 'main'],
             [
                 'name' => 'Arborisis Radio',
-                'mount_path' => '/<redacted>.mp3',
+                'mount_path' => '/arborisis.mp3',
                 'color' => '#3c8c5c',
                 'description' => 'Le flux principal : field recordings et sons de nature en continu.',
                 'vibe' => [

@@ -3,7 +3,7 @@ export interface Env {
   SIGNING_KEY: string;
 }
 
-const CORS_ORIGINS = ['https://<redacted>.com', 'https://www.<redacted>.com'];
+const CORS_ORIGINS = ['https://arborisis.com', 'https://www.arborisis.com'];
 
 function handleCors(request: Request): Response | null {
   const origin = request.headers.get('Origin') ?? '';

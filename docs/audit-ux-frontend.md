@@ -1,7 +1,7 @@
 # Audit UX/UI — Frontend Arborisis
 
 **Date :** 2026-05-14  
-**Scope :** `<redacted>/resources/js/**`, `<redacted>/resources/css/**`, `<redacted>/resources/views/**`  
+**Scope :** `arborisis/resources/js/**`, `arborisis/resources/css/**`, `arborisis/resources/views/**`  
 **Stack :** Vue 3 (Composition API) + Inertia.js + Tailwind CSS + Pinia  
 **Référentiel :** UI/UX Pro Max (accessibilité, animation, layout, dark-mode, vue-tailwind)
 
@@ -163,7 +163,7 @@ fontFamily: {
 ### 4.1 Double carte = confusion cognitive
 **Problème majeur :** Deux routes distinctes proposent une carte :
 - `/map` — Carte sonore (tous les enregistrements)
-- `/<redacted>-map` — Carte Arborisis (gamification, points d'intérêt)
+- `/arborisis-map` — Carte Arborisis (gamification, points d'intérêt)
 
 Les deux sont dans la navigation principale (`Explorer` dropdown). Les noms sont similaires et l'icône aussi (pin/map). Un utilisateur non averti ne comprendra pas la différence.
 

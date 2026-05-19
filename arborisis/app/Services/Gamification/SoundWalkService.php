@@ -84,7 +84,7 @@ class SoundWalkService
             if (! empty($data['waypoints'])) {
                 foreach ($data['waypoints'] as $index => $wp) {
                     $soundWalk->points()->create([
-                        '<redacted>_point_id' => $wp['<redacted>_point_id'] ?? null,
+                        'arborisis_point_id' => $wp['arborisis_point_id'] ?? null,
                         'title' => $wp['title'] ?? null,
                         'description' => $wp['description'] ?? null,
                         'latitude' => (float) ($wp['lat'] ?? $wp['latitude'] ?? 0),
@@ -297,7 +297,7 @@ class SoundWalkService
      */
     private function resolveArborisisPointWaypoint(array $waypoint): array
     {
-        $pointId = $waypoint['<redacted>_point_id'] ?? null;
+        $pointId = $waypoint['arborisis_point_id'] ?? null;
 
         if ($pointId === null || $this->hasWaypointCoordinates($waypoint)) {
             return $waypoint;
@@ -313,7 +313,7 @@ class SoundWalkService
         $waypoint['lng'] = $point->getPublicLongitude();
         $waypoint['title'] = $waypoint['title'] ?? $point->title;
         $waypoint['geocoded_place_name'] = $point->title;
-        $waypoint['geocoded_source'] = '<redacted>_point';
+        $waypoint['geocoded_source'] = 'arborisis_point';
 
         return $waypoint;
     }

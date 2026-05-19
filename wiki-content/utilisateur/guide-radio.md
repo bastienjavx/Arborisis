@@ -20,7 +20,7 @@ Rendez-vous sur `/radio`. Le lecteur se lance automatiquement avec :
 ### Flux direct
 Téléchargez le fichier `.m3u` sur `/radio/stream.m3u` pour l'écouter dans VLC, iTunes, ou tout lecteur compatible Icecast.
 
-URL du stream : `https://radio.<redacted>.com/stream` (exemple)
+URL du stream : `https://radio.arborisis.com/stream` (exemple)
 
 ## Canaux
 

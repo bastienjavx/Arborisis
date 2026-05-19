@@ -1,7 +1,7 @@
 import { mergeProps, useSSRContext } from "vue";
 import { ssrInterpolate, ssrRenderAttrs, ssrRenderClass, ssrRenderList } from "vue/server-renderer";
 //#region resources/js/Components/Scientific/ApiDocs.vue
-var baseUrl = "https://<redacted>.com";
+var baseUrl = "https://arborisis.com";
 var _sfc_main = {
 	__name: "ApiDocs",
 	__ssrInlineRender: true,

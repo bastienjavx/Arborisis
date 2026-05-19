@@ -18,7 +18,7 @@ const endpoints = [
     { method: 'GET', path: '/api/scientific-stats/raw-data?limit=100', desc: 'Échantillon de données brutes (max 1000 lignes)' },
 ];
 
-const baseUrl = 'https://<redacted>.com';
+const baseUrl = 'https://arborisis.com';
 
 const colors = {
     GET: 'text-arbor-emerald bg-arbor-emerald/10 border-arbor-emerald/30',

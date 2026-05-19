@@ -46,7 +46,7 @@ class GamificationSeeder extends Seeder
             ],
             [
                 'title' => 'Premier Arborisis',
-                'slug' => 'premier-<redacted>',
+                'slug' => 'premier-arborisis',
                 'description' => 'Proposer ton premier point sur la carte.',
                 'category' => AchievementCategory::Creation,
                 'points' => 50,
@@ -137,7 +137,7 @@ class GamificationSeeder extends Seeder
             ],
             [
                 'name' => 'Cartographe Arborisis',
-                'slug' => 'cartographe-<redacted>',
+                'slug' => 'cartographe-arborisis',
                 'description' => 'Créer 10 points validés par la modération.',
                 'rarity' => MedalRarity::Gold,
                 'category' => MedalCategory::Creation,

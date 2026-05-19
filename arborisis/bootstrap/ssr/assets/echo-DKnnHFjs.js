@@ -4,8 +4,8 @@ import Pusher from "pusher-js";
 window.Pusher = Pusher;
 var echo = new Echo({
 	broadcaster: "reverb",
-	key: "<redacted>-local-key",
-	wsHost: "<redacted>.com",
+	key: "arborisis-local-key",
+	wsHost: "arborisis.com",
 	wsPort: "443",
 	wssPort: "443",
 	forceTLS: true,

@@ -1,4 +1,4 @@
 User-agent: *
 Disallow:
 
-Sitemap: https://<redacted>.com/sitemap.xml
+Sitemap: https://arborisis.com/sitemap.xml

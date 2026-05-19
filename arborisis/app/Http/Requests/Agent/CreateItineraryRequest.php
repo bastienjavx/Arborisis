@@ -31,7 +31,7 @@ class CreateItineraryRequest extends FormRequest
             'waypoints.*.lat' => ['nullable', 'numeric', 'between:-90,90'],
             'waypoints.*.lng' => ['nullable', 'numeric', 'between:-180,180'],
             'waypoints.*.order' => ['required', 'integer', 'min:0'],
-            'waypoints.*.<redacted>_point_id' => ['nullable', 'integer', 'exists:<redacted>_points,id'],
+            'waypoints.*.arborisis_point_id' => ['nullable', 'integer', 'exists:arborisis_points,id'],
             'waypoints.*.recording_tips' => ['nullable', 'string', 'max:2000'],
             'waypoints.*.recommended_time' => ['nullable', 'string', 'max:100'],
             'start_latitude' => ['nullable', 'numeric', 'between:-90,90'],
@@ -58,7 +58,7 @@ class CreateItineraryRequest extends FormRequest
                 $hasCoordinates = isset($waypoint['lat'], $waypoint['lng'])
                     && is_numeric($waypoint['lat'])
                     && is_numeric($waypoint['lng']);
-                $hasArborisisPoint = ! empty($waypoint['<redacted>_point_id']);
+                $hasArborisisPoint = ! empty($waypoint['arborisis_point_id']);
 
                 if (! $hasPlaceQuery && ! $hasCoordinates && ! $hasArborisisPoint) {
                     $validator->errors()->add(

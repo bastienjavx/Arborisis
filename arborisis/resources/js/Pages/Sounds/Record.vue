@@ -91,7 +91,7 @@ const onConfirmRecording = (blob, url) => {
     const min = String(now.getMinutes()).padStart(2, '0');
     const s = String(now.getSeconds()).padStart(2, '0');
     const ext = blob.type.includes('mp4') || blob.type.includes('aac') ? 'm4a' : 'webm';
-    const filename = `<redacted>_record_${y}${m}${d}_${h}${min}${s}.${ext}`;
+    const filename = `arborisis_record_${y}${m}${d}_${h}${min}${s}.${ext}`;
 
     form.audio_file = new File([blob], filename, { type: blob.type || 'audio/webm' });
     form.recorded_at = `${y}-${m}-${d}`;

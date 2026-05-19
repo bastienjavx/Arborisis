@@ -12,13 +12,13 @@ const COLORS = {
 function baseEmbed() {
   return new EmbedBuilder()
     .setTimestamp()
-    .setFooter({ text: 'Arborisis', iconURL: 'https://<redacted>.com/favicon.ico' });
+    .setFooter({ text: 'Arborisis', iconURL: 'https://arborisis.com/favicon.ico' });
 }
 
 function buildSoundEmbed(sound, user) {
   return baseEmbed()
     .setTitle(`🌿 ${sound.title}`)
-    .setURL(`https://<redacted>.com/sounds/${sound.slug}`)
+    .setURL(`https://arborisis.com/sounds/${sound.slug}`)
     .setDescription(sound.description || 'Aucune description')
     .setColor(COLORS.primary)
     .addFields(
@@ -26,7 +26,7 @@ function buildSoundEmbed(sound, user) {
       { name: 'Durée', value: sound.duration ? `${Math.floor(sound.duration / 60)}:${String(sound.duration % 60).padStart(2, '0')}` : 'N/A', inline: true },
       { name: 'Licence', value: sound.license || 'N/A', inline: true },
     )
-    .setImage(sound.cover_image ? `https://<redacted>.com/storage/${sound.cover_image}` : null);
+    .setImage(sound.cover_image ? `https://arborisis.com/storage/${sound.cover_image}` : null);
 }
 
 function buildNotificationEmbed(title, description, color = 'primary') {

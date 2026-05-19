@@ -2,7 +2,7 @@
 set -eu
 
 ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
-APP_DIR="${APP_DIR:-<redacted>}"
+APP_DIR="${APP_DIR:-arborisis}"
 APP_PATH="$ROOT_DIR/$APP_DIR"
 REMOTE_SCRIPT="$ROOT_DIR/.gitlab/deploy/remote-release.sh"
 

@@ -5,7 +5,7 @@ import { ssrRenderAttrs } from "vue/server-renderer";
 var _sfc_main = {};
 function _sfc_ssrRender(_ctx, _push, _parent, _attrs) {
 	_push(`<img${ssrRenderAttrs(mergeProps({
-		src: "/images/<redacted>-site-logo-white.svg",
+		src: "/images/arborisis-site-logo-white.svg",
 		alt: "Arborisis"
 	}, _attrs))}>`);
 }

@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: '<redacted>-discord-bot',
+      name: 'arborisis-discord-bot',
       script: './src/index.js',
       cwd: __dirname,
       instances: 1,

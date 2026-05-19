@@ -386,7 +386,7 @@ var _sfc_main = {
 							}),
 							_: 1
 						}, _parent, _scopeId));
-						_push(ssrRenderComponent(_sfc_main$3, { href: _ctx.route("<redacted>-map.index") }, {
+						_push(ssrRenderComponent(_sfc_main$3, { href: _ctx.route("arborisis-map.index") }, {
 							default: withCtx((_, _push, _parent, _scopeId) => {
 								if (_push) _push(`<span class="flex items-center gap-2"${_scopeId}><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"${_scopeId}><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"${_scopeId}></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"${_scopeId}></path></svg> Carte des visites </span>`);
 								else return [createVNode("span", { class: "flex items-center gap-2" }, [(openBlock(), createBlock("svg", {
@@ -437,7 +437,7 @@ var _sfc_main = {
 							})])), createTextVNode(" Carte des sons ")])]),
 							_: 1
 						}, 8, ["href"]),
-						createVNode(_sfc_main$3, { href: _ctx.route("<redacted>-map.index") }, {
+						createVNode(_sfc_main$3, { href: _ctx.route("arborisis-map.index") }, {
 							default: withCtx(() => [createVNode("span", { class: "flex items-center gap-2" }, [(openBlock(), createBlock("svg", {
 								class: "w-4 h-4",
 								fill: "none",
@@ -650,8 +650,8 @@ var _sfc_main = {
 				_: 1
 			}, _parent));
 			_push(ssrRenderComponent(_sfc_main$1, {
-				href: _ctx.route("<redacted>-map.index"),
-				active: _ctx.route().current("<redacted>-map.index")
+				href: _ctx.route("arborisis-map.index"),
+				active: _ctx.route().current("arborisis-map.index")
 			}, {
 				default: withCtx((_, _push, _parent, _scopeId) => {
 					if (_push) _push(` Carte communauté `);

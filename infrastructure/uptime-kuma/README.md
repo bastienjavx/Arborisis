@@ -2,7 +2,7 @@
 
 ## Vue d'ensemble
 
-Ce dossier contient l'infrastructure pour déployer **Uptime Kuma** et monitorer l'ensemble des endpoints Arborisis sur `status.<redacted>.com`.
+Ce dossier contient l'infrastructure pour déployer **Uptime Kuma** et monitorer l'ensemble des endpoints Arborisis sur `status.arborisis.com`.
 
 ---
 
@@ -11,7 +11,7 @@ Ce dossier contient l'infrastructure pour déployer **Uptime Kuma** et monitorer
 ### 1. Lancer Uptime Kuma (Docker)
 
 ```bash
-cd /var/www/<redacted>/infrastructure/uptime-kuma
+cd /var/www/arborisis/infrastructure/uptime-kuma
 docker compose up -d
 ```
 
@@ -20,8 +20,8 @@ Uptime Kuma est accessible localement sur `http://127.0.0.1:3001`.
 ### 2. Configurer Nginx (reverse proxy)
 
 ```bash
-sudo cp nginx-status.conf /etc/nginx/sites-available/status.<redacted>.com
-sudo ln -s /etc/nginx/sites-available/status.<redacted>.com /etc/nginx/sites-enabled/
+sudo cp nginx-status.conf /etc/nginx/sites-available/status.arborisis.com
+sudo ln -s /etc/nginx/sites-available/status.arborisis.com /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl reload nginx
 ```
@@ -29,19 +29,19 @@ sudo systemctl reload nginx
 ### 3. SSL (Certbot)
 
 ```bash
-sudo certbot --nginx -d status.<redacted>.com
+sudo certbot --nginx -d status.arborisis.com
 ```
 
 ### 4. Créer le compte admin Uptime Kuma
 
-Rendez-vous sur `https://status.<redacted>.com` et créez le compte administrateur lors du premier démarrage.
+Rendez-vous sur `https://status.arborisis.com` et créez le compte administrateur lors du premier démarrage.
 
 ### 5. Créer la Status Page publique
 
 Dans l'UI Uptime Kuma :
 
 1. Allez dans **Status Pages → New Status Page**
-2. **Slug** : `<redacted>` (l'URL sera `https://status.<redacted>.com/status/<redacted>`)
+2. **Slug** : `arborisis` (l'URL sera `https://status.arborisis.com/status/arborisis`)
 3. **Titre** : `Arborisis — Statut des services`
 4. **Description** : `Suivi en temps réel de la disponibilité des services Arborisis.`
 5. Ajoutez tous les monitors importés ci-dessous dans la page
@@ -52,7 +52,7 @@ Dans l'UI Uptime Kuma :
 #### Option A — Script automatisé (recommandé)
 
 ```bash
-export UK_HOST=https://status.<redacted>.com
+export UK_HOST=https://status.arborisis.com
 export UK_USERNAME=admin
 export UK_PASSWORD=<votre_mot_de_passe>
 export DISCORD_INTERNAL_API_TOKEN=<token_du_.env>
@@ -79,7 +79,7 @@ Depuis l'UI Uptime Kuma : **Settings → Backup → Import** (format JSON de bac
 | API — Radio Now Playing | `GET /api/radio/now-playing` | 60s | ✅ Oui |
 | Creators Page | `GET /creators` | 120s | — |
 | API — Scientific Stats | `GET /api/scientific-stats/global` | 120s | — |
-| API — Arborisis Points | `GET /api/<redacted>-points` | 120s | — |
+| API — Arborisis Points | `GET /api/arborisis-points` | 120s | — |
 | API — Quests | `GET /api/quests` | 120s | — |
 | API — Achievements | `GET /api/achievements` | 120s | — |
 | API — Medals | `GET /api/medals` | 120s | — |
@@ -111,7 +111,7 @@ L'endpoint natif `GET /up` de Laravel reste disponible en fallback.
 ### Mettre à jour Uptime Kuma
 
 ```bash
-cd /var/www/<redacted>/infrastructure/uptime-kuma
+cd /var/www/arborisis/infrastructure/uptime-kuma
 docker compose pull
 docker compose up -d
 ```
@@ -144,13 +144,13 @@ docker logs -f uptime-kuma
 Internet
     │
     ▼
-status.<redacted>.com (HTTPS / Nginx)
+status.arborisis.com (HTTPS / Nginx)
     │
     ▼
 127.0.0.1:3001 (Uptime Kuma Docker)
     │
-    ├───> GET https://<redacted>.com/up
-    ├───> GET https://<redacted>.com/api/map/sounds
-    ├───> GET https://<redacted>.com/api/radio/now-playing
+    ├───> GET https://arborisis.com/up
+    ├───> GET https://arborisis.com/api/map/sounds
+    ├───> GET https://arborisis.com/api/radio/now-playing
     └───> ... (tous les endpoints ci-dessus)
 ```

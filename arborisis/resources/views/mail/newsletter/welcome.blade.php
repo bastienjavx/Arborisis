@@ -1,4 +1,4 @@
-@extends('mail.layouts.<redacted>', ['subject' => 'Bienvenue dans la communauté Arborisis'])
+@extends('mail.layouts.arborisis', ['subject' => 'Bienvenue dans la communauté Arborisis'])
 
 @section('content')
 <!-- Hero illustration -->

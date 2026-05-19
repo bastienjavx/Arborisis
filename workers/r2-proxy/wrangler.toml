@@ -1,11 +1,11 @@
-name = "<redacted>-r2-proxy"
+name = "arborisis-r2-proxy"
 main = "src/index.ts"
 compatibility_date = "2026-05-10"
 account_id = "bc36459259b257fdbaf4252f06bcb690"
 
 [[r2_buckets]]
 binding = "ARBORISIS_BUCKET"
-bucket_name = "<redacted>"
+bucket_name = "arborisis"
 
 [vars]
 # SIGNING_KEY doit être définie via wrangler secret ou [vars] en dev

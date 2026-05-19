@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed, watch } from 'vue';
 
-const STORAGE_KEY = '<redacted>-player-state';
+const STORAGE_KEY = 'arborisis-player-state';
 
 function loadState() {
     try {
@@ -44,7 +44,7 @@ export const usePlayerStore = defineStore('player', () => {
             return;
         }
 
-        window.dispatchEvent(new CustomEvent('<redacted>:play-sound', {
+        window.dispatchEvent(new CustomEvent('arborisis:play-sound', {
             detail: { sound },
         }));
     }

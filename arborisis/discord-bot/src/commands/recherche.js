@@ -28,7 +28,7 @@ module.exports = {
         .setTitle(`🔍 Résultats pour « ${query} »`)
         .setColor(COLORS.info)
         .setDescription(data.map((sound, i) =>
-          `${i + 1}. **[${sound.title}](https://<redacted>.com/sounds/${sound.slug})** — ${sound.duration ? Math.floor(sound.duration / 60) + ':' + String(sound.duration % 60).padStart(2, '0') : 'N/A'}`
+          `${i + 1}. **[${sound.title}](https://arborisis.com/sounds/${sound.slug})** — ${sound.duration ? Math.floor(sound.duration / 60) + ':' + String(sound.duration % 60).padStart(2, '0') : 'N/A'}`
         ).join('\n'))
         .setFooter({ text: `${data.length} résultat(s)` })
         .setTimestamp();

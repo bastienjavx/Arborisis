@@ -1,4 +1,4 @@
-@extends('mail.layouts.<redacted>', ['subject' => 'Confirmez votre adresse e-mail'])
+@extends('mail.layouts.arborisis', ['subject' => 'Confirmez votre adresse e-mail'])
 
 @section('content')
 <!-- Hero icon -->

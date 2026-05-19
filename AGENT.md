@@ -61,7 +61,7 @@
 
 | Sous-système | Technologie | Localisation |
 |--------------|-------------|--------------|
-| **Discord Bot** | Node.js 20+, discord.js 14, Express | `<redacted>/discord-bot/` |
+| **Discord Bot** | Node.js 20+, discord.js 14, Express | `arborisis/discord-bot/` |
 | **Audio Analyzer** | Python 3.10, FastAPI, librosa, BirdNET, FFmpeg | `services/audio-analyzer/` |
 | **Radio streaming** | Icecast + Liquidsoap (externe) | VPS séparé possible |
 | **Orchestration analyse** | Cloudflare Worker + Queue | `workers/audio-analysis-orchestrator/` |
@@ -74,7 +74,7 @@
 ### Structure du repository
 
 ```
-<redacted>/                          ← Racine Git
+arborisis/                          ← Racine Git
 ├── AGENT.md                        ← Ce fichier
 ├── AGENTS.md                       ← Règles rapides (ne pas supprimer)
 ├── ARCHITECTURE.md                 ← Architecture initiale (référence)
@@ -96,7 +96,7 @@
 ├── workers/
 │   ├── audio-analysis-orchestrator/
 │   └── r2-proxy/
-└── <redacted>/                      ← Application Laravel (dossier principal)
+└── arborisis/                      ← Application Laravel (dossier principal)
     ├── app/
     │   ├── Console/Commands/       ← Commandes artisan (sitemap, radio, etc.)
     │   ├── Enums/                  ← 30+ enums PHP
@@ -238,7 +238,7 @@
 
 #### User
 - **Rôle** : Compte central. Auth + rôle enum + gamification fields (`xp_total`, `level`, `current_streak`, `longest_streak`, `geo_consent_given_at`)
-- **Relations** : `profile` (1-1), `sounds`, `likes`, `comments`, `following`/`followers` (N-N via `follows`), `wallet`, `echoTransactions`, `discordAccount`, `<redacted>Points`, `<redacted>Visits`, `questProgress`, `achievements`, `medals`, `xpEvents`, `chatRooms`, `chatConversations`
+- **Relations** : `profile` (1-1), `sounds`, `likes`, `comments`, `following`/`followers` (N-N via `follows`), `wallet`, `echoTransactions`, `discordAccount`, `arborisisPoints`, `arborisisVisits`, `questProgress`, `achievements`, `medals`, `xpEvents`, `chatRooms`, `chatConversations`
 - **Règles** : Soft delete. Slug auto-généré. Email verification obligatoire pour actions sensibles. Peut accéder à Filament si `isModerator()`.
 
 #### Profile
@@ -362,7 +362,7 @@
 - `GET /` — Landing
 - `GET /sounds`, `/sounds/{slug}`, `/sounds/create`, `POST /sounds` — Sons
 - `GET /map` — Carte sons
-- `GET /<redacted>-map` — Carte gamification (auth)
+- `GET /arborisis-map` — Carte gamification (auth)
 - `GET /creators`, `/creators/{slug}` — Profils créateurs
 - `GET /radio`, `/radio/c/{channel}`, `/radio/stream`, `/radio/stream.m3u` — Radio
 - `GET /blog/{slug}` — Blog
@@ -378,7 +378,7 @@
 - `GET /api/map/sounds` — GeoJSON sons publics
 - `GET /api/map/sounds/search` — Recherche carte
 - `GET /api/health`, `/api/health/radio` — Healthchecks
-- Gamification sous `/api/<redacted>-points`, `/api/quests`, `/api/achievements`, `/api/medals`, `/api/me/*`, `/api/presence/*`, `/api/nearby/*`, `/api/group-events/*`
+- Gamification sous `/api/arborisis-points`, `/api/quests`, `/api/achievements`, `/api/medals`, `/api/me/*`, `/api/presence/*`, `/api/nearby/*`, `/api/group-events/*`
 - Radio interne sous `/api/internal/radio/*` (token protégé)
 - Discord interne sous `/api/internal/discord/*` (token + throttle)
 - Audio analysis callback `POST /api/internal/audio-analysis/callback`
@@ -552,7 +552,7 @@
 
 **ECHO** : `wallets`, `echo_transactions`, `echo_donations`
 
-**Gamification** : `<redacted>_points`, `<redacted>_visits`, `point_reports`, `point_suggestions`, `quests`, `quest_progress`, `achievements`, `user_achievements`, `medals`, `user_medals`, `xp_events`, `user_presences`, `nearby_interactions`, `group_recording_events`, `group_recording_participants`
+**Gamification** : `arborisis_points`, `arborisis_visits`, `point_reports`, `point_suggestions`, `quests`, `quest_progress`, `achievements`, `user_achievements`, `medals`, `user_medals`, `xp_events`, `user_presences`, `nearby_interactions`, `group_recording_events`, `group_recording_participants`
 
 **Audio Analysis** : `sound_analyses`, `sound_visualizations`, `birdnet_detections`
 
@@ -690,7 +690,7 @@
 - **Méthode** : SSH + rsync avec releases
 - **Structure** :
   ```
-  /var/www/<redacted>/
+  /var/www/arborisis/
   ├── current → releases/main-xxx-yyy
   ├── releases/
   └── shared/
@@ -712,12 +712,12 @@
 
 ### Workers queue (Supervisor)
 ```ini
-command=php /var/www/<redacted>/current/artisan queue:work redis --sleep=3 --tries=3 --timeout=120
+command=php /var/www/arborisis/current/artisan queue:work redis --sleep=3 --tries=3 --timeout=120
 ```
 
 ### Scheduler Laravel
 ```bash
-* * * * * cd /var/www/<redacted>/current && php artisan schedule:run >> /dev/null 2>&1
+* * * * * cd /var/www/arborisis/current && php artisan schedule:run >> /dev/null 2>&1
 ```
 
 ### Post-déploiement
@@ -771,7 +771,7 @@ php artisan queue:restart  # si RUN_QUEUE_RESTART=true
 
 ```bash
 # Installation
-cd <redacted>
+cd arborisis
 composer install
 npm install
 cp .env.example .env

@@ -1,4 +1,4 @@
-name: <redacted>
+name: arborisis
 
 services:
   nginx:
@@ -27,13 +27,13 @@ services:
 
   app:
     build:
-      context: ../../<redacted>
+      context: ../../arborisis
       dockerfile: Dockerfile
-    image: <redacted>/laravel:${ARBORISIS_IMAGE_TAG:-local}
+    image: arborisis/laravel:${ARBORISIS_IMAGE_TAG:-local}
     restart: unless-stopped
     profiles: ["web"]
     env_file:
-      - ${ARBORISIS_APP_ENV_FILE:-../../<redacted>/.env}
+      - ${ARBORISIS_APP_ENV_FILE:-../../arborisis/.env}
     environment:
       APP_ENV: ${APP_ENV:-production}
       APP_DEBUG: ${APP_DEBUG:-false}
@@ -62,12 +62,12 @@ services:
       - data
 
   ssr:
-    image: <redacted>/laravel:${ARBORISIS_IMAGE_TAG:-local}
+    image: arborisis/laravel:${ARBORISIS_IMAGE_TAG:-local}
     restart: unless-stopped
     profiles: ["web"]
     command: php artisan inertia:start-ssr
     env_file:
-      - ${ARBORISIS_APP_ENV_FILE:-../../<redacted>/.env}
+      - ${ARBORISIS_APP_ENV_FILE:-../../arborisis/.env}
     environment:
       APP_ENV: ${APP_ENV:-production}
       APP_DEBUG: ${APP_DEBUG:-false}
@@ -81,12 +81,12 @@ services:
       - app
 
   queue:
-    image: <redacted>/laravel:${ARBORISIS_IMAGE_TAG:-local}
+    image: arborisis/laravel:${ARBORISIS_IMAGE_TAG:-local}
     restart: unless-stopped
     profiles: ["workers"]
     command: php artisan queue:work redis --queue=high,default,discord,low --sleep=1 --tries=3 --timeout=360
     env_file:
-      - ${ARBORISIS_APP_ENV_FILE:-../../<redacted>/.env}
+      - ${ARBORISIS_APP_ENV_FILE:-../../arborisis/.env}
     environment:
       APP_ENV: ${APP_ENV:-production}
       APP_DEBUG: ${APP_DEBUG:-false}
@@ -105,12 +105,12 @@ services:
       - data
 
   scheduler:
-    image: <redacted>/laravel:${ARBORISIS_IMAGE_TAG:-local}
+    image: arborisis/laravel:${ARBORISIS_IMAGE_TAG:-local}
     restart: unless-stopped
     profiles: ["workers"]
     command: sh -c 'while true; do php artisan schedule:run --no-interaction; sleep 60; done'
     env_file:
-      - ${ARBORISIS_APP_ENV_FILE:-../../<redacted>/.env}
+      - ${ARBORISIS_APP_ENV_FILE:-../../arborisis/.env}
     environment:
       APP_ENV: ${APP_ENV:-production}
       APP_DEBUG: ${APP_DEBUG:-false}
@@ -131,12 +131,12 @@ services:
       - data
 
   reverb:
-    image: <redacted>/laravel:${ARBORISIS_IMAGE_TAG:-local}
+    image: arborisis/laravel:${ARBORISIS_IMAGE_TAG:-local}
     restart: unless-stopped
     profiles: ["web"]
     command: php artisan reverb:start --host=0.0.0.0 --port=8080
     env_file:
-      - ${ARBORISIS_APP_ENV_FILE:-../../<redacted>/.env}
+      - ${ARBORISIS_APP_ENV_FILE:-../../arborisis/.env}
     environment:
       APP_ENV: ${APP_ENV:-production}
       APP_DEBUG: ${APP_DEBUG:-false}
@@ -162,13 +162,13 @@ services:
 
   discord-bot:
     build:
-      context: ../../<redacted>/discord-bot
+      context: ../../arborisis/discord-bot
       dockerfile: Dockerfile
-    image: <redacted>/discord-bot:${ARBORISIS_IMAGE_TAG:-local}
+    image: arborisis/discord-bot:${ARBORISIS_IMAGE_TAG:-local}
     restart: unless-stopped
     profiles: ["workers"]
     env_file:
-      - ${ARBORISIS_DISCORD_ENV_FILE:-../../<redacted>/discord-bot/.env}
+      - ${ARBORISIS_DISCORD_ENV_FILE:-../../arborisis/discord-bot/.env}
     environment:
       DISCORD_BOT_HOST: 0.0.0.0
       DISCORD_BOT_PORT: 3001
@@ -193,15 +193,15 @@ services:
     restart: unless-stopped
     profiles: ["data"]
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-<redacted>}
-      POSTGRES_USER: ${POSTGRES_USER:-<redacted>}
+      POSTGRES_DB: ${POSTGRES_DB:-arborisis}
+      POSTGRES_USER: ${POSTGRES_USER:-arborisis}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
     ports:
       - "${POSTGRES_BIND_ADDR:-127.0.0.1}:5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-<redacted>} -d ${POSTGRES_DB:-<redacted>}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-arborisis} -d ${POSTGRES_DB:-arborisis}"]
       interval: 30s
       timeout: 5s
       retries: 5

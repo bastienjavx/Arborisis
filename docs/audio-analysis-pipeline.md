@@ -127,7 +127,7 @@ sounds/analysis/{sound_id}/summary.json
 ### Laravel (.env)
 
 ```env
-ANALYZER_URL=https://analyzer.<redacted>.com
+ANALYZER_URL=https://analyzer.arborisis.com
 ANALYZER_SECRET=<256-bit-token>
 ANALYZER_INTERNAL_API_TOKEN=<256-bit-token>
 AUDIO_MAX_DURATION=600
@@ -138,12 +138,12 @@ AUDIO_MAX_FILE_SIZE_MB=500
 
 ```env
 ANALYZER_SECRET=<same-as-laravel>
-LARAVEL_API_URL=https://<redacted>.com
+LARAVEL_API_URL=https://arborisis.com
 LARAVEL_API_SECRET=<same-as-laravel>
 R2_ENDPOINT=...
 R2_ACCESS_KEY_ID=...
 R2_SECRET_ACCESS_KEY=...
-R2_BUCKET=<redacted>
+R2_BUCKET=arborisis
 BIRDNET_CONFIDENCE_THRESHOLD=0.5
 ```
 
@@ -160,7 +160,7 @@ ANALYZER_SECRET
 - [ ] `php artisan migrate`
 
 ### Phase 2 — Service Python / Containers
-- [ ] `cd services/audio-analyzer && docker build -t <redacted>-audio-analyzer .`
+- [ ] `cd services/audio-analyzer && docker build -t arborisis-audio-analyzer .`
 - [ ] Déployer `workers/audio-analyzer-container/` avec `wrangler deploy`
 - [ ] Configurer les secrets Containers (`ANALYZER_SECRET`, `LARAVEL_API_SECRET`, R2...)
 - [ ] Vérifier `/health`

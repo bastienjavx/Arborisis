@@ -34,7 +34,7 @@ let interval = null;
 const form = useForm({
     public_stream_url: props.station.public_stream_url ?? '',
     icecast_base_url: props.station.icecast_base_url ?? '',
-    icecast_mount: props.station.icecast_mount ?? '/<redacted>.mp3',
+    icecast_mount: props.station.icecast_mount ?? '/arborisis.mp3',
     crossfade_seconds: props.station.crossfade_seconds ?? 4,
     dj_enabled: props.station.dj_enabled ?? true,
     dj_announcement_frequency: props.station.dj_announcement_frequency ?? 3,

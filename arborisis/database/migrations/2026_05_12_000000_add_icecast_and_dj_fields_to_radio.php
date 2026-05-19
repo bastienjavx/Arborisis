@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('engine', 30)->default('icecast')->after('station_name');
             $table->string('public_stream_url')->nullable()->after('engine');
             $table->string('icecast_base_url')->nullable()->after('public_stream_url');
-            $table->string('icecast_mount')->default('/<redacted>.mp3')->after('icecast_base_url');
+            $table->string('icecast_mount')->default('/arborisis.mp3')->after('icecast_base_url');
             $table->unsignedInteger('crossfade_seconds')->default(4)->after('gap_ms');
             $table->boolean('dj_enabled')->default(true)->after('loop_enabled');
             $table->unsignedSmallInteger('dj_announcement_frequency')->default(3)->after('dj_enabled');

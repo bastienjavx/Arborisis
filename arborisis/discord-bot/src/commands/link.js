@@ -21,7 +21,7 @@ module.exports = {
         .setTitle('🔗 Liaison de compte')
         .setDescription(
           'Pour lier votre compte Discord à Arborisis :\n\n' +
-          '1. Connectez-vous sur [Arborisis](https://<redacted>.com)\n' +
+          '1. Connectez-vous sur [Arborisis](https://arborisis.com)\n' +
           '2. Allez dans votre profil → Discord\n' +
           '3. Cliquez sur « Connecter Discord »\n\n' +
           'Ou utilisez `/link <code>` si vous avez généré un code sur le site.'

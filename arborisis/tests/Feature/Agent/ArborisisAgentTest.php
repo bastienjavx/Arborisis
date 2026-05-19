@@ -46,8 +46,8 @@ it('returns a job id immediately', function () {
 it('enforces Sylve daily chat quota before dispatching OpenRouter work', function () {
     Queue::fake();
 
-    config()->set('services.<redacted>_agent.rate_limit_per_minute', 10);
-    config()->set('services.<redacted>_agent.daily_quota', 2);
+    config()->set('services.arborisis_agent.rate_limit_per_minute', 10);
+    config()->set('services.arborisis_agent.daily_quota', 2);
 
     $user = User::factory()->create();
 
@@ -70,8 +70,8 @@ it('enforces Sylve daily chat quota before dispatching OpenRouter work', functio
 it('enforces Sylve burst rate limit before dispatching OpenRouter work', function () {
     Queue::fake();
 
-    config()->set('services.<redacted>_agent.rate_limit_per_minute', 1);
-    config()->set('services.<redacted>_agent.daily_quota', 10);
+    config()->set('services.arborisis_agent.rate_limit_per_minute', 1);
+    config()->set('services.arborisis_agent.daily_quota', 10);
 
     $user = User::factory()->create();
 

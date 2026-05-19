@@ -22,7 +22,7 @@ describe('check-in', function () {
         ]);
 
         $response = $this->actingAs($this->user)
-            ->postJson("/api/<redacted>-points/{$point->slug}/visit", [
+            ->postJson("/api/arborisis-points/{$point->slug}/visit", [
                 'latitude' => 48.8567,
                 'longitude' => 2.3523,
                 'accuracy' => 10,
@@ -32,9 +32,9 @@ describe('check-in', function () {
         $response->assertStatus(200)
             ->assertJsonPath('visit.distance', fn ($d) => $d < 100);
 
-        $this->assertDatabaseHas('<redacted>_visits', [
+        $this->assertDatabaseHas('arborisis_visits', [
             'user_id' => $this->user->id,
-            '<redacted>_point_id' => $point->id,
+            'arborisis_point_id' => $point->id,
             'status' => 'valid',
         ]);
     });
@@ -47,7 +47,7 @@ describe('check-in', function () {
         ]);
 
         $response = $this->actingAs($this->user)
-            ->postJson("/api/<redacted>-points/{$point->slug}/visit", [
+            ->postJson("/api/arborisis-points/{$point->slug}/visit", [
                 'latitude' => 49.0,
                 'longitude' => 3.0,
                 'accuracy' => 10,
@@ -64,7 +64,7 @@ describe('check-in', function () {
         ]);
 
         $response = $this->actingAs($this->user)
-            ->postJson("/api/<redacted>-points/{$point->slug}/visit", [
+            ->postJson("/api/arborisis-points/{$point->slug}/visit", [
                 'latitude' => 48.8566,
                 'longitude' => 2.3522,
                 'consent_given' => false,

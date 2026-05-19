@@ -129,22 +129,22 @@ Route::prefix('internal/discord')
 
 // Gamification — Arborisis Points
 Route::middleware(['throttle:60,1'])->group(function () {
-    Route::get('/<redacted>-points', [ArborisisPointController::class, 'index'])->name('api.<redacted>-points.index');
-    Route::get('/<redacted>-points/nearby', [ArborisisPointController::class, 'nearby'])->name('api.<redacted>-points.nearby');
-    Route::get('/<redacted>-points/{<redacted>Point:slug}', [ArborisisPointController::class, 'show'])->name('api.<redacted>-points.show');
+    Route::get('/arborisis-points', [ArborisisPointController::class, 'index'])->name('api.arborisis-points.index');
+    Route::get('/arborisis-points/nearby', [ArborisisPointController::class, 'nearby'])->name('api.arborisis-points.nearby');
+    Route::get('/arborisis-points/{arborisisPoint:slug}', [ArborisisPointController::class, 'show'])->name('api.arborisis-points.show');
 });
 
 Route::middleware(['web', 'auth', 'throttle:30,1'])->group(function () {
-    Route::post('/<redacted>-points', [ArborisisPointController::class, 'store'])->name('api.<redacted>-points.store');
-    Route::put('/<redacted>-points/{<redacted>Point:slug}', [ArborisisPointController::class, 'update'])->name('api.<redacted>-points.update');
-    Route::delete('/<redacted>-points/{<redacted>Point:slug}', [ArborisisPointController::class, 'destroy'])->name('api.<redacted>-points.destroy');
-    Route::post('/<redacted>-points/{<redacted>Point:slug}/report', [ArborisisPointController::class, 'report'])->name('api.<redacted>-points.report');
-    Route::post('/<redacted>-points/{<redacted>Point:slug}/suggest-edit', [ArborisisPointController::class, 'suggestEdit'])->name('api.<redacted>-points.suggest-edit');
+    Route::post('/arborisis-points', [ArborisisPointController::class, 'store'])->name('api.arborisis-points.store');
+    Route::put('/arborisis-points/{arborisisPoint:slug}', [ArborisisPointController::class, 'update'])->name('api.arborisis-points.update');
+    Route::delete('/arborisis-points/{arborisisPoint:slug}', [ArborisisPointController::class, 'destroy'])->name('api.arborisis-points.destroy');
+    Route::post('/arborisis-points/{arborisisPoint:slug}/report', [ArborisisPointController::class, 'report'])->name('api.arborisis-points.report');
+    Route::post('/arborisis-points/{arborisisPoint:slug}/suggest-edit', [ArborisisPointController::class, 'suggestEdit'])->name('api.arborisis-points.suggest-edit');
 });
 
 // Gamification — Visits
 Route::middleware(['web', 'auth', 'throttle:30,1'])->group(function () {
-    Route::post('/<redacted>-points/{<redacted>Point:slug}/visit', [ArborisisVisitController::class, 'visit'])->name('api.<redacted>-points.visit');
+    Route::post('/arborisis-points/{arborisisPoint:slug}/visit', [ArborisisVisitController::class, 'visit'])->name('api.arborisis-points.visit');
     Route::get('/me/visits', [ArborisisVisitController::class, 'history'])->name('api.me.visits');
     Route::get('/me/visited-points', [ArborisisVisitController::class, 'visitedPoints'])->name('api.me.visited-points');
 });
@@ -229,14 +229,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 // Gamification — Admin Moderation
 Route::middleware(['web', 'auth', 'throttle:60,1'])->prefix('admin')->group(function () {
-    Route::get('/<redacted>-points/pending', [AdminArborisisPointController::class, 'pending'])->name('api.admin.<redacted>-points.pending');
-    Route::post('/<redacted>-points/{<redacted>Point:slug}/approve', [AdminArborisisPointController::class, 'approve'])->name('api.admin.<redacted>-points.approve');
-    Route::post('/<redacted>-points/{<redacted>Point:slug}/reject', [AdminArborisisPointController::class, 'reject'])->name('api.admin.<redacted>-points.reject');
-    Route::post('/<redacted>-points/{<redacted>Point:slug}/hide', [AdminArborisisPointController::class, 'hide'])->name('api.admin.<redacted>-points.hide');
-    Route::get('/<redacted>-points/reports', [AdminArborisisPointController::class, 'reports'])->name('api.admin.<redacted>-points.reports');
-    Route::post('/<redacted>-points/reports/{report}', [AdminArborisisPointController::class, 'reviewReport'])->name('api.admin.<redacted>-points.reports.review');
-    Route::get('/<redacted>-points/suggestions', [AdminArborisisPointController::class, 'suggestions'])->name('api.admin.<redacted>-points.suggestions');
-    Route::post('/<redacted>-points/suggestions/{suggestion}', [AdminArborisisPointController::class, 'reviewSuggestion'])->name('api.admin.<redacted>-points.suggestions.review');
+    Route::get('/arborisis-points/pending', [AdminArborisisPointController::class, 'pending'])->name('api.admin.arborisis-points.pending');
+    Route::post('/arborisis-points/{arborisisPoint:slug}/approve', [AdminArborisisPointController::class, 'approve'])->name('api.admin.arborisis-points.approve');
+    Route::post('/arborisis-points/{arborisisPoint:slug}/reject', [AdminArborisisPointController::class, 'reject'])->name('api.admin.arborisis-points.reject');
+    Route::post('/arborisis-points/{arborisisPoint:slug}/hide', [AdminArborisisPointController::class, 'hide'])->name('api.admin.arborisis-points.hide');
+    Route::get('/arborisis-points/reports', [AdminArborisisPointController::class, 'reports'])->name('api.admin.arborisis-points.reports');
+    Route::post('/arborisis-points/reports/{report}', [AdminArborisisPointController::class, 'reviewReport'])->name('api.admin.arborisis-points.reports.review');
+    Route::get('/arborisis-points/suggestions', [AdminArborisisPointController::class, 'suggestions'])->name('api.admin.arborisis-points.suggestions');
+    Route::post('/arborisis-points/suggestions/{suggestion}', [AdminArborisisPointController::class, 'reviewSuggestion'])->name('api.admin.arborisis-points.suggestions.review');
 
     // SoundWalks moderation
     Route::get('/sound-walks/pending', [\App\Http\Controllers\Api\Gamification\AdminSoundWalkController::class, 'pending'])->name('api.admin.sound-walks.pending');

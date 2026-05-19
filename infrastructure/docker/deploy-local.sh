@@ -39,8 +39,8 @@ case "$ROLE" in
     backup)
         mkdir -p backups
         stamp="$(date -u +%Y%m%dT%H%M%SZ)"
-        compose exec -T postgres pg_dump -U "${POSTGRES_USER:-<redacted>}" -d "${POSTGRES_DB:-<redacted>}" -Fc > "backups/<redacted>-$stamp.dump"
-        echo "Created backups/<redacted>-$stamp.dump"
+        compose exec -T postgres pg_dump -U "${POSTGRES_USER:-arborisis}" -d "${POSTGRES_DB:-arborisis}" -Fc > "backups/arborisis-$stamp.dump"
+        echo "Created backups/arborisis-$stamp.dump"
         ;;
 
     migrate)

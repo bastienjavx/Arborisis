@@ -13,7 +13,7 @@ return new class extends Migration
         Schema::create('sound_walk_points', function (Blueprint $table) {
             $table->id();
             $table->foreignId('sound_walk_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('<redacted>_point_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('arborisis_point_id')->nullable()->constrained()->nullOnDelete();
             $table->string('title')->nullable();
             $table->text('description')->nullable();
             $table->decimal('latitude', 10, 8);
@@ -23,7 +23,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index('sound_walk_id');
-            $table->index('<redacted>_point_id');
+            $table->index('arborisis_point_id');
             $table->unique(['sound_walk_id', 'order']);
         });
     }

@@ -80,13 +80,13 @@ it('does not return a private sound from the internal Discord detail endpoint', 
 });
 
 it('removes scripts dangerous attributes and unsafe urls from blog html', function () {
-    $dirty = '<article><h2 onclick="alert(1)">Titre</h2><script>alert(1)</script><p><a href="javascript:alert(1)" data-<redacted>-type="sound" data-<redacted>-id="1" onclick="alert(1)">son</a></p></article>';
+    $dirty = '<article><h2 onclick="alert(1)">Titre</h2><script>alert(1)</script><p><a href="javascript:alert(1)" data-arborisis-type="sound" data-arborisis-id="1" onclick="alert(1)">son</a></p></article>';
 
     $clean = app(BlogHtmlSanitizer::class)->sanitize($dirty);
 
     expect($clean)
         ->toContain('<article>')
-        ->toContain('data-<redacted>-type="sound"')
+        ->toContain('data-arborisis-type="sound"')
         ->not->toContain('<script')
         ->not->toContain('onclick')
         ->not->toContain('javascript:');

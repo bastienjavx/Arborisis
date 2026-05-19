@@ -35,7 +35,7 @@ it('returns nearby approved public points', function () {
         'nature_sensitivity_level' => NatureSensitivityLevel::Normal,
     ]);
 
-    $response = $this->getJson('/api/<redacted>-points/nearby?lat=48.8566&lng=2.3522&radius=10')
+    $response = $this->getJson('/api/arborisis-points/nearby?lat=48.8566&lng=2.3522&radius=10')
         ->assertOk();
 
     $features = $response->json('features');
@@ -46,7 +46,7 @@ it('returns nearby approved public points', function () {
 });
 
 it('validates latitude and longitude', function () {
-    $this->getJson('/api/<redacted>-points/nearby?lat=999&lng=2.3522')
+    $this->getJson('/api/arborisis-points/nearby?lat=999&lng=2.3522')
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['lat']);
 });

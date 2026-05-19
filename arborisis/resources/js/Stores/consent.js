@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed, watch } from 'vue';
 
-const STORAGE_KEY = '<redacted>-consent';
+const STORAGE_KEY = 'arborisis-consent';
 
 function loadConsent() {
     try {

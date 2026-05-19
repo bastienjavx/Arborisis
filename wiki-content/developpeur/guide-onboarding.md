@@ -18,8 +18,8 @@ Arborisis est une plateforme sociale premium de field recording nature. Stack : 
 ### 1. Cloner le repo
 
 ```bash
-git clone <repo-url> <redacted>
-cd <redacted>/<redacted>
+git clone <repo-url> arborisis
+cd arborisis/arborisis
 ```
 
 ### 2. Installer les dépendances
@@ -42,8 +42,8 @@ APP_URL=http://localhost:8000
 DB_CONNECTION=pgsql
 DB_HOST=localhost
 DB_PORT=5432
-DB_DATABASE=<redacted>
-DB_USERNAME=<redacted>
+DB_DATABASE=arborisis
+DB_USERNAME=arborisis
 DB_PASSWORD=secret
 
 REDIS_HOST=localhost
@@ -61,7 +61,7 @@ CONTABO_S3_SECRET=...
 
 ```bash
 # Créer la DB et l'utilisateur
-createdb <redacted>
+createdb arborisis
 
 # Migrations + seeders
 php artisan migrate
@@ -196,7 +196,7 @@ resources/js/
 
 - **Lead Tech** : [à compléter]
 - **Channel Discord dev** : [à compléter]
-- **Documentation** : ce wiki (`wiki.<redacted>.com`)
+- **Documentation** : ce wiki (`wiki.arborisis.com`)
 
 ## Ressources utiles
 
