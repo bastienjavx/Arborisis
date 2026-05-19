@@ -1,10 +1,21 @@
 .DS_Store
 .playwright-mcp/
-landing-preview.png
-login-preview.png
-sounds-index.png
-*.png
-gitlab-pipelines.png
+
+# AI Agent configs (consolidated in ai-agent-configs/)
+.agent
+.agents
+.claude
+.codebuddy
+.codex
+.continue
+.cursor
+.gemini
+.kiro
+.opencode
+.qoder
+.roo
+.trae
+.windsurf
 
 # Dependencies
 node_modules/
