@@ -112,26 +112,45 @@ Arborisis est une **plateforme sociale immersive** pensée pour les *field recor
 
 ## 🚀 Installation Rapide
 
-### Prérequis
+### Option A — Docker (recommandée)
+
+Le plus simple pour démarrer en local ou sur un serveur frais. Nécessite seulement [Docker](https://docs.docker.com/get-docker/) et `git`.
+
+```bash
+git clone https://github.com/bastienjavx/Arborisis.git
+cd Arborisis
+./scripts/setup-dev.sh
+```
+
+Cela lance automatiquement :
+- PostgreSQL 17 + PostGIS
+- Redis 7
+- Laravel (PHP-FPM + Nginx)
+- SSR Inertia
+- Reverb (websockets)
+- Queue workers + Scheduler
+- Discord bot (optionnel)
+
+L'application est accessible sur **http://localhost**.
+
+### Option B — Manuelle (sans Docker)
+
+#### Prérequis
 - PHP 8.3+
 - PostgreSQL 16+ (avec PostGIS)
 - Redis 7+
 - Node.js 20+
 - Composer 2+
 
-### 1. Cloner le projet
+#### 1. Cloner et installer
 ```bash
 git clone https://github.com/bastienjavx/Arborisis.git
 cd Arborisis/arborisis
-```
-
-### 2. Installer les dépendances
-```bash
 composer install
 npm install
 ```
 
-### 3. Configurer l'environnement
+#### 2. Configurer l'environnement
 ```bash
 cp .env.example .env
 php artisan key:generate
@@ -150,26 +169,45 @@ CACHE_DRIVER=redis
 SESSION_DRIVER=redis
 QUEUE_CONNECTION=redis
 REDIS_HOST=127.0.0.1
-
-AWS_ACCESS_KEY_ID=xxx
-AWS_SECRET_ACCESS_KEY=xxx
-AWS_DEFAULT_REGION=eu2
-AWS_BUCKET=arborisis-audio
-AWS_ENDPOINT=https://eu2.contabostorage.com
-AWS_USE_PATH_STYLE_ENDPOINT=true
 ```
 
-### 4. Base de données & assets
+#### 3. Base de données & assets
 ```bash
 php artisan migrate --seed
 npm run build
 ```
 
-### 5. Lancer
+#### 4. Lancer
 ```bash
 php artisan serve
 npm run dev   # dans un autre terminal
 ```
+
+---
+
+## 🖥 Déploiement Serveur (VPS frais)
+
+Sur un serveur Ubuntu/Debian vierge, en une commande :
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/bastienjavx/Arborisis/dev/scripts/setup-server.sh | sudo bash
+```
+
+Ou manuellement :
+```bash
+git clone https://github.com/bastienjavx/Arborisis.git
+cd Arborisis
+sudo ./scripts/setup-server.sh
+```
+
+Le script :
+- Installe Docker et Docker Compose
+- Clone/met à jour le repo
+- Génère les fichiers `.env` et les secrets
+- Build et démarre tous les services
+- Exécute les migrations
+
+> ⚠️ **Après l'installation**, édite `arborisis/.env` pour ajouter tes clés S3/R2, Stripe, et configurer le SSL (Cloudflare Tunnel, Certbot, ou reverse proxy).
 
 ---
 
@@ -251,8 +289,22 @@ scripts/security/passive-prod-check.sh https://arborisis.com
 
 ## 🚀 Déploiement
 
-Les workflows GitHub Actions (`ci.yml`, `security.yml`) testent le backend, le frontend et auditent les dépendances à chaque PR.  
-Le déploiement production utilise toujours le pipeline GitLab CI (job manuel `deploy_production`) pour livrer sur le VPS via SSH + rsync, avec releases atomiques et dossiers partagés.
+Les workflows GitHub Actions (`ci.yml`, `security.yml`) testent le backend, le frontend et auditent les dépendances à chaque PR.
+
+### Option 1 — Docker Compose (recommandée)
+
+Déploie l'ensemble de la stack (PostgreSQL, Redis, Laravel, Nginx, Workers) via Docker sur un seul serveur ou plusieurs. Voir [`scripts/setup-server.sh`](scripts/setup-server.sh) pour l'installation automatique sur un VPS vierge, ou [`infrastructure/docker/`](infrastructure/docker/) pour la configuration avancée.
+
+```bash
+cd infrastructure/docker
+./deploy-local.sh data    # PostgreSQL + Redis
+./deploy-local.sh web     # Laravel + Nginx + Reverb + SSR
+./deploy-local.sh workers # Queue + Scheduler + Discord bot
+```
+
+### Option 2 — GitLab CI + VPS classique
+
+Le pipeline GitLab CI (job manuel `deploy_production`) livre sur le VPS via SSH + rsync, avec releases atomiques et dossiers partagés.
 
 Voir [`docs/deploiement-gitlab-vps.md`](docs/deploiement-gitlab-vps.md).
 
