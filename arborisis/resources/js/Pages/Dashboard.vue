@@ -5,8 +5,10 @@ import PlayerProgressCard from '@/Components/Gamification/PlayerProgressCard.vue
 import ActiveQuests from '@/Components/Gamification/ActiveQuests.vue';
 import AchievementMedalShelf from '@/Components/Gamification/AchievementMedalShelf.vue';
 import DailySoundIdeas from '@/Components/SoundIdeas/DailySoundIdeas.vue';
-import { computed, onMounted, ref } from 'vue';
-import WaveformScene from '@/Components/Three/WaveformScene.vue';
+import { computed, onMounted, ref, defineAsyncComponent } from 'vue';
+
+// Lazy load heavy Three.js component
+const WaveformScene = defineAsyncComponent(() => import('@/Components/Three/WaveformScene.vue'));
 
 const props = defineProps({
     stats: {
