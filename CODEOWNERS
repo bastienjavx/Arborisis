@@ -1,0 +1,29 @@
+# Arborisis code ownership.
+# Active only when GitHub branch protection requires CODEOWNER review.
+
+* @bastienjavx
+
+# Governance and CI/CD
+/AGENTS.md @bastienjavx
+/CONTRIBUTING.md @bastienjavx
+/ARCHITECTURE.md @bastienjavx
+/.github/ @bastienjavx
+/.gitlab/ @bastienjavx
+/.gitlab-ci.yml @bastienjavx
+
+# Laravel security-sensitive surfaces
+/arborisis/config/ @bastienjavx
+/arborisis/routes/ @bastienjavx
+/arborisis/app/Http/Middleware/ @bastienjavx
+/arborisis/app/Policies/ @bastienjavx
+/arborisis/app/Services/Echo/ @bastienjavx
+/arborisis/app/Services/Sound/ @bastienjavx
+/arborisis/app/Services/Gamification/ @bastienjavx
+/arborisis/app/Filament/ @bastienjavx
+/arborisis/database/migrations/ @bastienjavx
+
+# Integrations and deployment-sensitive components
+/arborisis/discord-bot/ @bastienjavx
+/services/audio-analyzer/ @bastienjavx
+/workers/ @bastienjavx
+/infrastructure/ @bastienjavx
