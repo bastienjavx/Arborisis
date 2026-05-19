@@ -1,390 +1,460 @@
 <div align="center">
 
-# 🌿 Arborisis
+<!-- Animated Header Banner -->
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:1a4d2e,50:2d6a4f,100:40916c&height=280&section=header&text=ARBORISIS&fontSize=70&fontColor=d8f3dc&animation=fadeIn&fontAlignY=38&desc=La%20plateforme%20sociale%20premium%20d%C3%A9di%C3%A9e%20aux%20sons%20de%20la%20nature&descAlignY=55&descSize=18&descColor=b7e4c7"/>
 
-**La plateforme sociale premium dédiée aux sons de la nature.**
+<br>
 
-*Capturez, partagez et explorez le monde sonore sauvage.*
+<!-- Animated Typing Tagline -->
+<img src="https://readme-typing-svg.demolab.com?font=Cormorant+Garamond&weight=600&size=26&duration=4000&pause=1000&color=52B788&center=true&vCenter=true&width=800&lines=%C3%89coutez+le+monde+sauvage.;Capturez+l'invisible.;Partagez+la+beaut%C3%A9+des+sons+de+la+nature.;Protegez+ce+qui+compte." alt="Typing SVG" />
 
-[![Pipeline](https://gitlab.com/bastienjavaux/arborisis.com/badges/main/pipeline.svg)](https://gitlab.com/bastienjavaux/arborisis.com/-/commits/main)
-[![Coverage](https://gitlab.com/bastienjavaux/arborisis.com/badges/main/coverage.svg)](https://gitlab.com/bastienjavaux/arborisis.com/-/commits/main)
-[![CI](https://github.com/bastienjavx/Arborisis/actions/workflows/ci.yml/badge.svg)](https://github.com/bastienjavx/Arborisis/actions)
-[![Security](https://github.com/bastienjavx/Arborisis/actions/workflows/security.yml/badge.svg)](https://github.com/bastienjavx/Arborisis/actions)
-[![PHP Version](https://img.shields.io/badge/PHP-8.3%2B-777BB4?logo=php&logoColor=white)](https://php.net)
-[![Laravel Version](https://img.shields.io/badge/Laravel-12.x-FF2D20?logo=laravel&logoColor=white)](https://laravel.com)
-[![Vue.js Version](https://img.shields.io/badge/Vue.js-3.x-4FC08D?logo=vuedotjs&logoColor=white)](https://vuejs.org)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.x-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+<br><br>
 
-[🌐 Site web](https://arborisis.com) · [📖 Documentation](#documentation) · [🚀 Installation](#installation-rapide) · [🤝 Contribuer](#contribuer)
+<!-- Primary Badges Row -->
+<a href="https://php.net"><img src="https://img.shields.io/badge/PHP-8.3%2B-777BB4?style=for-the-badge&logo=php&logoColor=white&labelColor=1a1a2e"/></a>
+<a href="https://laravel.com"><img src="https://img.shields.io/badge/Laravel-12.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white&labelColor=1a1a2e"/></a>
+<a href="https://vuejs.org"><img src="https://img.shields.io/badge/Vue.js-3.x-4FC08D?style=for-the-badge&logo=vuedotjs&logoColor=white&labelColor=1a1a2e"/></a>
+<a href="https://tailwindcss.com"><img src="https://img.shields.io/badge/Tailwind-4.x-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white&labelColor=1a1a2e"/></a>
+
+<br>
+
+<!-- CI/CD Badges Row -->
+<a href="https://github.com/bastienjavx/Arborisis/actions"><img src="https://img.shields.io/github/actions/workflow/status/bastienjavx/Arborisis/ci.yml?branch=main&style=flat-square&label=CI&labelColor=1a1a2e&color=52B788&logo=githubactions&logoColor=white"/></a>
+<a href="https://github.com/bastienjavx/Arborisis/actions"><img src="https://img.shields.io/github/actions/workflow/status/bastienjavx/Arborisis/security.yml?branch=main&style=flat-square&label=Security&labelColor=1a1a2e&color=e63946&logo=shield&logoColor=white"/></a>
+<a href="https://gitlab.com/bastienjavaux/arborisis.com"><img src="https://img.shields.io/gitlab/pipeline-status/bastienjavaux%2Farborisis.com?branch=main&style=flat-square&label=Pipeline&labelColor=1a1a2e&color=40916c&logo=gitlab&logoColor=white"/></a>
+
+<br>
+
+<!-- Quality Badges Row -->
+<a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-ffb703?style=flat-square&labelColor=1a1a2e"/></a>
+<a href="#"><img src="https://img.shields.io/badge/Tests-Pest-7B68EE?style=flat-square&labelColor=1a1a2e&logo=checkmarx&logoColor=white"/></a>
+<a href="#"><img src="https://img.shields.io/badge/Linter-Pint-FF6B6B?style=flat-square&labelColor=1a1a2e"/></a>
+<a href="#"><img src="https://img.shields.io/badge/Types-Strict-3178C6?style=flat-square&labelColor=1a1a2e&logo=typescript&logoColor=white"/></a>
+
+<br><br>
+
+[🌐 **Site web**](https://arborisis.com) · [📖 **Documentation**](#-documentation) · [🚀 **Installation**](#-installation-rapide) · [🤝 **Contribuer**](#-contribuer) · [📜 **Architecture**](#-architecture)
 
 </div>
 
 ---
 
-## 📸 Aperçu
+<br>
+
+## 🌿 Vision
 
 <div align="center">
 
-| Pipeline CI/CD |
-|:---:|
-| ![Pipeline](docs/assets/gitlab-pipelines.png) |
+> *"Dans un monde visuellement saturé, Arborisis offre un refuge sonore.
+> Chaque enregistrement est une fenêtre ouverte sur l'inaudible —
+> le frémissement d'une feuille, le chant lointain d'un oiseau,
+> le silence pesant d'une forêt au crépuscule."*
 
 </div>
 
+**Arborisis** est une plateforme sociale immersive pensée pour les *field recorders*, naturalistes, sound designers et tous ceux qui entendent le monde autrement. Elle allie **technologie de pointe**, **design premium** et **éthique environnementale** pour créer l'expérience de partage sonore la plus aboutie du web.
+
+<div align="center">
+
+| 🎙️ **Capturer** | 🗺️ **Explorer** | 💚 **Soutenir** | 🔒 **Protéger** |
+|:---:|:---:|:---:|:---:|
+| Enregistrements HD avec métadonnées riches | Carte interactive mondiale avec clustering | Système de crédits **ECHO** via Stripe | Coordonnées GPS exactes jamais exposées |
+
+</div>
+
+<br>
+
 ---
 
-## ✨ Qu'est-ce qu'Arborisis ?
+## ✨ Fonctionnalités
 
-Arborisis est une **plateforme sociale immersive** pensée pour les *field recorders*, naturalistes et amateurs de sons sauvages. Elle permet de :
+<div align="center">
 
-- 🎙️ **Uploader** des enregistrements naturels avec métadonnées riches (équipement, environnement, conditions)
-- 🗺️ **Explorer** une carte interactive mondiale des sons (Leaflet + clustering)
-- 💚 **Soutenir** les créateurs via le système de crédits internes **ECHO**
-- 🔒 **Protéger** la biodiversité — les coordonnées GPS exactes ne sont jamais exposées publiquement
-- 🎧 **Écouter** via un lecteur premium avec waveform (Wavesurfer.js)
+### 🎵 **Audio & Création**
 
-> **ECHO** est un système de crédits internes — ni cryptomonnaie, ni investissement. Une façon simple de valoriser le travail des créateurs.
+</div>
+
+| Fonctionnalité | Description | Technologie |
+|:---|:---|:---|
+| 🎙️ **Upload Premium** | Upload audio avec validation MIME stricte, métadonnées riches (équipement, environnement, conditions) | Laravel Queues + R2 |
+| 🌊 **Waveform Interactive** | Visualisation audio temps réel avec navigation précise | Wavesurfer.js 7 |
+| 🎧 **Lecteur Global** | Mini-player persistant via Pinia, playlist continue, contrôles flottants | Vue 3 + Pinia |
+| 🔬 **Analyse Audio IA** | Détection automatique d'espèces (BirdNET), tagging IA, extraction de caractéristiques | Python FastAPI + AI |
+| 📻 **Radio Arborisis** | Webradio 24/7 avec DJ IA (ElevenLabs), podcasts auto-générés, émissions thématiques | Icecast + Liquidsoap |
+
+<div align="center">
+
+### 🗺️ **Carte & Découverte**
+
+</div>
+
+| Fonctionnalité | Description | Technologie |
+|:---|:---|:---|
+| 🌍 **Carte Mondiale** | Carte interactive Leaflet avec clustering, filtres par environnement/catégorie | Leaflet + OpenStreetMap |
+| 📍 **Points d'Écoute** | Lieux scientifiques avec métriques environnementales, observations et historique | PostGIS + OpenMeteo |
+| 🚶 **SoundWalks** | Parcours sonores guidés avec routage OSRM, points d'intérêt narratifs | OSRM + Vue 3 |
+| 🎮 **Gamification** | Quêtes, succès, médailles, streaks, niveaux — avec anti-triche géospatial | Redis + Services métier |
+| 💬 **Chat en Temps Réel** | Messagerie instantanée, salons thématiques, conversations privées | Laravel Reverb |
+
+<div align="center">
+
+### 💰 **Économie & Social**
+
+</div>
+
+| Fonctionnalité | Description | Technologie |
+|:---|:---|:---|
+| 💎 **ECHO** | Système de crédits internes (ni crypto, ni investissement) pour soutenir les créateurs | Stripe + Journal immuable |
+| 👥 **Réseau Social** | Likes, favoris, commentaires, follows, groupes d'enregistrement | Eloquent + Inertia |
+| 🤖 **Bot Discord** | Intégration communautaire, notifications, liaison de compte | Node.js + Socialite |
+| 🔔 **Notifications Push** | Alertes navigateur via VAPID, newsletters segmentées | Web Push + Queues |
+| 📊 **Dashboard Analytique** | Statistiques d'écoute, revenus ECHO, croissance audience | Filament + OpenSearch |
+
+<br>
 
 ---
 
 ## 🛠 Stack Technique
 
-### Backend
-| Technologie | Version | Rôle |
-|-------------|---------|------|
-| **Laravel** | 12.x | Framework PHP — API, auth, queues |
-| **PHP** | 8.3+ | Typage strict, enums, performance |
-| **PostgreSQL** | 16+ | Base de données + PostGIS (géospatial) |
-| **Redis** | 7+ | Cache, sessions, queues, rate limiting |
-| **Laravel Cashier** | 15.x | Intégration Stripe (packs ECHO) |
-| **Filament** | 3.x | Panel d'administration |
-| **Contabo S3** | — | Stockage audio et images |
+<div align="center">
 
-### Frontend
-| Technologie | Version | Rôle |
-|-------------|---------|------|
-| **Vue 3** | 3.4+ | SPA réactive (Composition API) |
-| **Inertia.js** | 2.x | Bridge Laravel ↔ Vue sans API REST |
-| **Tailwind CSS** | 4.x | Design system utility-first |
-| **shadcn-vue** | Dernier | Composants UI accessibles |
-| **Leaflet** | 1.9+ | Carte interactive mondiale |
-| **Wavesurfer.js** | 7.x | Waveform audio premium |
-| **Pinia** | — | État global (mini-player persistant) |
+### Backend — *L'Orchestre*
+
+</div>
+
+<table align="center">
+  <tr>
+    <td align="center" width="140">
+      <img src="https://skillicons.dev/icons?i=php" width="40"/><br>
+      <b>PHP 8.3+</b><br>
+      <sub>Typage strict, Enums, Performance</sub>
+    </td>
+    <td align="center" width="140">
+      <img src="https://skillicons.dev/icons?i=laravel" width="40"/><br>
+      <b>Laravel 12.x</b><br>
+      <sub>API, Auth, Queues, Events</sub>
+    </td>
+    <td align="center" width="140">
+      <img src="https://skillicons.dev/icons?i=postgres" width="40"/><br>
+      <b>PostgreSQL 16+</b><br>
+      <sub>Données + PostGIS spatial</sub>
+    </td>
+    <td align="center" width="140">
+      <img src="https://skillicons.dev/icons?i=redis" width="40"/><br>
+      <b>Redis 7+</b><br>
+      <sub>Cache, Sessions, Queues</sub>
+    </td>
+    <td align="center" width="140">
+      <img src="https://skillicons.dev/icons?i=stripe" width="40"/><br>
+      <b>Stripe</b><br>
+      <sub>Paiements ECHO</sub>
+    </td>
+  </tr>
+</table>
+
+<div align="center">
+
+### Frontend — *L'Interface*
+
+</div>
+
+<table align="center">
+  <tr>
+    <td align="center" width="140">
+      <img src="https://skillicons.dev/icons?i=vue" width="40"/><br>
+      <b>Vue 3</b><br>
+      <sub>Composition API, Réactivité</sub>
+    </td>
+    <td align="center" width="140">
+      <img src="https://skillicons.dev/icons?i=ts" width="40"/><br>
+      <b>TypeScript</b><br>
+      <sub>Types stricts, Contrats</sub>
+    </td>
+    <td align="center" width="140">
+      <img src="https://skillicons.dev/icons?i=tailwind" width="40"/><br>
+      <b>Tailwind CSS 4</b><br>
+      <sub>Design System Premium</sub>
+    </td>
+    <td align="center" width="140">
+      <img src="https://skillicons.dev/icons?i=vite" width="40"/><br>
+      <b>Vite + SSR</b><br>
+      <sub>Build rapide, SEO</sub>
+    </td>
+    <td align="center" width="140">
+      <img src="https://skillicons.dev/icons?i=pinia" width="40"/><br>
+      <b>Pinia</b><br>
+      <sub>État global, Player</sub>
+    </td>
+  </tr>
+</table>
+
+<div align="center">
+
+### Infrastructure — *Le Terreau*
+
+</div>
+
+<table align="center">
+  <tr>
+    <td align="center" width="140">
+      <img src="https://skillicons.dev/icons?i=docker" width="40"/><br>
+      <b>Docker</b><br>
+      <sub>Orchestration complète</sub>
+    </td>
+    <td align="center" width="140">
+      <img src="https://skillicons.dev/icons?i=cloudflare" width="40"/><br>
+      <b>Cloudflare R2</b><br>
+      <sub>Stockage audio/images</sub>
+    </td>
+    <td align="center" width="140">
+      <img src="https://skillicons.dev/icons?i=workers" width="40"/><br>
+      <b>Cloudflare Workers</b><br>
+      <sub>Edge computing, Proxy</sub>
+    </td>
+    <td align="center" width="140">
+      <img src="https://skillicons.dev/icons?i=python" width="40"/><br>
+      <b>Python FastAPI</b><br>
+      <sub>Analyse audio, IA</sub>
+    </td>
+    <td align="center" width="140">
+      <img src="https://skillicons.dev/icons?i=nodejs" width="40"/><br>
+      <b>Node.js</b><br>
+      <sub>Discord Bot, Services</sub>
+    </td>
+  </tr>
+</table>
+
+<br>
 
 ---
 
 ## 🏗 Architecture
 
+<div align="center">
+
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                        CLIENT                               │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────┐  │
-│  │  Vue 3 SPA   │  │   Leaflet    │  │ Wavesurfer.js    │  │
-│  │  (Inertia)   │  │    Map       │  │ Player           │  │
-│  └──────┬───────┘  └──────┬───────┘  └────────┬─────────┘  │
-│         └─────────────────┴─────────────────────┘            │
-│                           │                                 │
-│                    Inertia Requests (XHR)                   │
-└───────────────────────────┬─────────────────────────────────┘
-                            │
-┌───────────────────────────┼─────────────────────────────────┐
-│                    LARAVEL BACKEND                          │
-│  ┌────────────────────────┼─────────────────────────────┐   │
-│  │  HTTP Layer            │  Routes → Middleware → ...  │   │
-│  │  Service Layer         │  SoundService, EchoService   │   │
-│  │  Models                │  Eloquent + Relations        │   │
-│  └────────────┬───────────┴───────────┬─────────────────┘   │
-│               │                       │                     │
-│  ┌────────────┴──┐  ┌────────────────┴──┐  ┌────────────┐  │
-│  │  PostgreSQL   │  │      Redis        │  │ Contabo S3 │  │
-│  │  (Data+PostGIS)│  │ (Cache/Queue)     │  │(Audio/Img) │  │
-│  └───────────────┘  └───────────────────┘  └────────────┘  │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              EXPERIENCE UTILISATEUR                          │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐ │
+│  │   Vue 3     │  │  Leaflet    │  │ Wavesurfer  │  │    Mini-Player      │ │
+│  │  (Inertia)  │  │    Map      │  │   Player    │  │     (Pinia)         │ │
+│  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘  └──────────┬──────────┘ │
+│         └─────────────────┴─────────────────┴────────────────────┘            │
+│                                       │                                      │
+│                           Inertia / XHR / WebSocket                         │
+└───────────────────────────────────────┬─────────────────────────────────────┘
+                                        │
+┌───────────────────────────────────────┼─────────────────────────────────────┐
+│                           LARAVEL 12 BACKEND                                 │
+│  ┌────────────────────────────────────┼────────────────────────────────┐    │
+│  │  HTTP Layer    │ Routes → Middleware → FormRequest → Controllers     │    │
+│  │  Service Layer │ SoundService │ EchoService │ RadioService │ ...    │    │
+│  │  Domain Layer  │ 80+ Models │ Policies │ Events │ Jobs │ Listeners  │    │
+│  └────────────────┬───────────────────┬────────────────┬────────────────┘    │
+│                   │                   │                │                      │
+│  ┌────────────────┴──┐  ┌─────────────┴────┐  ┌──────┴──────┐  ┌──────────┐ │
+│  │   PostgreSQL      │  │      Redis       │  │    R2 S3    │  │ OpenSearch│ │
+│  │  (Data + PostGIS) │  │ (Cache/Queue/RT) │  │(Audio/Images)│  │  Search   │ │
+│  └───────────────────┘  └──────────────────┘  └─────────────┘  └──────────┘ │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                        │
+┌───────────────────────────────────────┼─────────────────────────────────────┐
+│                         SERVICES & WORKERS EXTERNES                          │
+│  ┌────────────────┐  ┌────────────────┐  ┌────────────────┐  ┌────────────┐ │
+│  │ Python FastAPI │  │  CF Workers    │  │  Discord Bot   │  │  Radio     │ │
+│  │Audio Analysis  │  │AI Agent / Proxy│  │  Node.js       │  │ Icecast+LS│ │
+│  └────────────────┘  └────────────────┘  └────────────────┘  └────────────┘ │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Principes clés
-- **Single Responsibility** — Un service = un domaine métier
-- **Privacy-first** — Coordonnées exactes jamais en API publique
-- **Fail-safe** — Uploads transactionnels (DB + S3)
-- **Audit trail** — Journal ECHO immuable
-- **Defense in depth** — Validation à tous les niveaux
+</div>
+
+### Principes Architecturaux
+
+- 🎯 **Single Responsibility** — Un service = un domaine métier (70+ services)
+- 🔒 **Privacy by Design** — Coordonnées exactes jamais exposées via API publique
+- 🛡️ **Defense in Depth** — Validation à tous les niveaux (Request → Policy → Service)
+- 💰 **Transactions Atomiques** — Uploads DB + S3 rollback-safe
+- 📜 **Journal Immuable** — ECHO : écriture unique, pas de modification/suppression
+- ⚡ **Async First** — Tout traitement lourd passe par les queues Redis
+
+<br>
 
 ---
 
 ## 🚀 Installation Rapide
 
-### Option A — Docker (recommandée)
-
-Le plus simple pour démarrer en local ou sur un serveur frais. Nécessite seulement [Docker](https://docs.docker.com/get-docker/) et `git`.
+### Option A — Docker (Recommandée)
 
 ```bash
+# Cloner le monorepo
 git clone https://github.com/bastienjavx/Arborisis.git
 cd Arborisis
+
+# Lancer l'installation complète
 ./scripts/setup-dev.sh
 ```
 
-Cela lance automatiquement :
-- PostgreSQL 17 + PostGIS
-- Redis 7
-- Laravel (PHP-FPM + Nginx)
-- SSR Inertia
-- Reverb (websockets)
-- Queue workers + Scheduler
-- Discord bot (optionnel)
+**Ce script démarre automatiquement :**
+- 🐘 PostgreSQL 17 + PostGIS
+- ⚡ Redis 7
+- 🟣 Laravel (PHP-FPM + Nginx)
+- 🟢 SSR Inertia
+- 🔵 Laravel Reverb (WebSockets)
+- 🟠 Queue Workers + Scheduler
+- ⚫ Discord Bot (optionnel)
 
-L'application est accessible sur **http://localhost**.
+> L'application est accessible sur **http://localhost**
 
-### Option B — Manuelle (sans Docker)
+### Option B — Manuelle
 
-#### Prérequis
-- PHP 8.3+
-- PostgreSQL 16+ (avec PostGIS)
-- Redis 7+
-- Node.js 20+
-- Composer 2+
-
-### 1. Cloner le projet
 ```bash
-git clone https://gitlab.com/bastienjavaux/arborisis.com.git
-cd arborisis.com/arborisis
-```
-
-### 2. Installer les dépendances
-#### 1. Cloner et installer
-```bash
+# Prérequis : PHP 8.3+, PostgreSQL 16+, Redis 7+, Node.js 20+, Composer 2+
 git clone https://github.com/bastienjavx/Arborisis.git
 cd Arborisis/arborisis
+
 composer install
 npm install
-```
-
-#### 2. Configurer l'environnement
-```bash
 cp .env.example .env
 php artisan key:generate
-```
 
-Éditer `.env` avec vos credentials :
-```env
-DB_CONNECTION=pgsql
-DB_HOST=127.0.0.1
-DB_PORT=5432
-DB_DATABASE=arborisis
-DB_USERNAME=arborisis
-DB_PASSWORD=secret
-
-CACHE_DRIVER=redis
-SESSION_DRIVER=redis
-QUEUE_CONNECTION=redis
-REDIS_HOST=127.0.0.1
-```
-
-#### 3. Base de données & assets
-```bash
+# Configurer .env (DB, Redis, R2, Stripe...)
 php artisan migrate --seed
 npm run build
-```
-
-#### 4. Lancer
-```bash
 php artisan serve
-npm run dev   # dans un autre terminal
 ```
+
+<br>
 
 ---
 
-## 🖥 Déploiement Serveur (VPS frais)
+## 📂 Structure du Monorepo
 
-Sur un serveur Ubuntu/Debian vierge, en une commande :
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/bastienjavx/Arborisis/dev/scripts/setup-server.sh | sudo bash
+```
+Arborisis/
+├── 🟣 arborisis/                  # Application Laravel 12 + Vue 3 + Inertia
+│   ├── app/
+│   │   ├── Services/              # 70+ services métier
+│   │   ├── Models/                # 80+ modèles Eloquent
+│   │   ├── Jobs/                  # Traitements asynchrones
+│   │   └── Enums/                 # Types métier PHP 8.3
+│   ├── resources/js/
+│   │   ├── Pages/                 # 45+ pages Inertia/Vue
+│   │   ├── Components/            # Composants UI réutilisables
+│   │   ├── Composables/           # Logique Vue partagée
+│   │   └── Stores/                # Pinia (player, auth, UI)
+│   └── tests/                     # Tests Feature + Unit (Pest)
+│
+├── ⚡ workers/                     # Cloudflare Workers (Edge)
+│   ├── arborisis-ai-agent/        # Agent IA conversationnel
+│   ├── audio-analysis-orchestrator/
+│   ├── audio-analyzer-container/
+│   └── r2-proxy/                  # Proxy sécurisé R2
+│
+├── 🐍 services/audio-analyzer/    # Microservice Python FastAPI
+│
+├── ⚫ discord-bot/                # Bot communautaire Node.js
+│
+├── 🐳 infrastructure/             # Docker, Radio, Wiki, Monitoring
+│
+├── 📚 docs/                       # Documentation, audits, guides
+│
+└── 🔧 scripts/                    # Setup, déploiement, sécurité
 ```
 
-Ou manuellement :
-```bash
-git clone https://github.com/bastienjavx/Arborisis.git
-cd Arborisis
-sudo ./scripts/setup-server.sh
-```
-
-Le script :
-- Installe Docker et Docker Compose
-- Clone/met à jour le repo
-- Génère les fichiers `.env` et les secrets
-- Build et démarre tous les services
-- Exécute les migrations
-
-> ⚠️ **Après l'installation**, édite `arborisis/.env` pour ajouter tes clés S3/R2, Stripe, et configurer le SSL (Cloudflare Tunnel, Certbot, ou reverse proxy).
+<br>
 
 ---
 
-## 📂 Structure du Projet
+## 🧪 Tests & Qualité
 
-Arborisis est un monorepo. L'application Laravel déployée reste dans
-`arborisis/`; la racine sert à coordonner la documentation, la CI, les workers,
-les services Python et l'infrastructure.
+<div align="center">
 
-```
-arborisis/
-├── app/
-│   ├── Http/Controllers/      # Web + API controllers
-│   ├── Http/Requests/         # Form Requests (validation)
-│   ├── Models/                # Eloquent + relations
-│   ├── Services/              # Logique métier
-│   ├── Policies/              # Autorisations
-│   └── Jobs/                  # Queues (audio, waveform)
-├── resources/js/
-│   ├── Pages/                 # Pages Inertia (Vue)
-│   ├── Components/            # Composants réutilisables
-│   ├── Composables/           # Logique Vue réutilisable
-│   └── Stores/                # Pinia (player global)
-├── database/migrations/       # Schéma PostgreSQL
-├── routes/                    # web.php, api.php, admin.php
-└── tests/                     # Feature + Unit tests
-.
-├── arborisis/                 # Laravel 12 + Inertia/Vue + Discord bot
-├── workers/                   # Workers Cloudflare
-├── services/audio-analyzer/   # Service Python FastAPI d'analyse audio
-├── infrastructure/            # Docker, radio, wiki, monitoring, VPS
-├── docs/                      # Documentation, audits, assets
-├── wiki-content/              # Contenu Wiki.js
-└── scripts/security/          # Audits passifs et dépendances
-```
+| Commande | Description |
+|:---|:---|
+| `php artisan test` | Tests complets (Pest/PHPUnit) |
+| `php artisan test --coverage` | Avec rapport de couverture |
+| `./vendor/bin/pint` | Linter PHP (Laravel Pint) |
+| `npm run build` | Build production + vérification |
+| `composer audit` | Audit sécurité dépendances PHP |
+| `npm audit` | Audit sécurité dépendances Node |
 
-> Pour plus de détails, voir [`docs/repository-map.md`](docs/repository-map.md) et [`ARCHITECTURE.md`](ARCHITECTURE.md).
+</div>
+
+<br>
 
 ---
 
 ## 📖 Documentation
 
-- [`docs/repository-map.md`](docs/repository-map.md) — carte du monorepo, commandes et règles de rangement.
-- [`ARCHITECTURE.md`](ARCHITECTURE.md) — architecture Laravel/Inertia de référence.
-- [`docs/deploiement-gitlab-vps.md`](docs/deploiement-gitlab-vps.md) — déploiement GitLab vers VPS.
-- [`docs/security/audit-2026-05-19.md`](docs/security/audit-2026-05-19.md) — dernier audit sécurité passif.
-- [`docs/agents/full-agent-guide.md`](docs/agents/full-agent-guide.md) — guide long pour agents IA et contributeurs.
+| Document | Description |
+|:---|:---|
+| [`ARCHITECTURE.md`](ARCHITECTURE.md) | Architecture Laravel/Inertia de référence (661 lignes) |
+| [`AGENTS.md`](AGENTS.md) | Conventions strictes pour contributeurs et agents IA |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Guide de contribution (Conventional Commits) |
+| [`docs/development-workflow.md`](docs/development-workflow.md) | Workflow complet : branches, tests, CI/CD |
+| [`docs/audio-analysis-pipeline.md`](docs/audio-analysis-pipeline.md) | Pipeline d'analyse audio |
+| [`docs/deploiement-gitlab-vps.md`](docs/deploiement-gitlab-vps.md) | Déploiement GitLab → VPS |
+
+<br>
 
 ---
 
-## 🔧 Développement
+## 🗺 Roadmap
 
-### Commandes utiles
-Depuis `arborisis/` :
+<div align="center">
 
-```bash
-# Mode développement
-npm run dev
+| Phase | Statut | Description |
+|:---:|:---:|:---|
+| ✅ Phase 1 | **Terminé** | Socle Laravel + Inertia/Vue + Design System |
+| ✅ Phase 2 | **Terminé** | Upload audio + Stockage R2 + Métadonnées |
+| ✅ Phase 3 | **Terminé** | Carte interactive (Leaflet) + Clustering |
+| ✅ Phase 4 | **Terminé** | Système social (likes, favoris, commentaires, follows) |
+| ✅ Phase 5 | **Terminé** | Système ECHO + Stripe Checkout |
+| ✅ Phase 6 | **Terminé** | Panel admin (Filament) + Lecteur premium |
+| ✅ Phase 7 | **Terminé** | PWA + Optimisations mobiles + Gamification |
+| 🔄 Phase 8 | **En cours** | Radio IA + Analyse audio + Discord Bot |
 
-# Build production
-npm run build
+</div>
 
-# Tests
-php artisan test
-
-# Queue worker
-php artisan queue:work
-
-# Linter
-./vendor/bin/pint
-```
-
-Depuis la racine du dépôt :
-
-```bash
-# Audits de dépendances PHP/Node
-scripts/security/dependency-audit.sh
-
-# Vérification passive de production
-scripts/security/passive-prod-check.sh https://arborisis.com
-```
-
-### Conventions de code
-- PHP 8.3+ avec `declare(strict_types=1)`
-- Enums PHP pour tous les statuts et rôles
-- Form Requests pour toute validation entrante
-- Policies Laravel pour les autorisations
-- Services pour la logique métier (pas dans les controllers)
-- Vue 3 Composition API + TypeScript recommandé
-- Tailwind CSS avec palette personnalisée Arborisis
-
-> Voir [`AGENTS.md`](AGENTS.md) pour les conventions complètes.
-
----
-
-## 🚀 Déploiement
-
-Les workflows GitHub Actions (`ci.yml`, `security.yml`) testent le backend, le frontend et auditent les dépendances à chaque PR.
-
-### Option 1 — Docker Compose (recommandée)
-
-Déploie l'ensemble de la stack (PostgreSQL, Redis, Laravel, Nginx, Workers) via Docker sur un seul serveur ou plusieurs. Voir [`scripts/setup-server.sh`](scripts/setup-server.sh) pour l'installation automatique sur un VPS vierge, ou [`infrastructure/docker/`](infrastructure/docker/) pour la configuration avancée.
-
-```bash
-cd infrastructure/docker
-./deploy-local.sh data    # PostgreSQL + Redis
-./deploy-local.sh web     # Laravel + Nginx + Reverb + SSR
-./deploy-local.sh workers # Queue + Scheduler + Discord bot
-```
-
-### Option 2 — GitLab CI + VPS classique
-
-Le pipeline GitLab CI (job manuel `deploy_production`) livre sur le VPS via SSH + rsync, avec releases atomiques et dossiers partagés.
-
-Voir [`docs/deploiement-gitlab-vps.md`](docs/deploiement-gitlab-vps.md).
-
----
-
-## 🧪 Tests
-
-Depuis `arborisis/` :
-
-```bash
-# Tests complets
-php artisan test
-
-# Avec coverage
-php artisan test --coverage
-
-# Tests spécifiques
-php artisan test --filter=SoundUploadTest
-```
-
----
-
-## 📋 Roadmap MVP
-
-- [x] Socle Laravel + Inertia/Vue + design system
-- [x] Upload audio + stockage S3 + métadonnées
-- [x] Carte interactive (Leaflet) + clustering
-- [x] Système social (likes, favoris, commentaires, follows)
-- [ ] Système ECHO + Stripe Checkout
-- [ ] Panel admin (Filament)
-- [ ] Lecteur premium (Wavesurfer.js + mini-player)
-- [ ] PWA + optimisations mobiles
+<br>
 
 ---
 
 ## 🤝 Contribuer
 
-Les contributions sont les bienvenues ! Merci de lire [`CONTRIBUTING.md`](CONTRIBUTING.md) avant de proposer une PR.
+Les contributions sont les bienvenues ! Consultez [`CONTRIBUTING.md`](CONTRIBUTING.md) avant de proposer une PR.
 
-### Rapport de bug
-Utilisez le template **Bug** dans les [issues GitHub](../../issues).
+- 🐛 **Bug** → [Issues GitHub](../../issues) (template Bug)
+- 💡 **Feature** → [Issues GitHub](../../issues) (template Feature)
+- 🔒 **Sécurité** → Contact privé (voir SECURITY.md)
 
-### Proposition de fonctionnalité
-Utilisez le template **Feature** dans les [issues GitHub](../../issues).
+<br>
 
 ---
 
 ## 📜 Licence
 
-Ce projet est sous licence MIT. Voir le fichier [`LICENSE`](LICENSE) pour plus de détails.
+Ce projet est sous licence **MIT**. Voir le fichier [`LICENSE`](LICENSE) pour plus de détails.
+
+<div align="center">
+
+**ECHO n'est pas une cryptomonnaie. ECHO n'est pas un investissement.**
+
+</div>
+
+<br>
 
 ---
 
 <div align="center">
 
-🌿 *Arborisis — Écoutez la nature.*
+<!-- Animated Footer Banner -->
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:40916c,50:2d6a4f,100:1a4d2e&height=150&section=footer&text=%C3%89coutez%20la%20nature.&fontSize=30&fontColor=d8f3dc&animation=fadeIn&fontAlignY=65"/>
+
+<br>
+
+[![Star](https://img.shields.io/badge/⭐-Star%20this%20repo-ffb703?style=for-the-badge&labelColor=1a1a2e)](https://github.com/bastienjavx/Arborisis)
+[![Follow](https://img.shields.io/badge/🌿-Follow%20%40arborisis-52B788?style=for-the-badge&labelColor=1a1a2e)](https://arborisis.com)
 
 </div>
