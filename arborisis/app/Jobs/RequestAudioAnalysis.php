@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
+use App\Enums\AnalysisStatus;
 use App\Models\Sound;
+use App\Models\SoundAnalysis;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -30,12 +32,28 @@ class RequestAudioAnalysis implements ShouldQueue
     {
         $sound = Sound::with('soundFile')->find($this->soundId);
 
-        if (! $sound || ! $sound->soundFile) {
-            Log::warning('RequestAudioAnalysis: sound or soundFile not found.', [
+        $analysis = SoundAnalysis::firstOrNew(['sound_id' => $this->soundId]);
+        if (! $analysis->exists) {
+            $analysis->status = AnalysisStatus::PENDING;
+            $analysis->save();
+        }
+
+        if (! $sound) {
+            $analysis->markFailed('Sound not found during analysis request.');
+            Log::warning('RequestAudioAnalysis: sound not found.', [
+                'sound_id' => $this->soundId,
+            ]);
+            $this->fail('Sound not found.');
+
+            return;
+        }
+
+        if (! $sound->soundFile) {
+            Log::warning('RequestAudioAnalysis: soundFile not found, will retry.', [
                 'sound_id' => $this->soundId,
             ]);
 
-            return;
+            throw new \RuntimeException('Sound file not found.');
         }
 
         $urls = $this->getAnalyzerUrls();
@@ -68,6 +86,8 @@ class RequestAudioAnalysis implements ShouldQueue
                     ], fn ($v) => $v !== null));
 
                 if ($response->successful()) {
+                    $analysis->markQueued();
+
                     Log::info('RequestAudioAnalysis: analyzer accepted.', [
                         'sound_id' => $this->soundId,
                         'url' => $analyzerUrl,

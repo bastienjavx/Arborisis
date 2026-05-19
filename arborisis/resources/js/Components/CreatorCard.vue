@@ -40,7 +40,7 @@ const formatNumber = (num) => {
             <!-- Info -->
             <div class="flex-1 min-w-0">
                 <Link
-                    :href="route('profile.show', creator.id)"
+                    :href="route('creators.show', creator.slug)"
                     class="block font-medium text-arbor-cream truncate group-hover:text-arbor-emerald transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-arbor-emerald/50 focus-visible:ring-offset-2 focus-visible:ring-offset-arbor-night rounded"
                 >
                     {{ creator.name }}

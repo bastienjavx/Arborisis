@@ -344,7 +344,7 @@ class RadioAudioProductionService
         }
 
         $metadata['duration_seconds'] = $durationSeconds;
-        $metadata['requested_model'] = config('radio.production.ai_model', config('radio.host.ai_model', 'anthropic/claude-sonnet-4.6'));
+        $metadata['requested_model'] = config('radio.production.ai_model', config('radio.host.ai_model', 'anthropic/claude-opus-4.7'));
 
         return $this->openRouter->generateRadioProductionPlan($metadata) ?? [];
     }

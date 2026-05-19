@@ -77,9 +77,36 @@ class ScientificStatsController extends Controller
         return $this->scientificResponse($this->statsService->getQualityOverview($request->filters()), $request);
     }
 
+    public function environmental(ScientificStatsRequest $request): JsonResponse
+    {
+        return $this->scientificResponse($this->statsService->getEnvironmentalOverview($request->filters()), $request);
+    }
+
+    public function modelStats(ScientificStatsRequest $request): JsonResponse
+    {
+        return $this->scientificResponse($this->statsService->getGlobalMetricsOverview($request->filters()), $request);
+    }
+
     public function datasetCompleteness(ScientificStatsRequest $request): JsonResponse
     {
         return $this->scientificResponse($this->statsService->getDatasetCompleteness($request->filters()), $request);
+    }
+
+    public function dataset(ScientificStatsRequest $request): JsonResponse
+    {
+        return $this->scientificResponse(
+            $this->statsService->getResearchDataset(
+                $request->resultLimit(100, 1000),
+                $request->resultOffset(),
+                $request->filters()
+            ),
+            $request
+        );
+    }
+
+    public function schema(ScientificStatsRequest $request): JsonResponse
+    {
+        return $this->scientificResponse($this->statsService->getDatasetSchema(), $request);
     }
 
     public function rawData(ScientificStatsRequest $request): JsonResponse

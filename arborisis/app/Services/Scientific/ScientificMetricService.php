@@ -38,25 +38,36 @@ class ScientificMetricService
             return null;
         }
 
-        $speciesCount = $analysis->birdnetDetections->count();
+        $validatedDetections = $analysis->birdnetDetections
+            ->filter(fn ($d): bool => (float) $d->confidence >= 0.70);
+        $speciesCounts = $validatedDetections->countBy('scientific_name');
+        $speciesCount = $speciesCounts->count();
         $tagCount = $sound->tags->count();
         $adi = $analysis->acoustic_diversity_index ?? 0;
+        $shannonDiversity = $this->shannonDiversity($speciesCounts->values()->all());
 
-        // Spectral balance (simple proxy : centroid normalisé)
-        $spectralBalance = $this->normalize($analysis->spectral_centroid ?? 0, 500, 8000);
+        // Balance spectrale favorisant la plage bioacoustique utile, sans survaloriser les extrêmes.
+        $spectralCentroid = (float) ($analysis->spectral_centroid ?? 0);
+        $spectralBalance = $spectralCentroid > 0
+            ? max(0.0, 1.0 - min(1.0, abs($spectralCentroid - 3500.0) / 3500.0))
+            : 0.0;
 
         $eventDensity = $this->normalize($analysis->acoustic_event_count ?? 0, 0, 50);
 
         $sbs = (
-            0.30 * $this->normalize($speciesCount, 0, 10) +
-            0.25 * $this->normalize($adi, 0, 3) +
-            0.20 * $this->normalize($tagCount, 0, 15) +
+            0.24 * $this->normalize($speciesCount, 0, 10) +
+            0.20 * $this->normalize($shannonDiversity, 0, 2.5) +
+            0.18 * $this->normalize($adi, 0, 3) +
+            0.13 * $this->normalize($tagCount, 0, 15) +
             0.15 * $spectralBalance +
             0.10 * $eventDensity
         ) * 100;
 
         return $this->storeMetric($sound, MetricType::BiodiversityScore, round($sbs, 2), [
             'species_count' => $speciesCount,
+            'validated_detection_count' => $validatedDetections->count(),
+            'confidence_threshold' => 0.70,
+            'shannon_diversity' => round($shannonDiversity, 4),
             'tag_count' => $tagCount,
             'adi' => $adi,
             'spectral_balance' => $spectralBalance,
@@ -76,25 +87,33 @@ class ScientificMetricService
             return null;
         }
 
-        $loudness = abs($analysis->loudness_lufs ?? 0);
+        $loudnessLufs = (float) ($analysis->loudness_lufs ?? -60);
         $eventDensity = $analysis->acoustic_event_count ?? 0;
+        $rmsDb = (float) ($analysis->rms_db ?? -60);
 
-        // Silence ratio approximé par l'inverse de la densité d'événements
-        $silenceRatio = max(0, 1 - $this->normalize($eventDensity, 0, 100));
-        $rms = abs($analysis->rms_db ?? 0);
+        $loudnessActivity = $this->normalize($loudnessLufs, -60, -12);
+        $rmsActivity = $this->normalize($rmsDb, -60, -10);
+        $eventActivity = $this->normalize($eventDensity, 0, 100);
+        $zcrActivity = $this->normalize((float) ($analysis->zero_crossing_rate ?? 0), 0.02, 0.35);
+        $silenceRatio = max(0.0, 1.0 - $eventActivity);
 
         $aas = (
-            0.35 * $this->normalize($loudness, 0, 60) +
-            0.30 * $this->normalize($eventDensity, 0, 100) +
-            0.20 * (1 - $silenceRatio) +
-            0.15 * $this->normalize($rms, 0, 60)
+            0.32 * $loudnessActivity +
+            0.30 * $eventActivity +
+            0.20 * $rmsActivity +
+            0.10 * $zcrActivity +
+            0.08 * (1 - $silenceRatio)
         ) * 100;
 
         return $this->storeMetric($sound, MetricType::AcousticActivityScore, round($aas, 2), [
-            'loudness_lufs' => $loudness,
+            'loudness_lufs' => $loudnessLufs,
+            'loudness_activity' => round($loudnessActivity, 4),
             'event_density' => $eventDensity,
+            'event_activity' => round($eventActivity, 4),
             'silence_ratio' => $silenceRatio,
-            'rms_db' => $rms,
+            'rms_db' => $rmsDb,
+            'rms_activity' => round($rmsActivity, 4),
+            'zcr_activity' => round($zcrActivity, 4),
         ]);
     }
 
@@ -364,5 +383,28 @@ class ScientificMetricService
         $variance = array_sum(array_map(fn (float $v): float => pow($v - $mean, 2), $values)) / $count;
 
         return sqrt($variance);
+    }
+
+    /**
+     * @param array<int, int> $counts
+     */
+    private function shannonDiversity(array $counts): float
+    {
+        $total = array_sum($counts);
+        if ($total <= 0) {
+            return 0.0;
+        }
+
+        $entropy = 0.0;
+        foreach ($counts as $count) {
+            if ($count <= 0) {
+                continue;
+            }
+
+            $proportion = $count / $total;
+            $entropy -= $proportion * log($proportion);
+        }
+
+        return $entropy;
     }
 }

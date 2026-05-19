@@ -915,8 +915,384 @@ resources/
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.0 | 2026-05-17 | Artistic redesign direction: living sound atlas, premium naturalist UI, page-by-page refactor plan, Tailwind tokens |
 | 1.0 | 2026-05-05 | Initial design system creation |
 
 ---
 
 *This document is a living guide. Update it as the design system evolves.*
+
+---
+
+# Arborisis Design System 2.0 — Le Vivant S'Ecoute
+
+> **Status**: frontend implementation brief
+> **Date**: 2026-05-17
+> **Goal**: transform Arborisis into a memorable premium field-recording platform: living sound map, poetic atlas, naturalist lab, and community of explorers.
+
+## 1. Vision Design
+
+Arborisis is no longer framed as a conventional social platform. It is a **living atlas of the audible world**.
+
+Core idea: **Le vivant s'écoute.**
+
+Every published sound should feel like:
+
+- a living trace from a place
+- a sound postcard
+- a naturalist field note
+- a scientific observation
+- a time capsule from a territory
+
+The interface should feel quiet, deep, editorial, and precise. The user is not browsing content; they are entering a contemporary naturalist archive.
+
+## 2. Fast Audit Of The Current UI
+
+Current strengths:
+
+- Dark immersive base already exists in `resources/css/app.css`.
+- Vue pages already use field-recording concepts: map, sounds, creators, scientific stats, listening points.
+- Existing fonts (`Cormorant`, `DM Sans`, `JetBrains Mono`) can support an editorial/scientific identity.
+- Existing components such as `SoundCard`, `SoundMap`, `WaveSurfer`, `AudioAnalysisPanel`, gamification drawers, and scientific charts give a strong foundation.
+
+Current weaknesses:
+
+- Too many surfaces rely on the same `glass-card` pattern, making pages feel uniform.
+- The palette leans toward emerald/moss and risks "green tech" rather than premium naturalist.
+- Hero and CTA language is useful but not yet iconic.
+- Scientific screens still read as dashboard blocks instead of a modern naturalist lab.
+- Gamification risks standard XP/trophy language instead of an adult exploration journal.
+- Map UX is functional but should be the emotional center of the product.
+
+## 3. Artistic Direction
+
+Direction name: **Atlas du Vivant Audible**.
+
+Visual language:
+
+- **Forest black** for depth and silence.
+- **Mineral paper** for field notes and scientific context.
+- **Lichen gold** for precious objects, badges, and primary actions.
+- **Firefly cyan-green** for living traces, pins, audio activity, and focus states.
+- **Bark and clay** for grounded warmth.
+- **Mist white** for premium editorial readability.
+
+Do not use a flat SaaS grid as the dominant structure. Prefer editorial spreads, floating map panels, field-note cards, scientific plates, and acoustic timelines.
+
+## 4. Inspiration Principles Without Copying
+
+| Reference | What to learn | Arborisis translation |
+|-----------|---------------|----------------------|
+| Apple | restraint, hierarchy, precision | fewer UI elements, more silence, better typography |
+| Spotify | audio emotion, discovery | immersive player and sound-first browsing |
+| Airbnb | trust, places, map UX | place cards, approximate location confidence, human hosts |
+| National Geographic | exploration and documentary authority | field-note language, scientific evidence, species context |
+| AllTrails | terrain and routes | seasonal modes, public listening points, exploration progress |
+| Arc | modern polish | soft panels, precise transitions, small premium details |
+| Linear | system consistency | durable tokens and predictable component states |
+| A24 | atmosphere and memorability | darker cinematic moments, mystery, strong copy |
+| Patagonia | nature ethics | calm contribution, privacy, respect for fragile locations |
+| Kinfolk / Monocle | editorial calm | spacious layouts, quiet typography, mature imagery |
+| NYT Visual Stories | data storytelling | explain scientific data through narrative visual modules |
+
+## 5. Color Tokens
+
+These tokens extend the current palette and preserve backward compatibility with existing `arbor-*` classes.
+
+```js
+colors: {
+  arbor: {
+    forest: '#07110D',
+    ink: '#0A0D0B',
+    canopy: '#102018',
+    night: '#111827',
+    moss: '#4A6741',
+    sage: '#8FA68E',
+    bark: '#6B4F3A',
+    clay: '#A66F4E',
+    mineral: '#D8D0BD',
+    mist: '#F2EFE7',
+    lichen: '#D7B46A',
+    firefly: '#8FE6C1',
+    cyanTrace: '#78D6D6'
+  }
+}
+```
+
+Usage:
+
+- `forest` / `ink`: page background, map chrome, immersive sections.
+- `canopy`: panels, navigation, elevated atlas surfaces.
+- `mineral` / `mist`: editorial text, field-note paper, light scientific inserts.
+- `lichen`: primary CTA, badges, featured sound objects.
+- `firefly`: active map pins, focus, living audio traces.
+- `bark` / `clay`: secondary warm accents, creator/community modules.
+
+Avoid using `emerald` as the main brand accent on new screens. Keep it for legacy success states or compatibility.
+
+## 6. Typography
+
+Keep the installed fonts for implementation speed:
+
+- `font-display` / Cormorant: large editorial headlines, page titles, sound names.
+- `font-sans` / DM Sans: UI labels, paragraphs, navigation.
+- `font-mono` / JetBrains Mono: duration, scores, coordinates, API fields, model versions.
+
+Rules:
+
+- Use Cormorant for emotional hierarchy, not every card title.
+- Use JetBrains Mono only where data is truly technical.
+- Avoid negative letter spacing. Use normal tracking except small uppercase labels.
+- Prefer human microcopy: "Observe", "Ecouter", "Documenter", "Lieu approximatif", "Archive vivante".
+
+## 7. Component System
+
+Create or refactor these Vue components:
+
+| Component | Purpose | Implementation target |
+|-----------|---------|-----------------------|
+| `AtlasNav.vue` | premium navigation with map-first hierarchy | replace parts of `GuestLayout.vue` |
+| `EditorialFooter.vue` | magazine-like footer, mission, open data, newsletter | replace footer in `GuestLayout.vue` |
+| `SoundArchiveCard.vue` | sound as precious archive object | replace/enhance `Components/SoundCard.vue` |
+| `LivingMapPin.vue` | organic map pin with pulse and biome state | integrate into `Components/Map/SoundMap.vue` |
+| `ExplorationSidebar.vue` | map search, filters, modes, active sound | extract from `Pages/Map/Index.vue` |
+| `FieldNoteBlock.vue` | paper-like note for context and scientific copy | use on sound/science pages |
+| `ScientificMetricPlate.vue` | less SaaS stat card | replace `Scientific/StatCard.vue` where possible |
+| `NaturalistBadge.vue` | adult badge/medal language | gamification components |
+| `TemporalListeningTimeline.vue` | same place across dates/seasons | sound and scientific pages |
+| `PoeticEmptyState.vue` | branded empty states | lists, profiles, upload |
+| `SoundWaveLoader.vue` | loading state inspired by quiet waveform | global loading/skeleton use |
+
+Base CSS utilities added in `resources/css/app.css`:
+
+- `.atlas-surface`
+- `.field-note`
+- `.sound-archive-card`
+- `.badge-naturalist`
+- `.map-pin-living`
+
+## 8. Page Refactors
+
+### 8.1 Home Page (`resources/js/Pages/Landing.vue`)
+
+New structure:
+
+1. Immersive hero: headline **"Le vivant s'écoute."**
+2. Subline: "Une carte mondiale de fragments sonores capturés par des naturalistes, artistes et field recorders."
+3. Hero includes live map preview or sound atlas preview above the fold.
+4. Three entry points: `Explorer la carte`, `Ecouter une archive`, `Publier une observation`.
+5. Section "Explorer le vivant par le son": biomes, seasons, time of day.
+6. Section "Archives vivantes": selected sounds as field-note cards.
+7. Section "Laboratoire naturaliste": scientific stats as narrative modules.
+8. Section "Communauté": creators as explorers, not influencers.
+
+Visual changes:
+
+- Reduce generic gradients.
+- Use image/texture depth and field-note overlays.
+- Make the first viewport feel like entering a world, not a landing page.
+
+### 8.2 Sound Map (`resources/js/Pages/Map/Index.vue`)
+
+The map is the central product.
+
+Modes:
+
+- `Découverte`
+- `Espèces`
+- `Lieux`
+- `Saisons`
+- `Archives`
+
+UX:
+
+- Desktop: left exploration sidebar, map full height, active sound card floating near selected pin.
+- Mobile: map full screen, bottom sheet filters, persistent mini-player.
+- Pins use `.map-pin-living` with biome color variants.
+- Add filter groups: biome, species, time of day, season, weather, duration, recording quality.
+- Map copy should use "lieu approximatif" where relevant to reinforce privacy.
+
+### 8.3 Sound Detail (`resources/js/Pages/Sounds/Show.vue`)
+
+Treat the sound as both artwork and data.
+
+Layout:
+
+- Top: large title, approximate place, date, season, recordist.
+- Main: premium audio player with waveform as central object.
+- Secondary: field note with weather, environment, equipment, microphone position.
+- Scientific: spectrogram, species detections, analysis confidence.
+- Timeline: same listening point on other dates.
+- Related: sounds from similar biome, season, or species.
+
+Tone:
+
+- Replace generic metadata lists with "Contexte du lieu", "Signature acoustique", "Espèces probables", "Archives du même lieu".
+
+### 8.4 Scientific Page (`resources/js/Pages/ScientificStats/Index.vue`)
+
+Make it a **modern naturalist lab**, not a SaaS analytics page.
+
+Structure:
+
+- Hero: "Observer la biodiversité par le son."
+- Dataset readiness as a scientific plate.
+- Tabs remain useful, but labels should feel like research sections.
+- Add explanatory field notes next to charts.
+- Visualizations should be framed as observations: cycles, density, species, weather context, listening points.
+- Keep API docs precise and machine-readable.
+
+### 8.5 Profiles (`resources/js/Pages/Profile/Show.vue`)
+
+Profile should become a digital field journal.
+
+Modules:
+
+- Creator portrait and short field biography.
+- Personal sound map.
+- Collections by biome/species/season.
+- Favorite listening points.
+- Naturalist badges.
+- Contributions and scientific usefulness.
+- "Signature sonore": common environments, recording hours, explored regions.
+
+### 8.6 Gamification
+
+Adult, poetic, naturalist, never mobile-game childish.
+
+Replace generic trophy framing with:
+
+- **Carnets d'exploration**
+- **Médailles naturalistes**
+- **Collections d'espèces**
+- **Quêtes saisonnières**
+- **Points publics visités**
+
+Examples:
+
+- "Veilleur d'aube"
+- "Archiviste des pluies"
+- "Sentinelle des marais"
+- "Cartographe des lisières"
+- "Oreille des migrations"
+
+Use `NaturalistBadge.vue` and `.badge-naturalist`.
+
+## 9. Micro-Interactions
+
+Required interaction language:
+
+- Hover on sound card: subtle acoustic ripple from the play control.
+- Map pin: slow breathing pulse, disabled in `prefers-reduced-motion`.
+- Player: waveform breathes while active, calms when paused.
+- Badge unlock: soft lichen glint, no confetti.
+- Scientific graph reveal: progressive fade/slide, not bounce.
+- Search/filter: quiet focus glow in `firefly`.
+- Upload steps: field notebook progression with saved draft feedback.
+- Empty state: quiet waveform loader and human copy.
+
+Performance rule: no decorative animation should block map interaction, audio controls, upload, or mobile scrolling.
+
+## 10. Mobile-First UX
+
+Mobile priorities:
+
+- Bottom navigation: `Carte`, `Sons`, `Publier`, `Profil`.
+- Map opens full screen by default.
+- Filters live in bottom sheet with large touch targets.
+- Mini-player is persistent and never hides primary map controls.
+- Sound page order: player, field context, species, place, comments.
+- Upload should be 4 steps max: file, context, place, publish.
+- Profile starts with map/collection, not a desktop-style grid.
+
+Accessibility:
+
+- Maintain 44px minimum interactive targets.
+- Use `:focus-visible` states with `firefly`.
+- Respect `prefers-reduced-motion`.
+- Preserve map/list alternative for screen-reader and low-performance users.
+
+## 11. Implementation Plan By Impact
+
+### P0: Foundation
+
+- Add extended Tailwind tokens. Done in `tailwind.config.js`.
+- Add reusable CSS utilities. Done in `resources/css/app.css`.
+- Keep legacy tokens to avoid breaking current Vue pages.
+
+### P1: Identity Pass
+
+- Update `GuestLayout.vue` navigation and footer copy.
+- Replace global primary button feel with lichen/firefly action system.
+- Update `Landing.vue` hero headline and sections.
+
+### P2: Core Product
+
+- Refactor `SoundCard.vue` into `SoundArchiveCard.vue`.
+- Extract map sidebar to `ExplorationSidebar.vue`.
+- Implement `LivingMapPin.vue` or equivalent Leaflet HTML marker using `.map-pin-living`.
+- Improve mobile map bottom sheet.
+
+### P3: Deep Pages
+
+- Recompose `Sounds/Show.vue` as archive object + scientific evidence.
+- Recompose `ScientificStats/Index.vue` with field-note explanations and scientific plates.
+- Upgrade `Profile/Show.vue` into field journal layout.
+
+### P4: Polish
+
+- Naturalist badge system.
+- Branded empty/loading states.
+- Micro-interaction pass.
+- Accessibility and mobile visual QA.
+
+## 12. Concrete UI Examples
+
+Hero copy:
+
+```txt
+Le vivant s'écoute.
+Une carte mondiale de fragments sonores capturés par des naturalistes, artistes et field recorders.
+```
+
+Sound card metadata:
+
+```txt
+Archive vivante
+Foret mixte, aube humide
+03:42 · lieu approximatif · 4 especes probables
+```
+
+Scientific field note:
+
+```txt
+Note de methode
+Les coordonnées publiques sont approximées. Les lieux fragiles sont floutés avant toute visualisation.
+```
+
+Empty state:
+
+```txt
+Aucune archive dans cette zone.
+Essayez une autre saison, ou ouvrez la carte aux lieux voisins.
+```
+
+## 13. Prompt-To-Artifact Checklist
+
+| Requirement | Artifact evidence |
+|-------------|-------------------|
+| Direction artistique | Design System 2.0 sections 1-4 |
+| Palette | Tailwind config extended tokens + section 5 |
+| Typographie | Section 6 |
+| UI components | Section 7 + CSS utilities |
+| Sound map | Section 8.2 |
+| Home page | Section 8.1 |
+| Sound page | Section 8.3 |
+| Scientific page | Section 8.4 |
+| Profiles | Section 8.5 |
+| Gamification | Section 8.6 |
+| Mobile | Section 10 |
+| Micro-interactions | Section 9 + CSS pin/ripple utilities |
+| Design system | Sections 5-7 and 11 |
+| Avoid generic SaaS/AI look | Sections 2-4, 8, 9 |
+| Directly usable by Laravel/Vue/Tailwind developer | File paths, component names, Tailwind tokens, CSS utilities, implementation phases |

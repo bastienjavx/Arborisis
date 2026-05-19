@@ -99,6 +99,7 @@ const startDrawing = () => {
         const rect = canvas.getBoundingClientRect();
         canvas.width = rect.width * dpr;
         canvas.height = rect.height * dpr;
+        if (ctx.resetTransform) ctx.resetTransform();
         ctx.scale(dpr, dpr);
     };
     resize();
@@ -117,9 +118,9 @@ const startDrawing = () => {
         analyser.value.getByteTimeDomainData(dataArray);
 
         ctx.lineWidth = 2;
-        ctx.strokeStyle = 'rgba(52, 211, 153, 0.6)';
-        ctx.shadowBlur = 8;
-        ctx.shadowColor = 'rgba(52, 211, 153, 0.4)';
+        ctx.strokeStyle = 'rgba(143, 230, 193, 0.62)';
+        ctx.shadowBlur = 6;
+        ctx.shadowColor = 'rgba(143, 230, 193, 0.28)';
 
         ctx.beginPath();
         const sliceWidth = w / bufferLength;
@@ -137,7 +138,7 @@ const startDrawing = () => {
 
         // Draw a subtle mirrored wave
         ctx.beginPath();
-        ctx.strokeStyle = 'rgba(52, 211, 153, 0.15)';
+        ctx.strokeStyle = 'rgba(215, 180, 106, 0.16)';
         ctx.lineWidth = 1;
         x = 0;
         for (let i = 0; i < bufferLength; i++) {
@@ -173,8 +174,8 @@ onUnmounted(() => {
     <div class="relative w-full min-h-[70vh] flex flex-col items-center justify-center overflow-hidden">
         <!-- Subtle ambient radial glow behind recorder -->
         <div
-            class="pointer-events-none absolute inset-0 opacity-30"
-            style="background: radial-gradient(ellipse 60% 40% at 50% 55%, rgba(52,211,153,0.08), transparent 70%);"
+            class="pointer-events-none absolute inset-0 opacity-40"
+            style="background: radial-gradient(ellipse 60% 40% at 50% 55%, rgba(143,230,193,0.08), transparent 70%);"
         />
 
         <!-- Error banner -->
@@ -209,7 +210,7 @@ onUnmounted(() => {
                 <select
                     v-model="selectedDevice"
                     :disabled="isRecording || isLoadingDevices"
-                    class="w-full appearance-none rounded-xl border border-arbor-glass-border bg-arbor-deep/60 px-4 py-2.5 text-sm text-arbor-cream shadow-sm backdrop-blur-sm transition-colors focus:border-arbor-emerald focus:outline-none focus:ring-1 focus:ring-arbor-emerald disabled:opacity-50"
+                    class="w-full appearance-none rounded-lg border border-arbor-mineral/10 bg-arbor-deep/60 px-4 py-2.5 text-sm text-arbor-cream shadow-sm backdrop-blur-sm transition-colors focus:border-arbor-lichen focus:outline-none focus:ring-1 focus:ring-arbor-lichen disabled:opacity-50"
                 >
                     <option v-for="dev in devices" :key="dev.deviceId" :value="dev.deviceId">
                         {{ dev.label }}
@@ -238,17 +239,17 @@ onUnmounted(() => {
                 leave-to-class="max-h-0 opacity-0"
             >
                 <div v-show="showAdvanced" class="w-full overflow-hidden">
-                    <div class="flex flex-wrap justify-center gap-4 rounded-xl border border-arbor-glass-border bg-arbor-deep/40 px-4 py-3">
+                    <div class="flex flex-wrap justify-center gap-4 rounded-lg border border-arbor-mineral/10 bg-arbor-deep/40 px-4 py-3">
                         <label class="flex cursor-pointer items-center gap-2 text-xs text-arbor-sage">
-                            <input v-model="echoCancellation" type="checkbox" class="rounded border-arbor-glass-border bg-arbor-deep text-arbor-emerald focus:ring-arbor-emerald" />
+                            <input v-model="echoCancellation" type="checkbox" class="rounded border-arbor-glass-border bg-arbor-deep text-arbor-lichen focus:ring-arbor-lichen" />
                             Réduction d'écho
                         </label>
                         <label class="flex cursor-pointer items-center gap-2 text-xs text-arbor-sage">
-                            <input v-model="noiseSuppression" type="checkbox" class="rounded border-arbor-glass-border bg-arbor-deep text-arbor-emerald focus:ring-arbor-emerald" />
+                            <input v-model="noiseSuppression" type="checkbox" class="rounded border-arbor-glass-border bg-arbor-deep text-arbor-lichen focus:ring-arbor-lichen" />
                             Suppression de bruit
                         </label>
                         <label class="flex cursor-pointer items-center gap-2 text-xs text-arbor-sage">
-                            <input v-model="autoGainControl" type="checkbox" class="rounded border-arbor-glass-border bg-arbor-deep text-arbor-emerald focus:ring-arbor-emerald" />
+                            <input v-model="autoGainControl" type="checkbox" class="rounded border-arbor-glass-border bg-arbor-deep text-arbor-lichen focus:ring-arbor-lichen" />
                             AGC
                         </label>
                     </div>
@@ -269,27 +270,27 @@ onUnmounted(() => {
         <div class="relative z-10 flex flex-col items-center">
             <!-- Concentric decorative rings (idle) -->
             <div
-                class="absolute inset-0 -m-6 rounded-full border border-arbor-emerald/10 transition-all duration-700"
+                class="absolute inset-0 -m-6 rounded-full border border-arbor-lichen/10 transition-all duration-700"
                 :class="{ 'scale-110 opacity-0': state !== 'idle' }"
             />
             <div
-                class="absolute inset-0 -m-12 rounded-full border border-arbor-emerald/5 transition-all duration-700 delay-100"
+                class="absolute inset-0 -m-12 rounded-full border border-arbor-firefly/10 transition-all duration-700 delay-100"
                 :class="{ 'scale-110 opacity-0': state !== 'idle' }"
             />
 
             <!-- Pulsing ring during recording -->
             <div
-                class="absolute inset-0 -m-4 rounded-full border-2 border-arbor-emerald/40 transition-all duration-300"
+                class="absolute inset-0 -m-4 rounded-full border border-arbor-firefly/35 transition-all duration-300"
                 :style="{
-                    transform: state === 'recording' ? `scale(${1 + peak * 0.12})` : 'scale(1)',
-                    opacity: state === 'recording' ? 0.5 + peak * 0.5 : 0,
+                    transform: state === 'recording' ? `scale(${1 + peak * 0.08})` : 'scale(1)',
+                    opacity: state === 'recording' ? 0.35 + peak * 0.35 : 0,
                 }"
             />
             <div
-                class="absolute inset-0 -m-8 rounded-full border border-arbor-emerald/20 transition-all duration-500"
+                class="absolute inset-0 -m-8 rounded-full border border-arbor-lichen/18 transition-all duration-500"
                 :style="{
-                    transform: state === 'recording' ? `scale(${1 + rms * 0.2})` : 'scale(1)',
-                    opacity: state === 'recording' ? 0.3 + rms * 0.4 : 0,
+                    transform: state === 'recording' ? `scale(${1 + rms * 0.12})` : 'scale(1)',
+                    opacity: state === 'recording' ? 0.24 + rms * 0.28 : 0,
                 }"
             />
 
@@ -298,10 +299,10 @@ onUnmounted(() => {
                 class="relative flex h-28 w-28 items-center justify-center rounded-full transition-all duration-300 active:scale-[0.96]"
                 :class="[
                     state === 'recording'
-                        ? 'bg-arbor-emerald/10 shadow-[0_0_40px_rgba(52,211,153,0.25)]'
+                        ? 'bg-arbor-firefly/10 shadow-[0_0_34px_rgba(143,230,193,0.18)]'
                         : state === 'paused'
                           ? 'bg-arbor-amber/10 shadow-[0_0_40px_rgba(212,165,116,0.15)]'
-                          : 'bg-arbor-glass shadow-[0_0_30px_rgba(52,211,153,0.08)] hover:shadow-[0_0_50px_rgba(52,211,153,0.18)] hover:bg-arbor-emerald/5',
+                          : 'bg-arbor-glass shadow-[0_0_28px_rgba(215,180,106,0.08)] hover:shadow-[0_0_42px_rgba(143,230,193,0.12)] hover:bg-arbor-lichen/5',
                 ]"
                 @click="
                     () => {
@@ -314,7 +315,7 @@ onUnmounted(() => {
                 <!-- Idle mic icon -->
                 <svg
                     v-if="state === 'idle'"
-                    class="h-10 w-10 text-arbor-emerald transition-transform duration-300"
+                    class="h-10 w-10 text-arbor-lichen transition-transform duration-300"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -330,7 +331,7 @@ onUnmounted(() => {
                 <!-- Recording pause icon -->
                 <svg
                     v-else-if="state === 'recording'"
-                    class="h-10 w-10 text-arbor-emerald"
+                    class="h-10 w-10 text-arbor-firefly"
                     fill="currentColor"
                     viewBox="0 0 24 24"
                 >
@@ -353,7 +354,7 @@ onUnmounted(() => {
             <div
                 class="mt-5 font-mono text-3xl tracking-widest transition-colors duration-300"
                 :class="{
-                    'text-arbor-emerald': state === 'recording',
+                    'text-arbor-firefly': state === 'recording',
                     'text-arbor-amber': state === 'paused',
                     'text-arbor-sage/70': state === 'idle',
                 }"
@@ -401,8 +402,11 @@ onUnmounted(() => {
             leave-to-class="translate-y-6 opacity-0"
         >
             <div v-if="state === 'preview'" class="z-10 mt-8 flex w-full max-w-lg flex-col items-center gap-6 px-6">
-                <div class="w-full rounded-2xl border border-arbor-glass-border bg-arbor-deep/40 p-6 backdrop-blur-sm">
-                    <p class="mb-4 text-center font-display text-lg italic text-arbor-cream">
+                <div class="w-full rounded-lg border border-arbor-mineral/10 bg-arbor-deep/40 p-6 backdrop-blur-sm">
+                    <p class="atlas-kicker mb-2 text-center">
+                        Capture prête
+                    </p>
+                    <p class="mb-4 text-center font-display text-xl text-arbor-cream">
                         Votre capture
                     </p>
 

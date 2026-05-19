@@ -23,7 +23,7 @@ export default {
             zIndex: {
                 'dropdown': '10',
                 'sticky': '20',
-                'fixed-nav': '30',
+                'fixed-nav': '1100',
                 'drawer': '40',
                 'modal': '50',
                 'popover': '60',
@@ -39,6 +39,9 @@ export default {
                     night:    '#0B1220',
                     deep:     '#111827',
                     deeper:   '#0d1117',
+                    forest:   '#07110D',
+                    ink:      '#0A0D0B',
+                    canopy:   '#102018',
                     moss:     '#4A6741',
                     'moss-light': '#5a7d4f',
                     emerald:  '#34D399',
@@ -46,6 +49,13 @@ export default {
                     sage:     '#8FA68E',
                     cream:    '#F3F0E7',
                     'cream-dark': '#E8E4D9',
+                    mineral:  '#D8D0BD',
+                    mist:     '#F2EFE7',
+                    bark:     '#6B4F3A',
+                    clay:     '#A66F4E',
+                    lichen:   '#D7B46A',
+                    firefly:  '#8FE6C1',
+                    'cyan-trace': '#78D6D6',
                     glass:    'rgba(255,255,255,0.05)',
                     'glass-border': 'rgba(255,255,255,0.1)',
                     amber:    '#D4A574',
@@ -59,6 +69,13 @@ export default {
                 'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
                 'hero-glow': 'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(74, 103, 65, 0.3), transparent)',
                 'studio-gradient': 'linear-gradient(180deg, #0B1220 0%, #111827 50%, #0d1117 100%)',
+                'atlas-depth': 'radial-gradient(circle at 20% 10%, rgba(215, 180, 106, 0.12), transparent 28%), radial-gradient(circle at 78% 0%, rgba(120, 214, 214, 0.08), transparent 26%), linear-gradient(180deg, #07110D 0%, #0A0D0B 52%, #102018 100%)',
+                'mist-paper': 'linear-gradient(135deg, rgba(242, 239, 231, 0.08), rgba(216, 208, 189, 0.025))',
+            },
+            boxShadow: {
+                'organic': '0 24px 80px rgba(0, 0, 0, 0.35)',
+                'lichen': '0 16px 48px rgba(215, 180, 106, 0.14)',
+                'firefly': '0 0 32px rgba(143, 230, 193, 0.16)',
             },
             animation: {
                 'fade-in': 'fadeIn 0.8s ease-out forwards',
@@ -68,6 +85,8 @@ export default {
                 'wave': 'wave 1.2s ease-in-out infinite',
                 'glow-pulse': 'glowPulse 3s ease-in-out infinite',
                 'reel-spin': 'reelSpin 8s linear infinite',
+                'breath': 'breath 4.8s ease-in-out infinite',
+                'sound-ripple': 'soundRipple 1.8s ease-out infinite',
             },
             keyframes: {
                 fadeIn: {
@@ -89,6 +108,14 @@ export default {
                 reelSpin: {
                     '0%': { transform: 'rotate(0deg)' },
                     '100%': { transform: 'rotate(360deg)' },
+                },
+                breath: {
+                    '0%, 100%': { opacity: '0.68', transform: 'scale(1)' },
+                    '50%': { opacity: '1', transform: 'scale(1.025)' },
+                },
+                soundRipple: {
+                    '0%': { opacity: '0.35', transform: 'scale(0.82)' },
+                    '100%': { opacity: '0', transform: 'scale(1.45)' },
                 },
             },
         },

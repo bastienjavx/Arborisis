@@ -28,6 +28,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property-read SoundAnalysis $soundAnalysis
  * @property-read Sound $sound
+ * @property-read User|null $validatedBy
  *
  * @method static Builder<static>|BirdnetDetection newModelQuery()
  * @method static Builder<static>|BirdnetDetection newQuery()
@@ -83,6 +84,25 @@ class BirdnetDetection extends Model
         'frequency_max' => 'float',
         'is_validated' => 'boolean',
     ];
+
+    // -------------------------------------------------------------------------
+    // Relations
+    // -------------------------------------------------------------------------
+
+    public function soundAnalysis(): BelongsTo
+    {
+        return $this->belongsTo(SoundAnalysis::class);
+    }
+
+    public function sound(): BelongsTo
+    {
+        return $this->belongsTo(Sound::class);
+    }
+
+    public function validatedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'validated_by');
+    }
 
     // -------------------------------------------------------------------------
     // Scopes

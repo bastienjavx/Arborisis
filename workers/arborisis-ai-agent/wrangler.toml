@@ -1,0 +1,15 @@
+name = "<redacted>-ai-agent"
+main = "src/index.ts"
+compatibility_date = "2026-05-18"
+account_id = "bc36459259b257fdbaf4252f06bcb690"
+
+[vars]
+LARAVEL_API_URL = "https://<redacted>.com/api"
+SITE_URL = "https://<redacted>.com"
+AGENT_MODEL = "@cf/moonshotai/kimi-k2.6"
+
+# Secrets (do NOT commit these):
+# wrangler secret put BRAVE_SEARCH_API_KEY
+
+[ai]
+binding = "AI"

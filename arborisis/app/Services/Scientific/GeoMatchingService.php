@@ -55,7 +55,15 @@ class GeoMatchingService
                     ))
                 )) AS distance_meters
             ", [$lat, $lng, $lat])
-            ->having('distance_meters', '<=', $threshold)
+            ->whereRaw("
+                ({$earthRadius} * acos(
+                    least(1, greatest(-1,
+                    cos(radians(?)) * cos(radians(public_latitude))
+                    * cos(radians(public_longitude) - radians(?))
+                    + sin(radians(?)) * sin(radians(public_latitude))
+                    ))
+                )) <= ?
+            ", [$lat, $lng, $lat, $threshold])
             ->orderBy('distance_meters')
             ->limit($limit)
             ->get();

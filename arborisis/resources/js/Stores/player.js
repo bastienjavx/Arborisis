@@ -39,18 +39,34 @@ export const usePlayerStore = defineStore('player', () => {
     const hasActiveTrack = computed(() => currentSound.value !== null);
     const hasActiveRadio = computed(() => radioMetadata.value !== null);
 
-    function play(sound = null) {
+    function requestNativePlay(sound) {
+        if (typeof window === 'undefined' || !sound?.audioUrl) {
+            return;
+        }
+
+        window.dispatchEvent(new CustomEvent('<redacted>:play-sound', {
+            detail: { sound },
+        }));
+    }
+
+    function play(sound = null, options = {}) {
         currentMode.value = 'sound';
         radioMetadata.value = null;
         if (sound) {
             if (currentSound.value?.id === sound.id) {
                 isPlaying.value = true;
+                if (options.direct) {
+                    requestNativePlay(sound);
+                }
                 return;
             }
             currentSound.value = sound;
             isPlaying.value = true;
             currentTime.value = 0;
             duration.value = sound.duration || 0;
+            if (options.direct) {
+                requestNativePlay(sound);
+            }
         } else if (currentSound.value) {
             isPlaying.value = true;
         }

@@ -12,6 +12,7 @@ use App\Events\Gamification\ProfileUpdated;
 use App\Events\Gamification\SoundLiked;
 use App\Events\Gamification\SoundListened;
 use App\Events\Gamification\UserLoggedIn;
+use App\Events\AudioAnalysisCompleted;
 use App\Events\SoundAnalyzed;
 use App\Events\SoundPublished;
 use App\Jobs\OpenSearch\IndexSoundInOpenSearch;
@@ -45,8 +46,10 @@ use SocialiteProviders\Discord\DiscordExtendSocialite;
 use SocialiteProviders\Manager\SocialiteWasCalled;
 use App\Models\ArborisisPoint;
 use App\Models\ContactTicket;
+use App\Models\ListeningPoint;
 use App\Models\SoundFile;
 use App\Models\User;
+use App\Observers\ListeningPointObserver;
 use App\Observers\SoundFileObserver;
 use App\Observers\UserObserver;
 use App\Models\ChatMessage;
@@ -87,6 +90,7 @@ class AppServiceProvider extends ServiceProvider
 
         User::observe(UserObserver::class);
         SoundFile::observe(SoundFileObserver::class);
+        ListeningPoint::observe(ListeningPointObserver::class);
 
         Gate::policy(ArborisisPoint::class, ArborisisPointPolicy::class);
         Gate::policy(ContactTicket::class, ContactTicketPolicy::class);
@@ -111,6 +115,15 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Event::listen(SoundAnalyzed::class, function (SoundAnalyzed $event) {
+            IndexSoundInOpenSearch::dispatch($event->sound->id)->onQueue('search');
+            ComputeScientificMetricsJob::dispatch($event->sound->id)->onQueue('metrics');
+
+            if ($event->sound->listening_point_id) {
+                IndexListeningPointInOpenSearch::dispatch($event->sound->listening_point_id)->onQueue('search');
+            }
+        });
+
+        Event::listen(AudioAnalysisCompleted::class, function (AudioAnalysisCompleted $event) {
             IndexSoundInOpenSearch::dispatch($event->sound->id)->onQueue('search');
             ComputeScientificMetricsJob::dispatch($event->sound->id)->onQueue('metrics');
 
@@ -161,6 +174,38 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('listening-points', function ($request) {
             return Limit::perMinute(45)->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('ai-agent-chat', function ($request) {
+            $user = $request->user();
+            $identity = $user ? "user:{$user->id}" : "ip:{$request->ip()}";
+            $minuteLimit = (int) config(
+                $user ? 'services.<redacted>_agent.rate_limit_per_minute' : 'services.<redacted>_agent.guest_rate_limit_per_minute',
+                $user ? 6 : 3,
+            );
+            $dailyQuota = (int) config(
+                $user ? 'services.<redacted>_agent.daily_quota' : 'services.<redacted>_agent.guest_daily_quota',
+                $user ? 60 : 15,
+            );
+
+            return [
+                Limit::perMinute($minuteLimit)
+                    ->by("ai-agent-chat:minute:{$identity}")
+                    ->response(fn ($request, array $headers) => response()->json([
+                        'message' => 'Sylve reçoit trop de demandes à la suite. Réessaie dans quelques instants.',
+                        'code' => 'sylve_rate_limited',
+                    ], 429, $headers)),
+                Limit::perDay($dailyQuota)
+                    ->by("ai-agent-chat:day:{$identity}")
+                    ->response(fn ($request, array $headers) => response()->json([
+                        'message' => 'Le quota quotidien de Sylve est atteint pour ce compte. Réessaie demain.',
+                        'code' => 'sylve_daily_quota_exceeded',
+                    ], 429, $headers)),
+            ];
+        });
+
+        RateLimiter::for('agent-action', function ($request) {
+            return Limit::perHour(10)->by($request->user()?->id ?: $request->ip());
         });
     }
 }

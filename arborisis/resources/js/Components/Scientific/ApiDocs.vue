@@ -8,6 +8,13 @@ const endpoints = [
     { method: 'GET', path: '/api/scientific-stats/audio-features', desc: 'Statistiques descriptives et distributions des features audio' },
     { method: 'GET', path: '/api/scientific-stats/top-locations', desc: 'Top lieux par nombre d\'enregistrements' },
     { method: 'GET', path: '/api/scientific-stats/equipment', desc: 'Distribution des équipements de recording' },
+    { method: 'GET', path: '/api/scientific-stats/species', desc: 'Espèces détectées avec filtre min_confidence' },
+    { method: 'GET', path: '/api/scientific-stats/quality', desc: 'Qualité audio, couverture métrique et labels pipeline' },
+    { method: 'GET', path: '/api/scientific-stats/environmental', desc: 'Observations météo et croisements activité acoustique' },
+    { method: 'GET', path: '/api/scientific-stats/model-stats', desc: 'Statistiques descriptives des scores SBS et AAS' },
+    { method: 'GET', path: '/api/scientific-stats/dataset-completeness', desc: 'Complétude et readiness score du dataset scientifique' },
+    { method: 'GET', path: '/api/scientific-stats/schema', desc: 'Dictionnaire de colonnes du dataset public' },
+    { method: 'GET', path: '/api/scientific-stats/dataset?limit=100&offset=0', desc: 'Dataset chercheur paginé avec schéma, citation et contrat de confidentialité' },
     { method: 'GET', path: '/api/scientific-stats/raw-data?limit=100', desc: 'Échantillon de données brutes (max 1000 lignes)' },
 ];
 
@@ -27,8 +34,8 @@ const examples = [
         command: `curl -H "Accept: application/json" \\\n  ${baseUrl}/api/scientific-stats/audio-features`,
     },
     {
-        title: 'Échantillon limité',
-        command: `curl -H "Accept: application/json" \\\n  "${baseUrl}/api/scientific-stats/raw-data?limit=100"`,
+        title: 'Dataset paginé',
+        command: `curl -H "Accept: application/json" \\\n  "${baseUrl}/api/scientific-stats/dataset?limit=100&offset=0"`,
     },
 ];
 </script>
@@ -78,7 +85,7 @@ const examples = [
         <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="rounded-xl border border-arbor-glass-border bg-arbor-deep/35 p-4">
                 <h4 class="text-sm font-semibold text-arbor-cream mb-2">Format</h4>
-                <p class="text-sm text-arbor-sage">Réponses JSON sous la clé <code class="text-arbor-cream">data</code>, prêtes pour notebooks, scripts ou dashboards.</p>
+                <p class="text-sm text-arbor-sage">Réponses JSON sous <code class="text-arbor-cream">data</code> avec <code class="text-arbor-cream">meta</code>, schéma versionné, citation et pagination pour le dataset.</p>
             </div>
             <div class="rounded-xl border border-arbor-glass-border bg-arbor-deep/35 p-4">
                 <h4 class="text-sm font-semibold text-arbor-cream mb-2">Confidentialité</h4>
@@ -86,7 +93,7 @@ const examples = [
             </div>
             <div class="rounded-xl border border-arbor-glass-border bg-arbor-deep/35 p-4">
                 <h4 class="text-sm font-semibold text-arbor-cream mb-2">Limites</h4>
-                <p class="text-sm text-arbor-sage">L'endpoint raw-data accepte <code class="text-arbor-cream">limit</code> avec un maximum serveur de 1000 lignes.</p>
+                <p class="text-sm text-arbor-sage">Le dataset accepte <code class="text-arbor-cream">limit</code>, <code class="text-arbor-cream">offset</code>, dates, catégories, environnements et confiance minimale.</p>
             </div>
         </div>
     </div>

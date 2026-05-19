@@ -89,13 +89,14 @@ const createCustomIcon = (categoryName, isHighlighted = false) => {
     const color = getCategoryColor(categoryName);
     const catClass = getCategoryClass(categoryName);
     const scale = isHighlighted ? 'scale(1.4)' : 'scale(1)';
-    const glow = isHighlighted ? `0 0 20px ${color}aa, 0 0 8px ${color}ff` : `0 0 12px ${color}80, 0 0 4px ${color}cc`;
+    const glow = isHighlighted ? `0 0 26px ${color}aa, 0 0 9px ${color}ff` : `0 0 16px ${color}80, 0 0 4px ${color}cc`;
 
     return L.divIcon({
         className: `custom-marker ${catClass}`,
         html: `<div class="sound-marker" style="transform: ${scale}; transition: transform 0.25s ease;">
             <div class="sound-marker-pulse" style="background: ${color}4d;"></div>
             <div class="sound-marker-pulse-slow" style="background: ${color}26;"></div>
+            <div class="sound-marker-ring" style="border-color: ${color}66;"></div>
             <div class="sound-marker-dot" style="background: ${color}; box-shadow: ${glow};"></div>
         </div>`,
         iconSize: [20, 20],
@@ -355,9 +356,18 @@ watch(() => props.sounds, updateMarkers, { deep: true });
 
 .sound-marker-dot {
     position: absolute;
-    inset: 4px;
+    inset: 5px;
     border-radius: 50%;
     transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.sound-marker-ring {
+    position: absolute;
+    inset: 2px;
+    border: 1px solid;
+    border-radius: 40% 60% 55% 45% / 52% 42% 58% 48%;
+    background: rgba(7, 17, 13, 0.46);
+    backdrop-filter: blur(2px);
 }
 
 .sound-marker:hover .sound-marker-dot {
@@ -396,17 +406,17 @@ watch(() => props.sounds, updateMarkers, { deep: true });
 .marker-cluster-inner {
     width: 40px;
     height: 40px;
-    border-radius: 50%;
-    background: rgba(52, 211, 153, 0.85);
+    border-radius: 40% 60% 55% 45% / 52% 42% 58% 48%;
+    background: rgba(215, 180, 106, 0.9);
     backdrop-filter: blur(4px);
     border: 2px solid rgba(11, 18, 32, 0.6);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #0B1220;
+    color: #07110D;
     font-weight: 700;
     font-size: 13px;
-    box-shadow: 0 0 20px rgba(52, 211, 153, 0.3);
+    box-shadow: 0 0 24px rgba(215, 180, 106, 0.26);
     transition: transform 0.2s ease;
 }
 
@@ -416,10 +426,10 @@ watch(() => props.sounds, updateMarkers, { deep: true });
 
 /* Popup styles */
 .sound-popup-wrapper .leaflet-popup-content-wrapper {
-    background: rgba(15, 23, 42, 0.95) !important;
+    background: rgba(7, 17, 13, 0.96) !important;
     backdrop-filter: blur(12px) !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    border-radius: 16px !important;
+    border-radius: 12px !important;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
     overflow: hidden;
     padding: 0 !important;
@@ -431,7 +441,7 @@ watch(() => props.sounds, updateMarkers, { deep: true });
 }
 
 .sound-popup-wrapper .leaflet-popup-tip {
-    background: rgba(15, 23, 42, 0.95) !important;
+    background: rgba(7, 17, 13, 0.96) !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
     width: 12px !important;
     height: 12px !important;
@@ -453,14 +463,14 @@ watch(() => props.sounds, updateMarkers, { deep: true });
     left: 0;
     right: 0;
     height: 50px;
-    background: linear-gradient(to top, #0F172A, transparent);
+    background: linear-gradient(to top, #07110D, transparent);
 }
 
 .map-popup-cover-empty {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #1E293B, #2a3142);
+    background: linear-gradient(135deg, #07110D, #102018);
     color: rgba(143, 166, 142, 0.3);
 }
 
@@ -532,13 +542,13 @@ watch(() => props.sounds, updateMarkers, { deep: true });
     gap: 4px;
     font-size: 11px;
     font-weight: 600;
-    color: #34D399;
+    color: #D7B46A;
     text-decoration: none;
     transition: color 0.2s;
 }
 
 .map-popup-link:hover {
-    color: #10B981;
+    color: #8FE6C1;
 }
 
 .map-popup-link svg {
@@ -554,7 +564,7 @@ watch(() => props.sounds, updateMarkers, { deep: true });
 }
 
 .leaflet-control-zoom a {
-    background: #0F172A !important;
+    background: rgba(7, 17, 13, 0.92) !important;
     color: #8FA68E !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
     width: 38px !important;
@@ -566,7 +576,7 @@ watch(() => props.sounds, updateMarkers, { deep: true });
 }
 
 .leaflet-control-zoom a:hover {
-    background: #1E293B !important;
+    background: rgba(16, 32, 24, 0.96) !important;
     color: #F3F0E7 !important;
 }
 

@@ -20,7 +20,7 @@ const formatDate = (dateString) => {
 };
 
 const getAvatarUrl = (user) => {
-    return user?.profile?.avatar || null;
+    return user?.avatar_url || user?.profile?.avatar_url || user?.profile?.avatarUrl || null;
 };
 
 const getInitials = (name) => {

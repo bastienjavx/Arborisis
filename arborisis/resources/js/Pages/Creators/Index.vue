@@ -24,7 +24,7 @@ watch(search, (value) => {
 });
 
 const getAvatarUrl = (creator) => {
-    return creator?.profile?.avatarUrl || null;
+    return creator?.avatar_url || creator?.profile?.avatar_url || creator?.profile?.avatarUrl || null;
 };
 
 const getInitials = (name) => {

@@ -31,6 +31,10 @@ class ScientificStatsController extends Controller
             'listeningPoints' => $this->statsService->getListeningPointsOverview(),
             'speciesDistribution' => $this->statsService->getSpeciesDistribution(),
             'globalMetrics' => $this->statsService->getGlobalMetricsOverview(),
+            'qualityOverview' => $this->statsService->getQualityOverview(),
+            'datasetCompleteness' => $this->statsService->getDatasetCompleteness(),
+            'datasetSchema' => $this->statsService->getDatasetSchema(),
+            'environmentalOverview' => $this->statsService->getEnvironmentalOverview(),
         ]);
     }
 }

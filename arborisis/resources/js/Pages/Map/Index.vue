@@ -21,6 +21,15 @@ const titleHidden = ref(false);
 const activeSoundId = ref(null);
 const titleTimeout = ref(null);
 const soundMapRef = ref(null);
+const activeMode = ref('discover');
+
+const mapModes = [
+    { key: 'discover', label: 'Découverte' },
+    { key: 'species', label: 'Espèces' },
+    { key: 'places', label: 'Lieux' },
+    { key: 'seasons', label: 'Saisons' },
+    { key: 'archives', label: 'Archives' },
+];
 
 /* ── Category color mapping for pills ───────────────── */
 const categoryColorMap = {
@@ -180,10 +189,10 @@ onMounted(() => {
                 :class="{ 'map-title-hidden': titleHidden }"
             >
                 <h1 class="font-display text-3xl md:text-4xl font-semibold text-arbor-cream tracking-tight">
-                    Carte sonore
+                    Carte vivante
                 </h1>
                 <p class="text-arbor-sage/70 text-sm mt-1 font-light">
-                    Explorez les enregistrements à travers le monde
+                    Les traces sonores publiques du monde vivant
                 </p>
             </div>
 
@@ -209,10 +218,30 @@ onMounted(() => {
                 @mouseenter="hideTitle"
                 @click="hideTitle"
             >
-                <div class="glass-card shadow-2xl shadow-black/25 overflow-hidden flex flex-col max-h-[calc(100vh-7rem)]">
+                <div class="trace-frame shadow-2xl shadow-black/25 overflow-hidden flex flex-col max-h-[calc(100vh-7rem)]">
                     
                     <!-- Section 1: Recherche -->
                     <div class="p-4 border-b border-arbor-glass-border animate-fade-in-up">
+                        <div class="mb-4">
+                            <p class="atlas-kicker mb-1">Atlas acoustique</p>
+                            <h2 class="font-display text-2xl font-semibold text-arbor-cream">Explorer les traces</h2>
+                            <p class="mt-1 text-xs leading-5 text-arbor-sage/75">
+                                Coordonnées publiques approximées pour protéger les lieux sensibles.
+                            </p>
+                        </div>
+
+                        <div class="mb-4 flex gap-2 overflow-x-auto pb-1">
+                            <button
+                                v-for="mode in mapModes"
+                                :key="mode.key"
+                                class="map-mode-pill shrink-0"
+                                :class="{ 'map-mode-pill-active': activeMode === mode.key }"
+                                @click="activeMode = mode.key"
+                            >
+                                {{ mode.label }}
+                            </button>
+                        </div>
+
                         <div class="relative">
                             <svg
                                 class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-arbor-sage/60"
@@ -230,8 +259,8 @@ onMounted(() => {
                             <input
                                 v-model="searchQuery"
                                 type="text"
-                                placeholder="Rechercher un son, un lieu..."
-                                class="w-full pl-10 pr-9 py-2.5 bg-arbor-charcoal/60 border border-arbor-fog/40 rounded-xl text-base text-arbor-cream placeholder:text-arbor-sage/60 focus:outline-none focus:border-arbor-emerald/50 focus:ring-2 focus:ring-arbor-emerald/10 transition-colors search-pulse"
+                                placeholder="Espèce, forêt, aube, créateur..."
+                                class="w-full pl-10 pr-9 py-2.5 bg-arbor-ink/50 border border-arbor-mineral/10 rounded-lg text-base text-arbor-cream placeholder:text-arbor-sage/60 focus:outline-none focus:border-arbor-lichen/50 focus:ring-2 focus:ring-arbor-lichen/10 transition-colors search-pulse"
                                 aria-label="Rechercher un son ou un lieu"
                                 @input="onSearchInput"
                             />
@@ -255,8 +284,8 @@ onMounted(() => {
                                 :class="[
                                     'px-3 py-2 min-h-[44px] rounded-lg text-xs font-medium transition-colors duration-200 flex items-center',
                                     selectedCategory === ''
-                                        ? 'bg-arbor-emerald/15 text-arbor-emerald border border-arbor-emerald/30 shadow-sm shadow-arbor-emerald/5'
-                                        : 'bg-arbor-charcoal/60 text-arbor-sage border border-arbor-fog/40 hover:border-arbor-sage/50 hover:bg-arbor-charcoal',
+                                        ? 'bg-arbor-lichen/15 text-arbor-lichen border border-arbor-lichen/30 shadow-sm shadow-arbor-lichen/5'
+                                        : 'bg-arbor-ink/45 text-arbor-sage border border-arbor-mineral/10 hover:border-arbor-mineral/25 hover:bg-arbor-mist/5',
                                 ]"
                                 @click="selectCategory('')"
                             >
@@ -269,7 +298,7 @@ onMounted(() => {
                                     'px-3 py-2 min-h-[44px] rounded-lg text-xs font-medium transition-colors duration-200 border flex items-center',
                                     selectedCategory == category.id
                                         ? `${getCategoryStyle(category.name).bg} ${getCategoryStyle(category.name).text} ${getCategoryStyle(category.name).border} shadow-sm ${getCategoryStyle(category.name).glow}`
-                                        : 'bg-arbor-charcoal/60 text-arbor-sage border-arbor-fog/40 hover:border-arbor-sage/50 hover:bg-arbor-charcoal',
+                                        : 'bg-arbor-ink/45 text-arbor-sage border-arbor-mineral/10 hover:border-arbor-mineral/25 hover:bg-arbor-mist/5',
                                 ]"
                                 @click="selectCategory(category.id)"
                             >
@@ -280,11 +309,11 @@ onMounted(() => {
 
                     <!-- Section 3: Compteur & statut -->
                     <div class="px-4 py-2.5 border-b border-arbor-glass-border flex items-center justify-between animate-fade-in-up stagger-2">
-                        <span class="text-xs">
-                            <span v-if="initialLoad" class="text-arbor-sage/70">Chargement...</span>
-                            <span v-else-if="hasSounds" class="text-arbor-sage">
-                                <span class="text-arbor-emerald font-semibold tabular-nums">{{ sounds.length }}</span>
-                                son{{ sounds.length > 1 ? 's' : '' }} trouvé{{ sounds.length > 1 ? 's' : '' }}
+                                <span class="text-xs">
+                                    <span v-if="initialLoad" class="text-arbor-sage/70">Chargement...</span>
+                                    <span v-else-if="hasSounds" class="text-arbor-sage">
+                                <span class="text-arbor-lichen font-semibold tabular-nums">{{ sounds.length }}</span>
+                                trace{{ sounds.length > 1 ? 's' : '' }} trouvée{{ sounds.length > 1 ? 's' : '' }}
                                 <span v-if="activeCategoryName" class="text-arbor-sage/60"> dans <span class="text-arbor-sage">{{ activeCategoryName }}</span></span>
                             </span>
                             <span v-else class="text-arbor-sage/60">Aucun son trouvé</span>

@@ -22,7 +22,7 @@ const formatDate = (dateString) => {
 };
 
 const getAvatarUrl = (creator) => {
-    return creator?.creator?.profile?.avatarUrl || null;
+    return creator?.creator?.avatar_url || creator?.creator?.profile?.avatar_url || creator?.creator?.profile?.avatarUrl || null;
 };
 
 const getInitials = (name) => {

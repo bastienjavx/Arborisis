@@ -49,7 +49,7 @@ return [
     'production' => [
         'enabled' => env('RADIO_AUDIO_PRODUCTION_ENABLED', true),
         'ai_enabled' => env('RADIO_AUDIO_PRODUCTION_AI_ENABLED', true),
-        'ai_model' => env('RADIO_AUDIO_PRODUCTION_AI_MODEL', env('RADIO_HOST_AI_MODEL', 'anthropic/claude-sonnet-4.6')),
+        'ai_model' => env('RADIO_AUDIO_PRODUCTION_AI_MODEL', env('RADIO_HOST_AI_MODEL', 'anthropic/claude-opus-4.7')),
         'music_enabled' => env('RADIO_AUDIO_PRODUCTION_MUSIC_ENABLED', true),
         'sound_effects_enabled' => env('RADIO_AUDIO_PRODUCTION_FX_ENABLED', true),
         'max_music_seconds' => env('RADIO_AUDIO_PRODUCTION_MAX_MUSIC_SECONDS', 90),
@@ -66,7 +66,7 @@ return [
         'emission_min_sounds' => 3,
         'emission_max_sounds' => 5,
         'host_voice_id'       => env('RADIO_HOST_VOICE_ID'),
-        'ai_model'            => env('RADIO_HOST_AI_MODEL', 'anthropic/claude-sonnet-4.6'),
+        'ai_model'            => env('RADIO_HOST_AI_MODEL', 'anthropic/claude-opus-4.7'),
         'storage_disk'        => env('RADIO_HOST_STORAGE_DISK', 'r2'),
 
         // Phase 2 — Personnalités d'animateur IA-driven.

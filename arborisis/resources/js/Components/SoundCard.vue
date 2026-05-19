@@ -20,6 +20,14 @@ const isPlaying = computed(() => {
     return player.isPlaying && player.currentSound?.id === props.sound.id;
 });
 
+const traceBars = computed(() => {
+    const seed = Number(props.sound.id || props.sound.duration || 7);
+    return Array.from({ length: 18 }, (_, i) => {
+        const value = 22 + Math.abs(Math.sin(seed * 0.43 + i * 0.74)) * 72;
+        return Math.round(value);
+    });
+});
+
 const formatDuration = (seconds) => {
     if (!seconds) return '--:--';
     const mins = Math.floor(seconds / 60);
@@ -40,41 +48,41 @@ const playSound = (e) => {
             userName: props.sound.user_name || props.sound.user?.name,
             audioUrl: props.sound.audio_url,
             coverUrl: props.sound.cover_url,
-        });
+            duration: props.sound.duration,
+        }, { direct: true });
     }
 };
 </script>
 
 <template>
     <div
-        class="sound-card group relative overflow-hidden"
-        :class="size === 'compact' ? 'rounded-xl' : 'rounded-2xl'"
+        class="sound-archive-card group relative"
+        :class="size === 'compact' ? 'rounded-lg' : 'rounded-xl'"
     >
         <!-- Cover Image -->
-        <div class="relative aspect-[16/9] overflow-hidden bg-arbor-charcoal">
+        <div class="relative aspect-[16/10] overflow-hidden bg-arbor-charcoal">
             <img
                 v-if="sound.cover_url"
                 :src="sound.cover_url"
                 :alt="`Couverture de ${sound.title}`"
-                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 loading="lazy"
             />
-            <div v-else class="w-full h-full flex items-center justify-center bg-arbor-deep">
-                <svg class="w-10 h-10 text-arbor-moss/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                </svg>
+            <div v-else class="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_50%_30%,rgba(143,230,193,0.12),transparent_45%),linear-gradient(135deg,#07110D,#102018)]">
+                <div class="sound-trace h-12 w-12 rounded-full bg-arbor-firefly/10 text-arbor-firefly"></div>
             </div>
 
             <!-- Gradient overlay -->
-            <div class="absolute inset-0 bg-gradient-to-t from-arbor-night/80 via-transparent to-transparent" />
+            <div class="absolute inset-0 bg-gradient-to-t from-arbor-ink via-arbor-ink/20 to-transparent" />
+            <div class="absolute inset-x-0 bottom-0 h-16 bg-[linear-gradient(180deg,transparent,rgba(7,17,13,0.96))]" />
 
             <!-- Play button overlay -->
             <button
                 @click="playSound"
                 :aria-label="isPlaying ? `Mettre en pause ${sound.title}` : `Lire ${sound.title}`"
-                class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer"
+                class="absolute inset-0 flex items-center justify-center opacity-0 transition-all duration-300 cursor-pointer group-hover:opacity-100"
             >
-                <div class="w-14 h-14 rounded-full bg-arbor-emerald/90 hover:bg-arbor-emerald flex items-center justify-center shadow-lg shadow-arbor-emerald/20 transition-all duration-200 active:scale-95 hover:scale-105">
+                <div class="sound-trace flex h-14 w-14 items-center justify-center rounded-full bg-arbor-lichen text-arbor-ink shadow-lichen transition-all duration-200 hover:scale-105 active:scale-95">
                     <svg v-if="!isPlaying" class="w-6 h-6 text-arbor-night ml-1" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M8 5v14l11-7z" />
                     </svg>
@@ -87,27 +95,35 @@ const playSound = (e) => {
             <!-- Category badge -->
             <span
                 v-if="sound.category"
-                class="absolute top-3 left-3 px-2 py-1 rounded-lg text-[10px] font-semibold uppercase tracking-wider bg-arbor-night/60 backdrop-blur-sm text-arbor-sage border border-arbor-glass-border"
+                class="absolute left-3 top-3 rounded-full border border-arbor-mineral/15 bg-arbor-ink/70 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-arbor-lichen backdrop-blur-sm"
             >
                 {{ sound.category.name || sound.category }}
             </span>
 
             <!-- Duration -->
-            <span class="absolute bottom-3 right-3 px-2 py-0.5 rounded-md text-[11px] font-mono bg-arbor-night/60 backdrop-blur-sm text-arbor-sage">
+            <span class="absolute right-3 bottom-3 rounded-full bg-arbor-ink/70 px-2.5 py-1 font-mono text-[11px] text-arbor-mist backdrop-blur-sm">
                 {{ formatDuration(sound.duration) }}
             </span>
         </div>
 
         <!-- Info -->
-        <div class="p-4">
+        <div class="relative p-4">
+            <div class="mb-4 flex h-8 items-end gap-[3px]" aria-hidden="true">
+                <span
+                    v-for="(height, index) in traceBars"
+                    :key="index"
+                    class="flex-1 rounded-full bg-arbor-mineral/12 transition-colors duration-300 group-hover:bg-arbor-firefly/45"
+                    :style="{ height: `${height}%` }"
+                />
+            </div>
             <Link
                 :href="route('sounds.show', sound.slug)"
-                class="block font-medium text-arbor-cream text-sm truncate hover:text-arbor-emerald transition-colors"
+                class="block truncate font-display text-lg font-semibold leading-tight text-arbor-cream transition-colors hover:text-arbor-lichen"
             >
                 {{ sound.title }}
             </Link>
-            <div class="flex items-center justify-between mt-1">
-                <span class="text-xs text-arbor-sage truncate">
+            <div class="mt-2 flex items-center justify-between gap-3">
+                <span class="truncate text-xs text-arbor-sage">
                     {{ sound.user_name || sound.user?.name || 'Anonyme' }}
                 </span>
                 <div class="flex items-center gap-2 text-[11px] text-arbor-sage/70">
