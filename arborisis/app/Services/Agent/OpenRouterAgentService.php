@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Agent;
 
 use App\Models\User;
+use App\Services\Contact\ContactTicketService;
 use App\Services\Gamification\ArborisisPointService;
 use App\Services\Gamification\SoundWalkService;
 use Illuminate\Support\Facades\Http;
@@ -15,22 +16,25 @@ class OpenRouterAgentService
 {
     private ?User $currentUser = null;
 
+    private array $conversationHistory = [];
+
     public function __construct(
         private readonly UserAgentMemoryService $userAgentMemory,
         private readonly ArborisisPointService $pointService,
         private readonly SoundWalkService $soundWalkService,
-    ) {
-    }
+        private readonly ContactTicketService $ticketService,
+    ) {}
 
     /**
-     * @param array<int, array{role: string, content: string}> $history
-     * @param array<string, mixed> $page
-     * @param array<string, mixed>|null $location
+     * @param  array<int, array{role: string, content: string}>  $history
+     * @param  array<string, mixed>  $page
+     * @param  array<string, mixed>|null  $location
      * @return array<string, mixed>
      */
     public function chat(string $message, array $history = [], array $page = [], ?string $conversationId = null, ?User $user = null, ?array $location = null): array
     {
         $this->currentUser = $user;
+        $this->conversationHistory = $history;
         $agentFiles = [];
 
         if ($user) {
@@ -115,7 +119,7 @@ class OpenRouterAgentService
     }
 
     /**
-     * @param array<int, array{role: string, content: string}> $messages
+     * @param  array<int, array{role: string, content: string}>  $messages
      * @return array<string, mixed>
      */
     private function callOpenRouter(array $messages, bool $withTools): array
@@ -205,7 +209,7 @@ class OpenRouterAgentService
                 'type' => 'function',
                 'function' => [
                     'name' => 'get_map_sounds',
-                    'description' => "Récupère un échantillon de sons publics avec coordonnées approximatives.",
+                    'description' => 'Récupère un échantillon de sons publics avec coordonnées approximatives.',
                     'parameters' => [
                         'type' => 'object',
                         'properties' => [
@@ -219,7 +223,7 @@ class OpenRouterAgentService
                 'type' => 'function',
                 'function' => [
                     'name' => 'get_radio_now_playing',
-                    'description' => "Récupère ce qui passe actuellement sur Arborisis Radio.",
+                    'description' => 'Récupère ce qui passe actuellement sur Arborisis Radio.',
                     'parameters' => [
                         'type' => 'object',
                         'properties' => (object) [],
@@ -231,7 +235,7 @@ class OpenRouterAgentService
                 'type' => 'function',
                 'function' => [
                     'name' => 'get_radio_programme',
-                    'description' => "Récupère le programme radio Arborisis du jour.",
+                    'description' => 'Récupère le programme radio Arborisis du jour.',
                     'parameters' => [
                         'type' => 'object',
                         'properties' => [
@@ -245,7 +249,7 @@ class OpenRouterAgentService
                 'type' => 'function',
                 'function' => [
                     'name' => 'get_radio_channels',
-                    'description' => "Récupère les canaux radio Arborisis disponibles.",
+                    'description' => 'Récupère les canaux radio Arborisis disponibles.',
                     'parameters' => [
                         'type' => 'object',
                         'properties' => (object) [],
@@ -353,7 +357,7 @@ class OpenRouterAgentService
             [
                 'type' => 'function',
                 'function' => [
-                    'name' => 'get_nearby_<redacted>_points',
+                    'name' => 'get_nearby_arborisis_points',
                     'description' => "Récupère les points d'intérêt Arborisis proches d'une position géographique.",
                     'parameters' => [
                         'type' => 'object',
@@ -387,7 +391,7 @@ class OpenRouterAgentService
             [
                 'type' => 'function',
                 'function' => [
-                    'name' => 'create_<redacted>_point',
+                    'name' => 'create_arborisis_point',
                     'description' => "Crée un point d'intérêt Arborisis sur la carte. L'utilisateur doit être connecté. Le point est soumis en attente de modération.",
                     'parameters' => [
                         'type' => 'object',
@@ -396,8 +400,8 @@ class OpenRouterAgentService
                             'description' => ['type' => 'string', 'maxLength' => 5000, 'description' => 'Description optionnelle'],
                             'latitude' => ['type' => 'number', 'minimum' => -90, 'maximum' => 90],
                             'longitude' => ['type' => 'number', 'minimum' => -180, 'maximum' => 180],
-                            'category' => ['type' => 'string', 'enum' => ['birds','forest','water','insects','wind','night_ambience','meeting_point','quiet_spot','educational_zone','other'], 'description' => 'Catégorie du point'],
-                            'nature_sensitivity_level' => ['type' => 'string', 'enum' => ['normal','fragile','sensitive_species','private','dangerous'], 'description' => 'Niveau de sensibilité naturelle'],
+                            'category' => ['type' => 'string', 'enum' => ['birds', 'forest', 'water', 'insects', 'wind', 'night_ambience', 'meeting_point', 'quiet_spot', 'educational_zone', 'other'], 'description' => 'Catégorie du point'],
+                            'nature_sensitivity_level' => ['type' => 'string', 'enum' => ['normal', 'fragile', 'sensitive_species', 'private', 'dangerous'], 'description' => 'Niveau de sensibilité naturelle'],
                             'tags' => ['type' => 'array', 'items' => ['type' => 'string', 'maxLength' => 50], 'description' => 'Tags optionnels'],
                             'recommended_time' => ['type' => 'string', 'maxLength' => 100, 'description' => 'Moment recommandé (ex: aube, matin)'],
                             'audio_environment_type' => ['type' => 'string', 'maxLength' => 100, 'description' => "Type d'environnement sonore"],
@@ -471,9 +475,27 @@ class OpenRouterAgentService
                             'difficulty_level' => ['type' => 'integer', 'minimum' => 1, 'maximum' => 5],
                             'tags' => ['type' => 'array', 'items' => ['type' => 'string', 'maxLength' => 50]],
                             'audio_environment_type' => ['type' => 'string', 'maxLength' => 100],
-                            'nature_sensitivity_level' => ['type' => 'string', 'enum' => ['normal','fragile','sensitive_species','private','dangerous']],
+                            'nature_sensitivity_level' => ['type' => 'string', 'enum' => ['normal', 'fragile', 'sensitive_species', 'private', 'dangerous']],
                         ],
                         'required' => ['title', 'waypoints'],
+                        'additionalProperties' => false,
+                    ],
+                ],
+            ],
+            [
+                'type' => 'function',
+                'function' => [
+                    'name' => 'create_support_ticket',
+                    'description' => "Crée un ticket de support technique Arborisis. Si l'utilisateur est connecté, son nom et email sont pré-remplis automatiquement. Pour un visiteur non connecté, demande son nom et son email avant d'appeler cet outil. Résume le problème dans le sujet et détaille-le dans le message, en incluant le contexte de la conversation.",
+                    'parameters' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'name' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255, 'description' => "Nom de l'utilisateur. Optionnel si l'utilisateur est connecté."],
+                            'email' => ['type' => 'string', 'format' => 'email', 'maxLength' => 255, 'description' => "Email de l'utilisateur. Optionnel si l'utilisateur est connecté."],
+                            'subject' => ['type' => 'string', 'minLength' => 2, 'maxLength' => 255, 'description' => 'Sujet concis du ticket de support'],
+                            'message' => ['type' => 'string', 'minLength' => 10, 'maxLength' => 5000, 'description' => 'Description détaillée du problème ou de la demande'],
+                        ],
+                        'required' => ['subject', 'message'],
                         'additionalProperties' => false,
                     ],
                 ],
@@ -482,7 +504,7 @@ class OpenRouterAgentService
     }
 
     /**
-     * @param array<string, mixed> $call
+     * @param  array<string, mixed>  $call
      * @return array<string, mixed>
      */
     private function executeTool(array $call): array
@@ -513,11 +535,12 @@ class OpenRouterAgentService
                 'get_featured_creators' => $this->fetchInternalApi('/api/creators/featured'),
                 'get_user_field_recording_brief' => $this->executeUserFieldRecordingBrief(),
                 'get_field_session_plan' => $this->executeFieldSessionPlan($args),
-                'get_nearby_<redacted>_points' => $this->fetchInternalApi('/api/<redacted>-points/nearby?lat='.((float) $args['lat']).'&lng='.((float) $args['lng']).'&radius='.min(max((int) ($args['radius'] ?? 10), 1), 50)),
+                'get_nearby_arborisis_points' => $this->fetchInternalApi('/api/arborisis-points/nearby?lat='.((float) $args['lat']).'&lng='.((float) $args['lng']).'&radius='.min(max((int) ($args['radius'] ?? 10), 1), 50)),
                 'get_nearby_group_events' => $this->fetchInternalApi('/api/group-events/nearby?lat='.((float) $args['lat']).'&lng='.((float) $args['lng']).'&radius='.min(max((int) ($args['radius'] ?? 10), 1), 50)),
-                'create_<redacted>_point' => $this->executeCreatePoint($args),
+                'create_arborisis_point' => $this->executeCreatePoint($args),
                 'resolve_sound_walk_route' => $this->executeResolveSoundWalkRoute($args),
                 'create_sound_walk' => $this->executeCreateSoundWalk($args),
+                'create_support_ticket' => $this->executeCreateSupportTicket($args),
                 default => ['error' => 'unknown_tool', 'name' => $name],
             };
         } catch (\Throwable $e) {
@@ -526,7 +549,7 @@ class OpenRouterAgentService
     }
 
     /**
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      */
     private function jsonContent(array $payload): string
     {
@@ -542,9 +565,6 @@ class OpenRouterAgentService
         return $json ?: '{"error":"empty_tool_result"}';
     }
 
-    /**
-     * @param mixed $content
-     */
     private function messageContent(mixed $content): ?string
     {
         if (is_string($content)) {
@@ -589,17 +609,18 @@ class OpenRouterAgentService
             'get_featured_creators' => 'Createurs',
             'get_user_field_recording_brief' => 'Memoire personnelle',
             'get_field_session_plan' => 'Plan de sortie',
-            'get_nearby_<redacted>_points' => 'Points proches',
+            'get_nearby_arborisis_points' => 'Points proches',
             'get_nearby_group_events' => 'Evenements proches',
-            'create_<redacted>_point' => 'Point cree',
+            'create_arborisis_point' => 'Point cree',
             'resolve_sound_walk_route' => 'Itineraire verifie',
             'create_sound_walk' => 'Balade creee',
+            'create_support_ticket' => 'Ticket support',
             default => 'Outil Sylve',
         };
     }
 
     /**
-     * @param array<string, mixed> $result
+     * @param  array<string, mixed>  $result
      */
     private function toolSummary(string $name, array $result): string
     {
@@ -621,7 +642,7 @@ class OpenRouterAgentService
     }
 
     /**
-     * @param array<int, array<string, mixed>> $toolResults
+     * @param  array<int, array<string, mixed>>  $toolResults
      */
     private function fallbackAnswerFromTools(array $toolResults): string
     {
@@ -756,6 +777,96 @@ class OpenRouterAgentService
         }
     }
 
+    private function executeCreateSupportTicket(array $args): array
+    {
+        $name = $this->safeString($args['name'] ?? '', 255);
+        $email = $this->safeString($args['email'] ?? '', 255);
+        $subject = $this->safeString($args['subject'] ?? '', 255);
+        $message = $this->safeString($args['message'] ?? '', 5000);
+
+        if ($this->currentUser !== null) {
+            if ($name === '') {
+                $name = trim((string) $this->currentUser->name);
+            }
+            if ($email === '') {
+                $email = trim((string) $this->currentUser->email);
+            }
+        }
+
+        if ($name === '' || $email === '' || $subject === '' || $message === '') {
+            $missing = [];
+            if ($name === '') {
+                $missing[] = 'nom';
+            }
+            if ($email === '') {
+                $missing[] = 'email';
+            }
+            if ($subject === '') {
+                $missing[] = 'sujet';
+            }
+            if ($message === '') {
+                $missing[] = 'message';
+            }
+
+            return [
+                'error' => 'missing_fields',
+                'message' => 'Champs manquants : '.implode(', ', $missing).'. Demande ces informations à l\'utilisateur avant de réessayer.',
+            ];
+        }
+
+        if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return [
+                'error' => 'invalid_email',
+                'message' => "L'adresse email fournie n'est pas valide. Demande une adresse email correcte.",
+            ];
+        }
+
+        $conversationContext = $this->formatConversationContext();
+        $fullMessage = $message;
+        if ($conversationContext !== '') {
+            $fullMessage .= "\n\n--- Contexte de la conversation ---\n".$conversationContext;
+        }
+
+        try {
+            $ticket = $this->ticketService->create([
+                'type' => 'support',
+                'name' => $name,
+                'email' => $email,
+                'subject' => $subject,
+                'message' => $fullMessage,
+            ], $this->currentUser?->id);
+
+            return [
+                'ok' => true,
+                'message' => "Ticket de support créé avec succès ({$ticket->ticket_number}). L'équipe Arborisis te répondra par email à {$email}.",
+                'ticket' => [
+                    'ticket_number' => $ticket->ticket_number,
+                    'subject' => $ticket->subject,
+                    'status' => $ticket->status->value,
+                ],
+            ];
+        } catch (\Throwable $e) {
+            Log::warning('Agent create_support_ticket failed', ['error' => $e->getMessage()]);
+
+            return ['error' => 'creation_failed', 'message' => $e->getMessage()];
+        }
+    }
+
+    private function formatConversationContext(): string
+    {
+        if (empty($this->conversationHistory)) {
+            return '';
+        }
+
+        $recentMessages = collect($this->conversationHistory)
+            ->filter(fn (array $msg): bool => in_array($msg['role'] ?? null, ['user', 'assistant'], true))
+            ->take(-5)
+            ->map(fn (array $msg): string => ucfirst($msg['role']).': '.$this->safeString($msg['content'] ?? '', 500))
+            ->implode("\n");
+
+        return $recentMessages;
+    }
+
     private function fetchInternalApi(string $path): array
     {
         $url = url($path);
@@ -786,7 +897,7 @@ class OpenRouterAgentService
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      * @return array<string, mixed>
      */
     private function truncateArray(array $data, int $maxDepth, int $maxStringLength): array
@@ -810,7 +921,7 @@ class OpenRouterAgentService
     }
 
     /**
-     * @param array<int, array{role: string, content: string}> $history
+     * @param  array<int, array{role: string, content: string}>  $history
      * @return array<int, array{role: string, content: string}>
      */
     private function trimHistory(array $history): array
@@ -827,7 +938,7 @@ class OpenRouterAgentService
     }
 
     /**
-     * @param array<string, string> $agentFiles
+     * @param  array<string, string>  $agentFiles
      */
     private function systemPrompt(?User $user, ?array $location, array $page, array $agentFiles): string
     {
@@ -845,6 +956,7 @@ Identite:
 - Tu as acces a la recherche web en temps reel via OpenRouter pour enrichir tes conseils sur la nature, le materiel, les especes, les techniques de field recording.
 - Tu peux suggerer des points d'interet et evenements de groupe a proximite si l'utilisateur partage sa localisation, afin de l'aider a aller se promener et enregistrer.
 - Tu peux créer des points d'interet et des balades field recording (SoundWalks) pour l'utilisateur connecté. Demande confirmation du lieu si la demande est vague. Les créations sont soumises à modération avant publication publique.
+- Si l'utilisateur demande de l'aide technique, du support ou signale un problème sur le site, tu peux créer un ticket de support avec create_support_ticket. Pour un utilisateur connecté, son nom et email sont pré-remplis automatiquement. Pour un visiteur non connecté, demande son nom et son email avant de créer le ticket. Résume le problème dans le sujet et détaille-le dans le message, en incluant le contexte de la conversation.
 - Pour créer une SoundWalk, ne fabrique jamais de coordonnées ni de lieux décoratifs. Appelle d'abord resolve_sound_walk_route avec des place_query précis incluant ville et pays; si l'outil échoue, corrige les noms ou demande une précision. Appelle create_sound_walk seulement après une résolution OSM/OSRM réussie, en réutilisant les mêmes place_query. Le serveur appelle OpenStreetMap/Nominatim pour trouver les coordonnées, puis OSRM pour tracer le vrai itinéraire à pied.
 - Tu es un vrai agent autonome et proactif: clarifie le besoin implicite, choisis les outils utiles, consulte la memoire quand l'utilisateur est connecte, puis propose la meilleure prochaine action.
 - Avant de repondre a une question factuelle sur l'etat actuel du site, utilise les outils API disponibles.
@@ -883,24 +995,24 @@ Format de reponse:
 
 Contexte site:
 ".json_encode([
-    'name' => config('app.name', 'Arborisis'),
-    'url' => config('app.url'),
-    'locale' => 'fr_FR',
-    'public_api_base' => rtrim((string) config('app.url'), '/').'/api',
-])."
+            'name' => config('app.name', 'Arborisis'),
+            'url' => config('app.url'),
+            'locale' => 'fr_FR',
+            'public_api_base' => rtrim((string) config('app.url'), '/').'/api',
+        ]).'
 
 Utilisateur:
-".json_encode($userContext)."
+'.json_encode($userContext).'
 
 Fichiers memoire agent:
-".json_encode($agentFiles)."
+'.json_encode($agentFiles).'
 
 Page actuelle:
-".json_encode($page);
+'.json_encode($page);
     }
 
     /**
-     * @param array<string, mixed>|null $location
+     * @param  array<string, mixed>|null  $location
      * @return array<string, mixed>
      */
     private function userContext(?User $user, ?array $location = null): array
@@ -920,8 +1032,8 @@ Page actuelle:
             'sounds',
             'followers',
             'following',
-            '<redacted>Points',
-            '<redacted>Visits',
+            'arborisisPoints',
+            'arborisisVisits',
             'questProgress',
             'achievements',
             'medals',
@@ -941,8 +1053,8 @@ Page actuelle:
                 'published_sounds' => $user->sounds_count,
                 'followers' => $user->followers_count,
                 'following' => $user->following_count,
-                'created_points' => $user-><redacted>_points_count,
-                'visits' => $user-><redacted>_visits_count,
+                'created_points' => $user->arborisis_points_count,
+                'visits' => $user->arborisis_visits_count,
                 'active_quests' => $user->quest_progress_count,
                 'achievements' => $user->achievements_count,
                 'medals' => $user->medals_count,
