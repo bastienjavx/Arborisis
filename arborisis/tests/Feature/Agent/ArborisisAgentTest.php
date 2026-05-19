@@ -4,11 +4,17 @@ declare(strict_types=1);
 
 use App\Jobs\Agent\ProcessAgentChatJob;
 use App\Jobs\Agent\UpdateUserAgentMemoryJob;
+use App\Mail\ContactTicketReceived;
+use App\Mail\ContactTicketSubmitted;
 use App\Models\BirdnetDetection;
+use App\Models\ContactTicket;
 use App\Models\Sound;
 use App\Models\SoundAnalysis;
 use App\Models\User;
+use App\Services\Agent\OpenRouterAgentService;
+use App\Services\Agent\UserAgentMemoryService;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Storage;
@@ -118,7 +124,7 @@ it('processes the chat job and calls OpenRouter with correct payload', function 
         location: null,
     );
 
-    $job->handle(app(App\Services\Agent\OpenRouterAgentService::class));
+    $job->handle(app(OpenRouterAgentService::class));
 
     Http::assertSent(fn ($request): bool => $request->hasHeader('Authorization', 'Bearer test-openrouter-key')
         && $request['model'] === 'anthropic/claude-sonnet-4.6'
@@ -164,7 +170,7 @@ it('schedules a delayed memory update for authenticated completed chats', functi
         location: null,
     );
 
-    $job->handle(app(App\Services\Agent\OpenRouterAgentService::class));
+    $job->handle(app(OpenRouterAgentService::class));
 
     Queue::assertPushed(UpdateUserAgentMemoryJob::class, function (UpdateUserAgentMemoryJob $job): bool {
         return $job->message === 'Garde en mémoire mon protocole du matin'
@@ -191,7 +197,7 @@ it('skips stale delayed Sylve memory updates when a newer chat was scheduled', f
         debounceToken: 'older-token',
     );
 
-    $job->handle(app(App\Services\Agent\UserAgentMemoryService::class));
+    $job->handle(app(UserAgentMemoryService::class));
 
     Storage::disk('local')->assertMissing("agent-memory/users/{$user->id}/MEMORY.md");
 });
@@ -212,7 +218,7 @@ it('writes delayed Sylve conversation notes into user and memory files', functio
         page: ['section' => 'sounds', 'url' => '/sounds/create'],
     );
 
-    $job->handle(app(App\Services\Agent\UserAgentMemoryService::class));
+    $job->handle(app(UserAgentMemoryService::class));
 
     $memory = Storage::disk('local')->get("agent-memory/users/{$user->id}/MEMORY.md");
     $profile = Storage::disk('local')->get("agent-memory/users/{$user->id}/USER.md");
@@ -297,7 +303,7 @@ it('gives Sylve a proactive user memory and field recording tools', function () 
         location: null,
     );
 
-    $job->handle(app(App\Services\Agent\OpenRouterAgentService::class));
+    $job->handle(app(OpenRouterAgentService::class));
 
     Http::assertSent(fn ($request): bool => str_contains($request['messages'][0]['content'], 'get_user_field_recording_brief')
         && str_contains($request['messages'][0]['content'], 'Mode assistant field recording')
@@ -391,7 +397,7 @@ it('forces a final answer when OpenRouter keeps requesting tools', function () {
         location: null,
     );
 
-    $job->handle(app(App\Services\Agent\OpenRouterAgentService::class));
+    $job->handle(app(OpenRouterAgentService::class));
 
     Http::assertSentCount(5);
 
@@ -436,7 +442,7 @@ it('passes user location to OpenRouter when provided', function () {
         location: ['lat' => 48.8566, 'lng' => 2.3522, 'accuracy' => 20],
     );
 
-    $job->handle(app(App\Services\Agent\OpenRouterAgentService::class));
+    $job->handle(app(OpenRouterAgentService::class));
 
     Http::assertSent(fn ($request): bool => str_contains($request['messages'][0]['content'], 'latitude 48.8566')
         && str_contains($request['messages'][0]['content'], 'longitude 2.3522'));
@@ -477,4 +483,150 @@ it('returns processing status when result is not yet in redis', function () {
     $this->getJson("/api/ai-agent/status/{$jobId}")
         ->assertOk()
         ->assertJsonPath('status', 'processing');
+});
+
+it('creates a support ticket via Sylve for authenticated users', function () {
+    Storage::fake('local');
+    Mail::fake();
+
+    $user = User::factory()->create([
+        'name' => 'Camille Martin',
+        'email' => 'camille@example.test',
+    ]);
+
+    Http::fake([
+        'openrouter.test/chat/completions' => Http::sequence()
+            ->push([
+                'choices' => [
+                    [
+                        'message' => [
+                            'role' => 'assistant',
+                            'content' => null,
+                            'tool_calls' => [
+                                [
+                                    'id' => 'call-ticket',
+                                    'type' => 'function',
+                                    'function' => [
+                                        'name' => 'create_support_ticket',
+                                        'arguments' => json_encode([
+                                            'subject' => 'Problème de connexion',
+                                            'message' => 'Je ne peux plus me connecter depuis ce matin.',
+                                        ]),
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ])
+            ->push([
+                'choices' => [
+                    [
+                        'message' => [
+                            'role' => 'assistant',
+                            'content' => 'J\'ai créé ton ticket de support. L\'équipe te répondra bientôt.',
+                        ],
+                    ],
+                ],
+            ]),
+    ]);
+
+    $job = new ProcessAgentChatJob(
+        jobId: 'test-job-ticket',
+        message: 'J\'ai un problème de connexion',
+        history: [
+            ['role' => 'user', 'content' => 'J\'ai un problème de connexion'],
+        ],
+        page: [],
+        conversationId: null,
+        userId: $user->id,
+        location: null,
+    );
+
+    $job->handle(app(OpenRouterAgentService::class));
+
+    $payload = json_decode((string) Redis::get('agent:chat:test-job-ticket'), true);
+
+    expect($payload['status'])->toBe('completed')
+        ->and($payload['tool_calls'])->toHaveCount(1)
+        ->and($payload['tool_calls'][0]['tool'])->toBe('create_support_ticket')
+        ->and($payload['tool_calls'][0]['ok'])->toBeTrue();
+
+    Http::assertSent(fn ($request): bool => collect($request['tools'] ?? [])
+        ->contains(fn ($tool): bool => ($tool['function']['name'] ?? null) === 'create_support_ticket'));
+
+    $ticket = ContactTicket::query()
+        ->where('email', 'camille@example.test')
+        ->where('type', 'support')
+        ->first();
+
+    expect($ticket)->not->toBeNull()
+        ->and($ticket->name)->toBe('Camille Martin')
+        ->and($ticket->subject)->toBe('Problème de connexion')
+        ->and($ticket->status->value)->toBe('new')
+        ->and($ticket->user_id)->toBe($user->id);
+
+    Mail::assertQueued(ContactTicketSubmitted::class);
+    Mail::assertQueued(ContactTicketReceived::class);
+});
+
+it('requires name and email for guest support tickets via Sylve', function () {
+    Storage::fake('local');
+
+    Http::fake([
+        'openrouter.test/chat/completions' => Http::sequence()
+            ->push([
+                'choices' => [
+                    [
+                        'message' => [
+                            'role' => 'assistant',
+                            'content' => null,
+                            'tool_calls' => [
+                                [
+                                    'id' => 'call-ticket-guest',
+                                    'type' => 'function',
+                                    'function' => [
+                                        'name' => 'create_support_ticket',
+                                        'arguments' => json_encode([
+                                            'subject' => 'Problème de connexion',
+                                            'message' => 'Je ne peux plus me connecter.',
+                                        ]),
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ])
+            ->push([
+                'choices' => [
+                    [
+                        'message' => [
+                            'role' => 'assistant',
+                            'content' => 'J\'ai besoin de ton nom et de ton email pour créer le ticket.',
+                        ],
+                    ],
+                ],
+            ]),
+    ]);
+
+    $job = new ProcessAgentChatJob(
+        jobId: 'test-job-ticket-guest',
+        message: 'J\'ai un problème',
+        history: [],
+        page: [],
+        conversationId: null,
+        userId: null,
+        location: null,
+    );
+
+    $job->handle(app(OpenRouterAgentService::class));
+
+    $payload = json_decode((string) Redis::get('agent:chat:test-job-ticket-guest'), true);
+
+    expect($payload['status'])->toBe('completed')
+        ->and($payload['tool_calls'])->toHaveCount(1)
+        ->and($payload['tool_calls'][0]['tool'])->toBe('create_support_ticket')
+        ->and($payload['tool_calls'][0]['ok'])->toBeFalse()
+        ->and($payload['tool_calls'][0]['result']['error'])->toBe('missing_fields');
 });
