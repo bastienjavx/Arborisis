@@ -16,7 +16,7 @@
   "license": "MIT",
   "dependencies": {
     "@discordjs/voice": "^0.18.0",
-    "axios": "^1.7",
+    "axios": "^1.16",
     "discord.js": "^14.15",
     "dotenv": "^16.4",
     "express": "^4.19",
