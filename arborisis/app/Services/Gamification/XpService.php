@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Redis;
 
 class XpService
 {
-    private const DAILY_XP_KEY_PREFIX = '<redacted>:daily_xp:';
+    private const DAILY_XP_KEY_PREFIX = 'arborisis:daily_xp:';
 
     public function award(User $user, int $amount, string $sourceType, ?int $sourceId = null, ?string $reason = null): ?XpEvent
     {

@@ -180,11 +180,11 @@ class AppServiceProvider extends ServiceProvider
             $user = $request->user();
             $identity = $user ? "user:{$user->id}" : "ip:{$request->ip()}";
             $minuteLimit = (int) config(
-                $user ? 'services.<redacted>_agent.rate_limit_per_minute' : 'services.<redacted>_agent.guest_rate_limit_per_minute',
+                $user ? 'services.arborisis_agent.rate_limit_per_minute' : 'services.arborisis_agent.guest_rate_limit_per_minute',
                 $user ? 6 : 3,
             );
             $dailyQuota = (int) config(
-                $user ? 'services.<redacted>_agent.daily_quota' : 'services.<redacted>_agent.guest_daily_quota',
+                $user ? 'services.arborisis_agent.daily_quota' : 'services.arborisis_agent.guest_daily_quota',
                 $user ? 60 : 15,
             );
 

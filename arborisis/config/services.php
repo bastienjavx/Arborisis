@@ -51,7 +51,7 @@ return [
     ],
 
     'vapid' => [
-        'subject' => env('VAPID_SUBJECT', 'mailto:contact@<redacted>.com'),
+        'subject' => env('VAPID_SUBJECT', 'mailto:contact@arborisis.com'),
         'public_key' => env('VAPID_PUBLIC_KEY'),
         'private_key' => env('VAPID_PRIVATE_KEY'),
     ],
@@ -104,7 +104,7 @@ return [
         'hosts' => array_filter(array_map('trim', explode(',', env('OPENSEARCH_HOSTS', 'http://localhost:9200')))),
         'username' => env('OPENSEARCH_USERNAME'),
         'password' => env('OPENSEARCH_PASSWORD'),
-        'index_prefix' => env('OPENSEARCH_INDEX_PREFIX', '<redacted>'),
+        'index_prefix' => env('OPENSEARCH_INDEX_PREFIX', 'arborisis'),
         'enabled' => env('OPENSEARCH_ENABLED', true),
     ],
 
@@ -120,7 +120,7 @@ return [
         'api_key' => env('BRAVE_SEARCH_API_KEY'),
     ],
 
-    '<redacted>_agent' => [
+    'arborisis_agent' => [
         'worker_url' => env('ARBORISIS_AGENT_WORKER_URL'),
         'token' => env('ARBORISIS_AGENT_TOKEN'),
         'timeout' => env('ARBORISIS_AGENT_TIMEOUT', 45),

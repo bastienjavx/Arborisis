@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
 
 class SeedDemoArborisisPoints extends Command
 {
-    protected $signature = '<redacted>:seed-demo {count=15}';
+    protected $signature = 'arborisis:seed-demo {count=15}';
     protected $description = 'Create demo Arborisis points for production testing';
 
     public function handle(): int

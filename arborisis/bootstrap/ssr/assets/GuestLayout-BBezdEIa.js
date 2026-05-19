@@ -31,7 +31,7 @@ _sfc_main$2.setup = (props, ctx) => {
 };
 //#endregion
 //#region resources/js/Stores/player.js
-var STORAGE_KEY$1 = "<redacted>-player-state";
+var STORAGE_KEY$1 = "arborisis-player-state";
 function loadState() {
 	try {
 		const raw = localStorage.getItem(STORAGE_KEY$1);
@@ -59,7 +59,7 @@ var usePlayerStore = defineStore("player", () => {
 	const hasActiveRadio = computed(() => radioMetadata.value !== null);
 	function requestNativePlay(sound) {
 		if (typeof window === "undefined" || !sound?.audioUrl) return;
-		window.dispatchEvent(new CustomEvent("<redacted>:play-sound", { detail: { sound } }));
+		window.dispatchEvent(new CustomEvent("arborisis:play-sound", { detail: { sound } }));
 	}
 	function play(sound = null, options = {}) {
 		currentMode.value = "sound";
@@ -212,7 +212,7 @@ _sfc_main$1.setup = (props, ctx) => {
 };
 //#endregion
 //#region resources/js/Stores/consent.js
-var STORAGE_KEY = "<redacted>-consent";
+var STORAGE_KEY = "arborisis-consent";
 function loadConsent() {
 	try {
 		const raw = localStorage.getItem(STORAGE_KEY);

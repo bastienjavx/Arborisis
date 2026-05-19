@@ -50,7 +50,7 @@ docker-compose up --build
 | `R2_ENDPOINT` | Endpoint S3-compatible R2 |
 | `R2_ACCESS_KEY_ID` | Clé d'accès R2 |
 | `R2_SECRET_ACCESS_KEY` | Secret R2 |
-| `R2_BUCKET` | Nom du bucket (défaut: `<redacted>`) |
+| `R2_BUCKET` | Nom du bucket (défaut: `arborisis`) |
 | `MAX_FILE_SIZE_MB` | Taille max fichier audio (défaut: 500) |
 | `MAX_DURATION_SECONDS` | Durée max audio (défaut: 600) |
 | `BIRDNET_CONFIDENCE_THRESHOLD` | Seuil bas envoye a BirdNET pour collecter les candidats (defaut: 0.25) |
@@ -114,8 +114,8 @@ pytest
 ### Docker (VPS / Contabo)
 
 ```bash
-docker build -t <redacted>-audio-analyzer .
-docker run -d --env-file .env -p 8000:8000 --name analyzer <redacted>-audio-analyzer
+docker build -t arborisis-audio-analyzer .
+docker run -d --env-file .env -p 8000:8000 --name analyzer arborisis-audio-analyzer
 ```
 
 ### Multi-instance sur VPS Worker dédié (Recommandé en production)

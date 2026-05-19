@@ -77,7 +77,7 @@ Pour exercer ces droits, contactez-nous à l'adresse indiquée ci-dessous. Nous 
         title: 'Contact',
         content: `Pour toute question relative à cette politique de confidentialité ou pour exercer vos droits, vous pouvez nous contacter :
 
-**E-mail** : privacy@<redacted>.com
+**E-mail** : privacy@arborisis.com
 
 Dernière mise à jour : mai 2026.`,
     },

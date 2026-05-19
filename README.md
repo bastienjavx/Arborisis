@@ -6,6 +6,8 @@
 
 *Capturez, partagez et explorez le monde sonore sauvage.*
 
+[![Pipeline](https://gitlab.com/bastienjavaux/arborisis.com/badges/main/pipeline.svg)](https://gitlab.com/bastienjavaux/arborisis.com/-/commits/main)
+[![Coverage](https://gitlab.com/bastienjavaux/arborisis.com/badges/main/coverage.svg)](https://gitlab.com/bastienjavaux/arborisis.com/-/commits/main)
 [![CI](https://github.com/bastienjavx/Arborisis/actions/workflows/ci.yml/badge.svg)](https://github.com/bastienjavx/Arborisis/actions)
 [![Security](https://github.com/bastienjavx/Arborisis/actions/workflows/security.yml/badge.svg)](https://github.com/bastienjavx/Arborisis/actions)
 [![PHP Version](https://img.shields.io/badge/PHP-8.3%2B-777BB4?logo=php&logoColor=white)](https://php.net)
@@ -142,6 +144,13 @@ L'application est accessible sur **http://localhost**.
 - Node.js 20+
 - Composer 2+
 
+### 1. Cloner le projet
+```bash
+git clone https://gitlab.com/bastienjavaux/arborisis.com.git
+cd arborisis.com/arborisis
+```
+
+### 2. Installer les dépendances
 #### 1. Cloner et installer
 ```bash
 git clone https://github.com/bastienjavx/Arborisis.git
@@ -218,6 +227,22 @@ Arborisis est un monorepo. L'application Laravel déployée reste dans
 les services Python et l'infrastructure.
 
 ```
+arborisis/
+├── app/
+│   ├── Http/Controllers/      # Web + API controllers
+│   ├── Http/Requests/         # Form Requests (validation)
+│   ├── Models/                # Eloquent + relations
+│   ├── Services/              # Logique métier
+│   ├── Policies/              # Autorisations
+│   └── Jobs/                  # Queues (audio, waveform)
+├── resources/js/
+│   ├── Pages/                 # Pages Inertia (Vue)
+│   ├── Components/            # Composants réutilisables
+│   ├── Composables/           # Logique Vue réutilisable
+│   └── Stores/                # Pinia (player global)
+├── database/migrations/       # Schéma PostgreSQL
+├── routes/                    # web.php, api.php, admin.php
+└── tests/                     # Feature + Unit tests
 .
 ├── arborisis/                 # Laravel 12 + Inertia/Vue + Discord bot
 ├── workers/                   # Workers Cloudflare

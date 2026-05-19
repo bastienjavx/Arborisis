@@ -13,8 +13,8 @@ use Illuminate\Support\Facades\Redis;
 
 class AntiCheatService
 {
-    private const COOLDOWN_KEY_PREFIX = '<redacted>:cooldown:';
-    private const DAILY_COUNT_KEY_PREFIX = '<redacted>:daily_visits:';
+    private const COOLDOWN_KEY_PREFIX = 'arborisis:cooldown:';
+    private const DAILY_COUNT_KEY_PREFIX = 'arborisis:daily_visits:';
 
     public function validateVisit(
         User $user,

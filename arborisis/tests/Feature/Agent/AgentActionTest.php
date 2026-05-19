@@ -41,11 +41,11 @@ class AgentActionTest extends TestCase
         ]);
 
         $response->assertCreated()
-            ->assertJsonPath('created_resource.type', '<redacted>_point')
+            ->assertJsonPath('created_resource.type', 'arborisis_point')
             ->assertJsonPath('created_resource.title', 'Cascade de la Folie')
             ->assertJsonPath('created_resource.moderation_status', 'pending');
 
-        $this->assertDatabaseHas('<redacted>_points', [
+        $this->assertDatabaseHas('arborisis_points', [
             'title' => 'Cascade de la Folie',
             'user_id' => $user->id,
             'moderation_status' => ModerationStatus::Pending->value,

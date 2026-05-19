@@ -11,7 +11,7 @@ globalement entre les VPS (random + failover).
 ```
 Cloudflare Worker (orchestrateur)
     ↓  POST /analyze
-    ↓  https://analyzer.<redacted>.com (ou IP du VPS worker)
+    ↓  https://analyzer.arborisis.com (ou IP du VPS worker)
 Nginx (load balancer — least_conn)
     ↓
 ┌──────────┬──────────┬──────────┐
@@ -33,8 +33,8 @@ Chaque instance est isolée (volume temporaire dédié, limite CPU/mémoire).
 ### 1. Cloner le repo
 
 ```bash
-git clone <repo> /var/www/<redacted>
-cd /var/www/<redacted>/infrastructure/audio-analyzer-worker
+git clone <repo> /var/www/arborisis
+cd /var/www/arborisis/infrastructure/audio-analyzer-worker
 ```
 
 ### 2. Créer le fichier d'environnement
@@ -48,12 +48,12 @@ Variables obligatoires :
 
 ```env
 ANALYZER_SECRET=<même-token-que-laravel-et-worker>
-LARAVEL_API_URL=https://<redacted>.com
+LARAVEL_API_URL=https://arborisis.com
 LARAVEL_API_SECRET=<token-callback-laravel>
 R2_ENDPOINT=https://<account-id>.r2.cloudflarestorage.com
 R2_ACCESS_KEY_ID=...
 R2_SECRET_ACCESS_KEY=...
-R2_BUCKET=<redacted>
+R2_BUCKET=arborisis
 ```
 
 ### 3. Build et démarrage
@@ -93,14 +93,14 @@ sudo ufw enable
 
 ```bash
 wrangler secret put ANALYZER_URL
-# https://worker1.<redacted>.com
+# https://worker1.arborisis.com
 ```
 
 #### Deux VPS workers (ou plus)
 
 ```bash
 wrangler secret put ANALYZER_URLS
-# https://worker1.<redacted>.com,https://worker2.<redacted>.com
+# https://worker1.arborisis.com,https://worker2.arborisis.com
 ```
 
 Le Worker distribue aléatoirement entre les URLs et bascule automatiquement
@@ -140,7 +140,7 @@ Un script `deploy.sh` est fourni pour automatiser le pull + rebuild :
 Ou manuellement :
 
 ```bash
-cd /var/www/<redacted>
+cd /var/www/arborisis
  git pull origin main
  cd infrastructure/audio-analyzer-worker
  docker compose down

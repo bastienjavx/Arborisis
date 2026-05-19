@@ -122,8 +122,8 @@ MARKDOWN;
 - Sons publiés ou créés: {$user->sounds_count}
 - Abonnés: {$user->followers_count}
 - Abonnements: {$user->following_count}
-- Points Arborisis créés: {$user-><redacted>_points_count}
-- Visites Arborisis: {$user-><redacted>_visits_count}
+- Points Arborisis créés: {$user->arborisis_points_count}
+- Visites Arborisis: {$user->arborisis_visits_count}
 - Quêtes suivies: {$user->quest_progress_count}
 - Succès débloqués: {$user->achievements_count}
 - Médailles: {$user->medals_count}
@@ -302,8 +302,8 @@ MARKDOWN;
             'sounds',
             'followers',
             'following',
-            '<redacted>Points',
-            '<redacted>Visits',
+            'arborisisPoints',
+            'arborisisVisits',
             'questProgress',
             'achievements',
             'medals',
@@ -326,8 +326,8 @@ MARKDOWN;
                 'sounds' => $user->sounds_count,
                 'followers' => $user->followers_count,
                 'following' => $user->following_count,
-                'points' => $user-><redacted>_points_count,
-                'visits' => $user-><redacted>_visits_count,
+                'points' => $user->arborisis_points_count,
+                'visits' => $user->arborisis_visits_count,
                 'quests' => $user->quest_progress_count,
                 'level' => $user->level,
                 'xp' => $user->xp_total,
@@ -424,7 +424,7 @@ MARKDOWN;
             $actions[] = 'Verifier ou relancer les analyses audio des sons sans analyse.';
         }
 
-        if ((int) $user-><redacted>_points_count === 0) {
+        if ((int) $user->arborisis_points_count === 0) {
             $actions[] = 'Creer un premier point d ecoute public approximatif si un lieu recurrent existe.';
         }
 
@@ -539,12 +539,12 @@ MARKDOWN;
 
     private function disk(): string
     {
-        return (string) config('services.<redacted>_agent.memory_disk', 'local');
+        return (string) config('services.arborisis_agent.memory_disk', 'local');
     }
 
     private function path(User $user, string $filename): string
     {
-        $basePath = trim((string) config('services.<redacted>_agent.memory_path', 'agent-memory'), '/');
+        $basePath = trim((string) config('services.arborisis_agent.memory_path', 'agent-memory'), '/');
 
         return "{$basePath}/users/{$user->id}/{$filename}";
     }

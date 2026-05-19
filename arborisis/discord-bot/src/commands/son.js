@@ -22,7 +22,7 @@ module.exports = {
 
       const embed = new EmbedBuilder()
         .setTitle(`🌿 ${data.title}`)
-        .setURL(`https://<redacted>.com/sounds/${data.slug}`)
+        .setURL(`https://arborisis.com/sounds/${data.slug}`)
         .setDescription(data.description || 'Aucune description')
         .setColor(COLORS.primary)
         .addFields(
@@ -32,7 +32,7 @@ module.exports = {
           { name: 'Catégorie', value: data.category || 'N/A', inline: true },
           { name: 'Tags', value: data.tags?.length ? data.tags.join(', ') : 'Aucun', inline: false },
         )
-        .setImage(data.cover_image ? `https://<redacted>.com/storage/${data.cover_image}` : null)
+        .setImage(data.cover_image ? `https://arborisis.com/storage/${data.cover_image}` : null)
         .setTimestamp();
 
       await interaction.editReply({ embeds: [embed] });

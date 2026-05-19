@@ -1,7 +1,7 @@
 # Suivi des tâches — Gamification Arborisis
 
 ## Phase 1 — Points Arborisis (ArborisisPoints)
-- [ ] Migrations : `<redacted>_points`, `point_reports`, `point_suggestions`
+- [ ] Migrations : `arborisis_points`, `point_reports`, `point_suggestions`
 - [ ] Enums : `ArborisisCategory`, `ModerationStatus`, `NatureSensitivityLevel`, `PointReportReason`
 - [ ] Models : `ArborisisPoint`, `PointReport`, `PointSuggestion` + relations
 - [ ] Form Requests : `StoreArborisisPointRequest`, `UpdateArborisisPointRequest`, `ReportPointRequest`
@@ -15,7 +15,7 @@
 - [ ] Tests Pest : feature store/update/report, policy, service
 
 ## Phase 2 — Check-in géolocalisé (ArborisisVisits)
-- [ ] Migration : `<redacted>_visits`
+- [ ] Migration : `arborisis_visits`
 - [ ] Enum : `VisitValidationReason`, `VisitStatus`
 - [ ] Model : `ArborisisVisit`
 - [ ] Service : `GeoValidationService` (Haversine, précision, rayon)

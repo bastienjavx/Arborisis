@@ -1,4 +1,4 @@
-const DB_NAME = '<redacted>-offline-queue';
+const DB_NAME = 'arborisis-offline-queue';
 const DB_VERSION = 1;
 const STORE_NAME = 'actions';
 

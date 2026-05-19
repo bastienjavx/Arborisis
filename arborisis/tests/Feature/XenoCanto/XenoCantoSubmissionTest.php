@@ -9,7 +9,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Config;
 
 beforeEach(function () {
-    Config::set('filesystems.disks.r2.url', 'https://media.<redacted>.test');
+    Config::set('filesystems.disks.r2.url', 'https://media.arborisis.test');
     Config::set('services.r2.signing_key', 'test-signing-key');
 });
 
@@ -58,7 +58,7 @@ it('prepares a xeno-canto submission package with approximate coordinates and sp
         ->assertJsonPath('metadata.location.latitude', '48.86000000')
         ->assertJsonPath('metadata.location.longitude', '2.35000000');
 
-    expect($response->json('audio_download_url'))->toStartWith('https://media.<redacted>.test/sounds/original/');
+    expect($response->json('audio_download_url'))->toStartWith('https://media.arborisis.test/sounds/original/');
     expect($response->json('metadata.location'))->not->toHaveKey('exact_latitude');
 });
 

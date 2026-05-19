@@ -81,7 +81,7 @@ self.addEventListener('push', (event) => {
         body: data.body || '',
         icon: data.icon || '/pwa-icons/icon-192x192.png',
         badge: data.badge || '/pwa-icons/icon-maskable-192x192.png',
-        tag: data.tag || `<redacted>-${Date.now()}`,
+        tag: data.tag || `arborisis-${Date.now()}`,
         data: {
             url: data.url || '/',
             timestamp: data.timestamp || Date.now(),
@@ -123,7 +123,7 @@ self.addEventListener('sync', (event) => {
 });
 
 async function syncPendingActions() {
-    const db = await openIndexedDB('<redacted>-offline-queue', 1, 'actions');
+    const db = await openIndexedDB('arborisis-offline-queue', 1, 'actions');
     const tx = db.transaction('actions', 'readonly');
     const store = tx.objectStore('actions');
     const all = await store.getAll();

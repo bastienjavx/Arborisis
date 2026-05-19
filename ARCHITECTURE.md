@@ -111,7 +111,7 @@ Arborisis est une plateforme sociale premium de field recording nature, construi
 ## 4. Structure des dossiers
 
 ```
-<redacted>/
+arborisis/
 ├── app/
 │   ├── Http/
 │   │   ├── Controllers/
@@ -526,8 +526,8 @@ GET     /api/categories             → Api\CategoryController@index    // Liste
 
 ```bash
 # 1. Créer le projet Laravel avec Breeze (Inertia + Vue)
-composer create-project laravel/laravel <redacted>
-cd <redacted>
+composer create-project laravel/laravel arborisis
+cd arborisis
 
 # 2. Installer Breeze avec Inertia Vue
 composer require laravel/breeze --dev
@@ -551,8 +551,8 @@ composer require laravel/cashier
 # DB_CONNECTION=pgsql
 # DB_HOST=127.0.0.1
 # DB_PORT=5432
-# DB_DATABASE=<redacted>
-# DB_USERNAME=<redacted>
+# DB_DATABASE=arborisis
+# DB_USERNAME=arborisis
 # DB_PASSWORD=secret
 
 # 8. Configurer Redis dans .env
@@ -565,10 +565,10 @@ composer require laravel/cashier
 # AWS_ACCESS_KEY_ID=xxx
 # AWS_SECRET_ACCESS_KEY=xxx
 # AWS_DEFAULT_REGION=eu2
-# AWS_BUCKET=<redacted>-audio
+# AWS_BUCKET=arborisis-audio
 # AWS_ENDPOINT=https://eu2.contabostorage.com
 # AWS_USE_PATH_STYLE_ENDPOINT=true
-# AWS_URL=https://eu2.contabostorage.com/<redacted>-audio
+# AWS_URL=https://eu2.contabostorage.com/arborisis-audio
 
 # 10. Lancer les migrations
 php artisan migrate

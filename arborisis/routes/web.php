@@ -83,9 +83,9 @@ Route::get('/api/sounds/{sound}/analysis/realtime', [AudioAnalysisController::cl
 
 Route::get('/map', [MapController::class, 'index'])->name('map.index');
 
-Route::middleware(['auth', 'verified'])->get('/<redacted>-map', function () {
+Route::middleware(['auth', 'verified'])->get('/arborisis-map', function () {
     return Inertia::render('ArborisisMap/Index');
-})->name('<redacted>-map.index');
+})->name('arborisis-map.index');
 
 Route::get('/sound-walks', [\App\Http\Controllers\Web\SoundWalkController::class, 'index'])->name('sound-walks.index');
 Route::get('/sound-walks/{slug}', [\App\Http\Controllers\Web\SoundWalkController::class, 'show'])->name('sound-walks.show');

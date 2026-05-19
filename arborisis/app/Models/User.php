@@ -203,7 +203,7 @@ class User extends Authenticatable implements MustVerifyEmail, FilamentUser
         return $this->isModerator();
     }
 
-    public function <redacted>Points(): HasMany
+    public function arborisisPoints(): HasMany
     {
         return $this->hasMany(ArborisisPoint::class);
     }
@@ -213,7 +213,7 @@ class User extends Authenticatable implements MustVerifyEmail, FilamentUser
         return $this->hasMany(SoundWalk::class);
     }
 
-    public function <redacted>Visits(): HasMany
+    public function arborisisVisits(): HasMany
     {
         return $this->hasMany(ArborisisVisit::class);
     }

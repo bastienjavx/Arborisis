@@ -14,7 +14,7 @@ class AgentDiscoveryController extends Controller
      * @var array<string, string>
      */
     private const SKILL_DOCUMENTS = [
-        'discover-<redacted>-api' => <<<'MARKDOWN'
+        'discover-arborisis-api' => <<<'MARKDOWN'
 # Discover Arborisis API
 
 Use the API catalog at `/.well-known/api-catalog` to find public API documentation,
@@ -28,7 +28,7 @@ Use the public sound and map APIs to search nature field recordings, inspect
 public metadata, and open human-facing pages for playback and creator context.
 Exact GPS coordinates are never exposed publicly.
 MARKDOWN,
-        'use-<redacted>-webmcp' => <<<'MARKDOWN'
+        'use-arborisis-webmcp' => <<<'MARKDOWN'
 # Use Arborisis WebMCP
 
 When the browser exposes `navigator.modelContext`, Arborisis registers safe page

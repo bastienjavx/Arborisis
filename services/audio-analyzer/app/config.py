@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     r2_endpoint: str = ""
     r2_access_key_id: str = ""
     r2_secret_access_key: str = ""
-    r2_bucket: str = "<redacted>"
+    r2_bucket: str = "arborisis"
     r2_region: str = "auto"
 
     max_file_size_mb: int = 500

@@ -1039,7 +1039,7 @@ var _sfc_main = {
 		const fetchPoints = async () => {
 			loading.value = true;
 			try {
-				points.value = (await (await fetch("/api/<redacted>-points", { credentials: "same-origin" })).json()).features ?? [];
+				points.value = (await (await fetch("/api/arborisis-points", { credentials: "same-origin" })).json()).features ?? [];
 			} catch (e) {
 				console.error("Failed to load points:", e);
 				points.value = [];
@@ -1212,7 +1212,7 @@ var _sfc_main = {
 				return;
 			}
 			const sendVisit = (lat, lng, accuracy) => {
-				fetch(`/api/<redacted>-points/${selectedPoint.value.slug}/visit`, {
+				fetch(`/api/arborisis-points/${selectedPoint.value.slug}/visit`, {
 					method: "POST",
 					credentials: "same-origin",
 					headers: {
@@ -1268,7 +1268,7 @@ var _sfc_main = {
 		};
 		const handleCreatePoint = async (formData) => {
 			try {
-				const response = await fetch("/api/<redacted>-points", {
+				const response = await fetch("/api/arborisis-points", {
 					method: "POST",
 					credentials: "same-origin",
 					headers: {

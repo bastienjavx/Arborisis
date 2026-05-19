@@ -13,7 +13,7 @@ deploy_worker() {
 
 deploy_worker workers/r2-proxy
 deploy_worker workers/audio-analysis-orchestrator
-deploy_worker workers/<redacted>-ai-agent
+deploy_worker workers/arborisis-ai-agent
 
 if [ "${DEPLOY_AUDIO_ANALYZER_CONTAINER:-false}" = "true" ]; then
     deploy_worker workers/audio-analyzer-container

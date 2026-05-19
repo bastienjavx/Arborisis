@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Arborisis** is a premium social platform for nature field recording. Users upload nature sound recordings with GPS coordinates, explore them on an interactive map, and support creators via the **ECHO** internal credits system. Key constraints: exact GPS coordinates are *never* exposed publicly; ECHO transactions must be strictly atomic and immutable.
 
-The Laravel app lives in `<redacted>/`. All commands below run from that directory.
+The Laravel app lives in `arborisis/`. All commands below run from that directory.
 
 ---
 
@@ -77,7 +77,7 @@ Anti-cheat enforced via Redis cooldowns, daily check-in limits, and impossible-s
 3. Results POSTed back to Laravel callback endpoint → stored in R2 via Cloudflare Worker (`workers/r2-proxy`)
 4. `SoundAnalysis`/`SoundVisualization` models track analysis status
 
-### Infrastructure components (outside `<redacted>/`)
+### Infrastructure components (outside `arborisis/`)
 - `workers/r2-proxy/` — Cloudflare Worker: proxies audio analysis results to Cloudflare R2
 - `workers/audio-analysis-orchestrator/` — Cloudflare Worker: distributes analysis jobs across multiple VPS instances
 - `infrastructure/radio/` — Icecast server config
@@ -124,10 +124,10 @@ Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`
 
 ## Python Audio Module
 
-Located at `<redacted>/python/`. Requires Python 3.10+ and `ffmpeg`.
+Located at `arborisis/python/`. Requires Python 3.10+ and `ffmpeg`.
 
 ```bash
-cd <redacted>/python
+cd arborisis/python
 python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 python cli.py <audio-file>

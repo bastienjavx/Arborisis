@@ -10,7 +10,7 @@ public URL.
 Current deployed URL:
 
 ```text
-https://<redacted>-audio-analyzer-container.bastienjavaux-bc3.workers.dev
+https://arborisis-audio-analyzer-container.bastienjavaux-bc3.workers.dev
 ```
 
 ## Architecture

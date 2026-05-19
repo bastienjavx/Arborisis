@@ -79,7 +79,7 @@ module.exports = {
           { name: 'Créateur', value: data.creator || 'N/A', inline: true },
           { name: 'Durée', value: data.duration || 'N/A', inline: true },
         )
-        .setURL('https://<redacted>.com/radio')
+        .setURL('https://arborisis.com/radio')
         .setTimestamp();
 
       await interaction.editReply({ embeds: [embed] });

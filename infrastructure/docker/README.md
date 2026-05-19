@@ -31,7 +31,7 @@ Le déploiement cible recommandé avec 3 VPS :
 
 Deux options propres :
 
-1. DNS proxied classique : `A <redacted>.com -> IP publique du VPS web`, proxy orange actif, TLS `Full (strict)`.
+1. DNS proxied classique : `A arborisis.com -> IP publique du VPS web`, proxy orange actif, TLS `Full (strict)`.
 2. Cloudflare Tunnel : créer un tunnel vers `http://nginx:80`, renseigner `CLOUDFLARE_TUNNEL_TOKEN`, puis lancer le profil `tunnel`.
 
 Réglages Cloudflare conseillés :
@@ -59,24 +59,24 @@ docker compose --env-file .env up -d
 docker compose --env-file .env exec app php artisan migrate --force
 ```
 
-Les secrets applicatifs restent dans `<redacted>/.env` et `<redacted>/discord-bot/.env`.
+Les secrets applicatifs restent dans `arborisis/.env` et `arborisis/discord-bot/.env`.
 Le fichier `infrastructure/docker/.env` ne sert qu'aux paramètres Docker et aux
 valeurs partagées par Compose.
 Les chemins `ARBORISIS_APP_ENV_FILE` et `ARBORISIS_DISCORD_ENV_FILE` permettent
 de pointer chaque VPS vers son fichier d'environnement local.
 
-Variables importantes dans `<redacted>/.env` pour Docker :
+Variables importantes dans `arborisis/.env` pour Docker :
 
 ```env
 APP_ENV=production
 APP_DEBUG=false
-APP_URL=https://<redacted>.com
+APP_URL=https://arborisis.com
 
 DB_CONNECTION=pgsql
 DB_HOST=postgres
 DB_PORT=5432
-DB_DATABASE=<redacted>
-DB_USERNAME=<redacted>
+DB_DATABASE=arborisis
+DB_USERNAME=arborisis
 DB_PASSWORD=<meme-valeur-que-POSTGRES_PASSWORD>
 
 CACHE_STORE=redis
@@ -85,7 +85,7 @@ QUEUE_CONNECTION=redis
 REDIS_HOST=redis
 
 BROADCAST_CONNECTION=reverb
-REVERB_HOST=<redacted>.com
+REVERB_HOST=arborisis.com
 REVERB_PORT=443
 REVERB_SCHEME=https
 REVERB_SCALING_ENABLED=true
@@ -123,7 +123,7 @@ Services :
 ./deploy-local.sh web
 ```
 
-Dans `<redacted>/.env`, pointer vers les IP privées ou VPN du VPS data :
+Dans `arborisis/.env`, pointer vers les IP privées ou VPN du VPS data :
 
 ```env
 DB_HOST=10.0.0.2
@@ -153,7 +153,7 @@ Services :
 ./deploy-local.sh workers
 ```
 
-Même `<redacted>/.env` que le VPS web, avec `DB_HOST` et `REDIS_HOST` vers le
+Même `arborisis/.env` que le VPS web, avec `DB_HOST` et `REDIS_HOST` vers le
 VPS data. Les workers peuvent être scalés :
 
 ```bash

@@ -44,7 +44,7 @@ it('queues contact notification and receipt emails when a ticket is created', fu
         'message' => 'Je souhaite obtenir une information sur un son publié.',
     ], null);
 
-    Mail::assertQueued(ContactTicketSubmitted::class, fn (ContactTicketSubmitted $mail) => $mail->hasTo('contact@<redacted>.com'));
+    Mail::assertQueued(ContactTicketSubmitted::class, fn (ContactTicketSubmitted $mail) => $mail->hasTo('contact@arborisis.com'));
     Mail::assertQueued(ContactTicketReceived::class, fn (ContactTicketReceived $mail) => $mail->hasTo('camille@example.com'));
 });
 
@@ -112,19 +112,19 @@ it('renders all custom mail templates with Arborisis branding', function () {
 it('does not set the customer as reply-to on contact reply emails', function () {
     $reply = new ContactTicketReplied(mailTestTicket(), 'Votre demande a ete traitee.');
 
-    expect($reply->envelope()->replyTo[0]->address)->toBe('hello@<redacted>.com');
+    expect($reply->envelope()->replyTo[0]->address)->toBe('hello@arborisis.com');
 });
 
 it('sends customer contact emails from hello address', function () {
     $ticket = mailTestTicket();
 
     expect((new ContactTicketReceived($ticket))->envelope())
-        ->from->address->toBe('hello@<redacted>.com')
-        ->replyTo->{0}->address->toBe('hello@<redacted>.com');
+        ->from->address->toBe('hello@arborisis.com')
+        ->replyTo->{0}->address->toBe('hello@arborisis.com');
 
     expect((new ContactTicketReplied($ticket, 'Votre demande a ete traitee.'))->envelope())
-        ->from->address->toBe('hello@<redacted>.com')
-        ->replyTo->{0}->address->toBe('hello@<redacted>.com');
+        ->from->address->toBe('hello@arborisis.com')
+        ->replyTo->{0}->address->toBe('hello@arborisis.com');
 });
 
 it('tells contact customers they can reply directly to ticket emails', function () {

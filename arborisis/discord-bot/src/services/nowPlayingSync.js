@@ -32,11 +32,11 @@ function buildButtons(payload) {
     new ButtonBuilder()
       .setLabel('Écouter')
       .setStyle(ButtonStyle.Link)
-      .setURL(payload.radio_url || 'https://<redacted>.com/radio'),
+      .setURL(payload.radio_url || 'https://arborisis.com/radio'),
     new ButtonBuilder()
       .setLabel('Voir le son')
       .setStyle(ButtonStyle.Link)
-      .setURL(payload.url || payload.radio_url || 'https://<redacted>.com/radio')
+      .setURL(payload.url || payload.radio_url || 'https://arborisis.com/radio')
       .setDisabled(!payload.url),
   );
 }

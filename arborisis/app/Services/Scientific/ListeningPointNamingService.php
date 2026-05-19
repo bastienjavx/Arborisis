@@ -64,7 +64,7 @@ class ListeningPointNamingService
 
         try {
             $response = Http::withHeaders([
-                'User-Agent' => 'Arborisis Bot / contact@<redacted>.com',
+                'User-Agent' => 'Arborisis Bot / contact@arborisis.com',
             ])
                 ->timeout(5)
                 ->get('https://nominatim.openstreetmap.org/reverse', [

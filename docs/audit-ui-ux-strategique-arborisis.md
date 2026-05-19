@@ -74,7 +74,7 @@
 | # | Problème | Impact utilisateur | Gravité | Solution recommandée |
 |---|----------|-------------------|---------|---------------------|
 | 1 | **Aucune démonstration audio sur la landing** | Le visiteur ne comprend pas ce qu'est un "son naturel" sans cliquer. Friction maximale. | Haute | Intégrer un lecteur audio ambient ou une grille de "sons du moment" directement sous le hero. |
-| 2 | **Double carte = confusion cognitive** (`/map` vs `/<redacted>-map`) | L'utilisateur ne sait pas laquelle choisir. Les noms sont trop proches. | Haute | Renommer clairement : "Carte des sons" vs "Carte des visites". Ou fusionner en une seule carte avec toggle de couche. |
+| 2 | **Double carte = confusion cognitive** (`/map` vs `/arborisis-map`) | L'utilisateur ne sait pas laquelle choisir. Les noms sont trop proches. | Haute | Renommer clairement : "Carte des sons" vs "Carte des visites". Ou fusionner en une seule carte avec toggle de couche. |
 | 3 | **Dashboard surchargé** (stats + gamification + quêtes + activité + ECHO + astuces) | Information overload. L'utilisateur ne sait pas où regarder en premier. | Haute | Refondre le dashboard avec des onglets ou des sections collapsibles. Privilégier l'action principale : publier/écouter. |
 | 4 | **`alert()` natifs utilisés** (ArborisisMap, Sounds/Create) | Blocage brutal du thread, expérience cassée, inaccessible. | Haute | Remplacer par des toasts inline ou un composant `AlertBanner`. |
 | 5 | **Navigation guest trop longue** (7 liens + séparateur + auth) | Le menu dépasse la largeur sur certains écrans. Trop de choix = pas de choix. | Haute | Réduire à 5 entrées maximum : Explorer, Carte, Sons, Créateurs, Radio. Regrouper le reste dans un menu "Plus". |
@@ -107,7 +107,7 @@
 ### Priorité 1 — À corriger maintenant
 
 1. **Ajouter une section audio sur la landing** : 3 à 6 sons mis en avant, jouables en un clic, sans inscription.
-2. **Clarifier les deux cartes** : Renommer `/<redacted>-map` en "Carte des visites" ou "Carte de communauté" avec un sous-titre explicite.
+2. **Clarifier les deux cartes** : Renommer `/arborisis-map` en "Carte des visites" ou "Carte de communauté" avec un sous-titre explicite.
 3. **Simplifier le dashboard** : Onglets ou sections collapsibles. Par défaut, montrer uniquement les actions rapides + les derniers sons.
 4. **Remplacer tous les `alert()`** par des notifications inline stylisées.
 5. **Réduire la navigation guest** : Explorer, Carte, Sons, Créateurs, Radio + CTA Rejoindre.

@@ -9,7 +9,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        DB::table('<redacted>_points')
+        DB::table('arborisis_points')
             ->where('nature_sensitivity_level', 'normal')
             ->update([
                 'approximate_latitude' => DB::raw('latitude'),
@@ -26,7 +26,7 @@ return new class extends Migration
             ? 'ROUND(longitude::numeric, 2)'
             : 'ROUND(longitude, 2)';
 
-        DB::table('<redacted>_points')
+        DB::table('arborisis_points')
             ->where('nature_sensitivity_level', 'normal')
             ->update([
                 'approximate_latitude' => DB::raw($latitudeExpression),

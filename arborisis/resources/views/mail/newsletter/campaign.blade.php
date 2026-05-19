@@ -1,4 +1,4 @@
-@extends('mail.layouts.<redacted>', ['subject' => $campaign->subject])
+@extends('mail.layouts.arborisis', ['subject' => $campaign->subject])
 
 @section('content')
 <!-- Campaign content -->

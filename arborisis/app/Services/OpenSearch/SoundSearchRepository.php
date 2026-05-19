@@ -104,7 +104,7 @@ class SoundSearchRepository
         $perPage = (int) ($filters['per_page'] ?? 24);
 
         $response = $this->openSearch->getClient()->search([
-            'index' => '<redacted>_sounds',
+            'index' => 'arborisis_sounds',
             'body' => [
                 'query' => [
                     'bool' => [

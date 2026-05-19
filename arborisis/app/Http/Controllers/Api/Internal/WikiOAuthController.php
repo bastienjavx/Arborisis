@@ -24,7 +24,7 @@ final class WikiOAuthController
         $state = $request->input('state');
 
         $parsed = parse_url($redirectUri);
-        if (($parsed['host'] ?? '') !== 'wiki.<redacted>.com' || ! str_starts_with($parsed['path'] ?? '', '/login/') || ! str_ends_with($parsed['path'] ?? '', '/callback')) {
+        if (($parsed['host'] ?? '') !== 'wiki.arborisis.com' || ! str_starts_with($parsed['path'] ?? '', '/login/') || ! str_ends_with($parsed['path'] ?? '', '/callback')) {
             Log::warning('Wiki OAuth invalid redirect_uri', ['uri' => $redirectUri]);
             abort(400, 'Invalid redirect_uri');
         }

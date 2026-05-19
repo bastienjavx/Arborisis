@@ -22,7 +22,7 @@ module.exports = {
 
       const embed = new EmbedBuilder()
         .setTitle(`🌿 Profil : ${data.user.name}`)
-        .setURL(`https://<redacted>.com/creators/${data.user.slug}`)
+        .setURL(`https://arborisis.com/creators/${data.user.slug}`)
         .setColor(COLORS.primary)
         .addFields(
           { name: 'Rôle', value: data.user.role, inline: true },

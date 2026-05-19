@@ -23,7 +23,7 @@ class ContactTicketReceived extends Mailable implements ShouldQueue
 
     public function envelope(): Envelope
     {
-        $hello = new Address('hello@<redacted>.com', 'Arborisis');
+        $hello = new Address('hello@arborisis.com', 'Arborisis');
 
         return new Envelope(
             subject: "[{$this->ticket->ticket_number}] Nous avons bien reçu votre demande",

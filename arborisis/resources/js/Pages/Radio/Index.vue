@@ -327,7 +327,7 @@ const copyM3uUrl = () => {
                             </button>
                             <a
                                 href="/radio/stream.m3u"
-                                download="<redacted>-radio.m3u"
+                                download="arborisis-radio.m3u"
                                 class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-arbor-emerald/15 border border-arbor-emerald/30 text-arbor-emerald text-sm hover:bg-arbor-emerald/25 transition-colors"
                             >
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

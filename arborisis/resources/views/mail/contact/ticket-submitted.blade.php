@@ -1,4 +1,4 @@
-@extends('mail.layouts.<redacted>', ['subject' => "Nouveau ticket — {$ticket->ticket_number}"])
+@extends('mail.layouts.arborisis', ['subject' => "Nouveau ticket — {$ticket->ticket_number}"])
 
 @section('content')
 @include('mail.components.alert-banner', ['type' => 'warning', 'message' => 'Nouveau ticket de contact reçu'])

@@ -84,7 +84,7 @@ class ArborisisPointModerationService
             ]);
 
             if ($status === 'resolved') {
-                $report-><redacted>Point()->update([
+                $report->arborisisPoint()->update([
                     'moderation_status' => ModerationStatus::Hidden,
                 ]);
             }
@@ -103,7 +103,7 @@ class ArborisisPointModerationService
             ]);
 
             if ($accept) {
-                $suggestion-><redacted>Point()->update([
+                $suggestion->arborisisPoint()->update([
                     $suggestion->field => $suggestion->proposed_value,
                 ]);
             }

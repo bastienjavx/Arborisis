@@ -24,7 +24,7 @@ class ContactTicketReplied extends Mailable implements ShouldQueue
 
     public function envelope(): Envelope
     {
-        $hello = new Address('hello@<redacted>.com', 'Arborisis');
+        $hello = new Address('hello@arborisis.com', 'Arborisis');
 
         return new Envelope(
             subject: "Re: [{$this->ticket->ticket_number}] Votre demande — Réponse de l'équipe",

@@ -1,4 +1,4 @@
-@extends('mail.layouts.<redacted>', ['subject' => "Confirmation de réception — {$ticket->ticket_number}"])
+@extends('mail.layouts.arborisis', ['subject' => "Confirmation de réception — {$ticket->ticket_number}"])
 
 @section('content')
 <!-- Hero icon -->

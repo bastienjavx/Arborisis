@@ -19,9 +19,9 @@ Variables Laravel minimales :
 ```env
 RADIO_ENGINE=icecast
 RADIO_INTERNAL_TOKEN=change-me
-RADIO_PUBLIC_STREAM_URL=https://radio.<redacted>.com/<redacted>.mp3
+RADIO_PUBLIC_STREAM_URL=https://radio.arborisis.com/arborisis.mp3
 ICECAST_BASE_URL=http://127.0.0.1:8010
-ICECAST_MOUNT=/<redacted>.mp3
+ICECAST_MOUNT=/arborisis.mp3
 ELEVENLABS_API_KEY=
 ELEVENLABS_VOICE_ID=
 DISCORD_RADIO_VOICE_CHANNEL_ID=

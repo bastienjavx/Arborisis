@@ -1,5 +1,5 @@
 {
-  "name": "<redacted>-ai-agent",
+  "name": "arborisis-ai-agent",
   "version": "1.0.0",
   "description": "Cloudflare Workers AI agent for Arborisis",
   "main": "src/index.ts",

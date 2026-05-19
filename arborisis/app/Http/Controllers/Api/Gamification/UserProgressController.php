@@ -37,7 +37,7 @@ class UserProgressController extends Controller
             'quests_completed' => $user->questProgress()->where('status', 'completed')->count(),
             'achievements_unlocked' => $user->achievements()->count(),
             'medals_unlocked' => $user->medals()->count(),
-            'points_visited' => $user-><redacted>Visits()->valid()->distinct('<redacted>_point_id')->count(),
+            'points_visited' => $user->arborisisVisits()->valid()->distinct('arborisis_point_id')->count(),
         ]);
     }
 

@@ -13,7 +13,7 @@ class UpdateArborisisPointRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        $point = $this->route('<redacted>_point');
+        $point = $this->route('arborisis_point');
 
         return auth()->check()
             && auth()->user()->can('update', $point);

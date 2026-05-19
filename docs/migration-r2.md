@@ -7,7 +7,7 @@
 - Variable `AUDIO_DISK` pour basculer les uploads vers R2
 - Commande artisan `storage:migrate-to-r2` pour migrer les fichiers existants
 - Support du disque `r2` dans les modèles (`Sound`, `SoundVisualization`) et services (`RadioStreamService`, `SoundController`)
-- **Worker Cloudflare** (`workers/r2-proxy/`) pour sécuriser l'accès via `storage.<redacted>.com`
+- **Worker Cloudflare** (`workers/r2-proxy/`) pour sécuriser l'accès via `storage.arborisis.com`
 - **Signed URLs** avec HMAC-SHA256 pour les fichiers privés
 
 ## Variables d'environnement
@@ -27,12 +27,12 @@ R2_SIGNING_KEY=<generate-a-long-random-signing-key>
 
 ## Custom domain & Worker
 
-Le bucket est exposé via `storage.<redacted>.com` à travers un **Worker Cloudflare** qui vérifie les signatures HMAC.
+Le bucket est exposé via `storage.arborisis.com` à travers un **Worker Cloudflare** qui vérifie les signatures HMAC.
 
 ### Architecture
 
 ```
-Utilisateur → storage.<redacted>.com/audio/3/xxx.wav?expires=...&signature=...
+Utilisateur → storage.arborisis.com/audio/3/xxx.wav?expires=...&signature=...
               ↓
          [Worker Cloudflare]
               ↓
@@ -54,18 +54,18 @@ wrangler deploy
 ```
 
 Puis dans le dashboard Cloudflare :
-1. Workers & Pages → `<redacted>-r2-proxy`
-2. Triggers → Custom Domains → Add Custom Domain → `storage.<redacted>.com`
+1. Workers & Pages → `arborisis-r2-proxy`
+2. Triggers → Custom Domains → Add Custom Domain → `storage.arborisis.com`
 3. **Retirer le custom domain natif R2** du bucket (sinon conflit)
 
 ## Configuration CORS
 
-Le CORS est configuré sur le bucket pour autoriser `https://*.<redacted>.com`.
+Le CORS est configuré sur le bucket pour autoriser `https://*.arborisis.com`.
 
 ```bash
 aws s3api get-bucket-cors \
-  --bucket <redacted> \
-  --endpoint-url <redacted> \
+  --bucket arborisis \
+  --endpoint-url arborisis \
   --profile r2
 ```
 
@@ -74,7 +74,7 @@ aws s3api get-bucket-cors \
 ### 1. Simulation (dry-run)
 
 ```bash
-cd /var/www/<redacted>/<redacted>
+cd /var/www/arborisis/arborisis
 php artisan storage:migrate-to-r2 --dry-run
 ```
 

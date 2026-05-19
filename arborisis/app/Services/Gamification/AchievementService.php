@@ -60,12 +60,12 @@ class AchievementService
         $payload = $achievement->condition_payload ?? [];
 
         return match ($achievement->condition_type) {
-            'first_visit' => $user-><redacted>Visits()->valid()->exists(),
+            'first_visit' => $user->arborisisVisits()->valid()->exists(),
             'first_sound' => $user->sounds()->exists(),
-            'first_point_created' => $user-><redacted>Points()->exists(),
-            'points_accepted' => $user-><redacted>Points()->where('moderation_status', 'approved')->exists(),
+            'first_point_created' => $user->arborisisPoints()->exists(),
+            'points_accepted' => $user->arborisisPoints()->where('moderation_status', 'approved')->exists(),
             'login_streak' => ($context['streak'] ?? 0) >= ($payload['days'] ?? 7),
-            'visit_count' => $user-><redacted>Visits()->valid()->count() >= ($payload['count'] ?? 10),
+            'visit_count' => $user->arborisisVisits()->valid()->count() >= ($payload['count'] ?? 10),
             'visit_category' => $this->hasVisitedCategory($user, $payload['category'] ?? ''),
             'listen_duration' => ($context['minutes'] ?? 0) >= ($payload['minutes'] ?? 30),
             'complete_profile' => $this->isProfileComplete($user, $payload),
@@ -75,9 +75,9 @@ class AchievementService
 
     private function hasVisitedCategory(User $user, string $category): bool
     {
-        return $user-><redacted>Visits()
+        return $user->arborisisVisits()
             ->valid()
-            ->whereHas('<redacted>Point', function ($q) use ($category) {
+            ->whereHas('arborisisPoint', function ($q) use ($category) {
                 $q->where('category', $category);
             })
             ->exists();

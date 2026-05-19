@@ -13,7 +13,7 @@ Les **Arborisis Points** sont des points d'intérêt naturels créés par la com
 
 ### Créer un point
 
-1. Sur `/<redacted>-map`, cliquez sur **Créer un point**
+1. Sur `/arborisis-map`, cliquez sur **Créer un point**
 2. Positionnez sur la carte (coordonnées approximatives obligatoires)
 3. Renseignez : nom, description, catégorie, sensibilité écologique
 4. Soumettez — le point est en attente de validation
@@ -21,7 +21,7 @@ Les **Arborisis Points** sont des points d'intérêt naturels créés par la com
 ### Visiter un point (Check-in)
 
 1. Rendez-vous physiquement à proximité du point (rayon de 100m par défaut)
-2. Sur `/<redacted>-map`, sélectionnez le point et cliquez sur **Visiter**
+2. Sur `/arborisis-map`, sélectionnez le point et cliquez sur **Visiter**
 3. Votre position GPS est vérifiée côté serveur
 4. Si validé : +10 XP, +1 streak
 

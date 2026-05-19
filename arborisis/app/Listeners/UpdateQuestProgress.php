@@ -14,7 +14,7 @@ class UpdateQuestProgress
     {
         $visit = $event->visit;
         $user = $visit->user;
-        $point = $visit-><redacted>Point;
+        $point = $visit->arborisisPoint;
 
         $questService = app(QuestService::class);
 

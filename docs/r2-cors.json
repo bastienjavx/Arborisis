@@ -1,7 +1,7 @@
 {
   "CORSRules": [
     {
-      "AllowedOrigins": ["https://<redacted>.com", "https://*.<redacted>.com"],
+      "AllowedOrigins": ["https://arborisis.com", "https://*.arborisis.com"],
       "AllowedMethods": ["GET", "HEAD"],
       "AllowedHeaders": ["*"],
       "MaxAgeSeconds": 86400

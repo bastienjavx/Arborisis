@@ -353,7 +353,7 @@ class OpenRouterAgentService
             [
                 'type' => 'function',
                 'function' => [
-                    'name' => 'get_nearby_<redacted>_points',
+                    'name' => 'get_nearby_arborisis_points',
                     'description' => "Récupère les points d'intérêt Arborisis proches d'une position géographique.",
                     'parameters' => [
                         'type' => 'object',
@@ -387,7 +387,7 @@ class OpenRouterAgentService
             [
                 'type' => 'function',
                 'function' => [
-                    'name' => 'create_<redacted>_point',
+                    'name' => 'create_arborisis_point',
                     'description' => "Crée un point d'intérêt Arborisis sur la carte. L'utilisateur doit être connecté. Le point est soumis en attente de modération.",
                     'parameters' => [
                         'type' => 'object',
@@ -513,9 +513,9 @@ class OpenRouterAgentService
                 'get_featured_creators' => $this->fetchInternalApi('/api/creators/featured'),
                 'get_user_field_recording_brief' => $this->executeUserFieldRecordingBrief(),
                 'get_field_session_plan' => $this->executeFieldSessionPlan($args),
-                'get_nearby_<redacted>_points' => $this->fetchInternalApi('/api/<redacted>-points/nearby?lat='.((float) $args['lat']).'&lng='.((float) $args['lng']).'&radius='.min(max((int) ($args['radius'] ?? 10), 1), 50)),
+                'get_nearby_arborisis_points' => $this->fetchInternalApi('/api/arborisis-points/nearby?lat='.((float) $args['lat']).'&lng='.((float) $args['lng']).'&radius='.min(max((int) ($args['radius'] ?? 10), 1), 50)),
                 'get_nearby_group_events' => $this->fetchInternalApi('/api/group-events/nearby?lat='.((float) $args['lat']).'&lng='.((float) $args['lng']).'&radius='.min(max((int) ($args['radius'] ?? 10), 1), 50)),
-                'create_<redacted>_point' => $this->executeCreatePoint($args),
+                'create_arborisis_point' => $this->executeCreatePoint($args),
                 'resolve_sound_walk_route' => $this->executeResolveSoundWalkRoute($args),
                 'create_sound_walk' => $this->executeCreateSoundWalk($args),
                 default => ['error' => 'unknown_tool', 'name' => $name],
@@ -589,9 +589,9 @@ class OpenRouterAgentService
             'get_featured_creators' => 'Createurs',
             'get_user_field_recording_brief' => 'Memoire personnelle',
             'get_field_session_plan' => 'Plan de sortie',
-            'get_nearby_<redacted>_points' => 'Points proches',
+            'get_nearby_arborisis_points' => 'Points proches',
             'get_nearby_group_events' => 'Evenements proches',
-            'create_<redacted>_point' => 'Point cree',
+            'create_arborisis_point' => 'Point cree',
             'resolve_sound_walk_route' => 'Itineraire verifie',
             'create_sound_walk' => 'Balade creee',
             default => 'Outil Sylve',
@@ -920,8 +920,8 @@ Page actuelle:
             'sounds',
             'followers',
             'following',
-            '<redacted>Points',
-            '<redacted>Visits',
+            'arborisisPoints',
+            'arborisisVisits',
             'questProgress',
             'achievements',
             'medals',
@@ -941,8 +941,8 @@ Page actuelle:
                 'published_sounds' => $user->sounds_count,
                 'followers' => $user->followers_count,
                 'following' => $user->following_count,
-                'created_points' => $user-><redacted>_points_count,
-                'visits' => $user-><redacted>_visits_count,
+                'created_points' => $user->arborisis_points_count,
+                'visits' => $user->arborisis_visits_count,
                 'active_quests' => $user->quest_progress_count,
                 'achievements' => $user->achievements_count,
                 'medals' => $user->medals_count,

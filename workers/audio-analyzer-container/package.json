@@ -1,5 +1,5 @@
 {
-  "name": "<redacted>-audio-analyzer-container",
+  "name": "arborisis-audio-analyzer-container",
   "version": "1.0.0",
   "description": "Cloudflare Containers gateway for Arborisis Python audio analyzer",
   "main": "src/index.ts",

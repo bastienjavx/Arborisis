@@ -156,7 +156,7 @@ const tools = [
   {
     type: "function",
     function: {
-      name: "get_nearby_<redacted>_points",
+      name: "get_nearby_arborisis_points",
       description: "Recupere les points d'interet Arborisis (lieux de field recording) proches d'une position geographique. Nécessite lat et lng.",
       parameters: {
         type: "object",
@@ -438,11 +438,11 @@ async function executeTool(env: Env, call: ToolCall, userContext: Record<string,
       const q = safeString(args.q, 200);
       return await searchWeb(env, q);
     }
-    case "get_nearby_<redacted>_points": {
+    case "get_nearby_arborisis_points": {
       const lat = Number(args.lat);
       const lng = Number(args.lng);
       const radius = Math.min(Math.max(Number(args.radius ?? 10), 1), 50);
-      return { source: "Points à proximité", result: await fetchApi(env, `/<redacted>-points/nearby?lat=${lat}&lng=${lng}&radius=${radius}`) };
+      return { source: "Points à proximité", result: await fetchApi(env, `/arborisis-points/nearby?lat=${lat}&lng=${lng}&radius=${radius}`) };
     }
     case "get_nearby_group_events": {
       const lat = Number(args.lat);
@@ -597,7 +597,7 @@ export default {
       try {
         return await chat(request, env);
       } catch (error) {
-        console.error("[<redacted>-ai-agent] chat failed", error);
+        console.error("[arborisis-ai-agent] chat failed", error);
 
         return json({
           error: "chat_failed",

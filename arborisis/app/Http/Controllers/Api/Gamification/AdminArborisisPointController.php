@@ -32,12 +32,12 @@ class AdminArborisisPointController extends Controller
         return response()->json($points);
     }
 
-    public function approve(Request $request, ArborisisPoint $<redacted>Point): JsonResponse
+    public function approve(Request $request, ArborisisPoint $arborisisPoint): JsonResponse
     {
         $this->authorize('moderate', ArborisisPoint::class);
 
         $point = $this->moderationService->approve(
-            $<redacted>Point,
+            $arborisisPoint,
             $request->user(),
             $request->input('notes')
         );
@@ -52,12 +52,12 @@ class AdminArborisisPointController extends Controller
         ]);
     }
 
-    public function reject(Request $request, ArborisisPoint $<redacted>Point): JsonResponse
+    public function reject(Request $request, ArborisisPoint $arborisisPoint): JsonResponse
     {
         $this->authorize('moderate', ArborisisPoint::class);
 
         $point = $this->moderationService->reject(
-            $<redacted>Point,
+            $arborisisPoint,
             $request->user(),
             $request->input('reason')
         );
@@ -72,12 +72,12 @@ class AdminArborisisPointController extends Controller
         ]);
     }
 
-    public function hide(Request $request, ArborisisPoint $<redacted>Point): JsonResponse
+    public function hide(Request $request, ArborisisPoint $arborisisPoint): JsonResponse
     {
         $this->authorize('moderate', ArborisisPoint::class);
 
         $point = $this->moderationService->hide(
-            $<redacted>Point,
+            $arborisisPoint,
             $request->user(),
             $request->input('reason')
         );
@@ -96,7 +96,7 @@ class AdminArborisisPointController extends Controller
     {
         $this->authorize('moderate', ArborisisPoint::class);
 
-        $reports = PointReport::with(['user:id,name', '<redacted>Point:id,title,slug'])
+        $reports = PointReport::with(['user:id,name', 'arborisisPoint:id,title,slug'])
             ->pending()
             ->latest()
             ->paginate(20);
@@ -129,7 +129,7 @@ class AdminArborisisPointController extends Controller
     {
         $this->authorize('moderate', ArborisisPoint::class);
 
-        $suggestions = PointSuggestion::with(['user:id,name', '<redacted>Point:id,title,slug'])
+        $suggestions = PointSuggestion::with(['user:id,name', 'arborisisPoint:id,title,slug'])
             ->where('status', 'pending')
             ->latest()
             ->paginate(20);

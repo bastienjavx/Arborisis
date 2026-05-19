@@ -28,7 +28,7 @@ sudo apt-get update && sudo apt-get install -y ffmpeg
 ## Installation
 
 ```bash
-cd <redacted>/python
+cd arborisis/python
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt

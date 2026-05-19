@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('slug', 60)->unique();
             $table->string('name');
-            $table->string('mount_path', 120)->default('/<redacted>.mp3');
+            $table->string('mount_path', 120)->default('/arborisis.mp3');
             $table->string('color', 20)->nullable();
             $table->text('description')->nullable();
             $table->jsonb('vibe')->nullable();
@@ -30,7 +30,7 @@ return new class extends Migration
         DB::table('radio_channels')->insert([
             'slug' => 'main',
             'name' => 'Arborisis Radio',
-            'mount_path' => '/<redacted>.mp3',
+            'mount_path' => '/arborisis.mp3',
             'color' => '#3c8c5c',
             'description' => 'Le flux principal : field recordings et sons de nature en continu.',
             'vibe' => json_encode([

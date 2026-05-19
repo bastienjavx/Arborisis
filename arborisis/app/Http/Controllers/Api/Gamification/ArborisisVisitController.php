@@ -25,7 +25,7 @@ class ArborisisVisitController extends Controller
     ) {
     }
 
-    public function visit(Request $request, ArborisisPoint $<redacted>Point): JsonResponse
+    public function visit(Request $request, ArborisisPoint $arborisisPoint): JsonResponse
     {
         $validated = $request->validate([
             'latitude' => ['required', 'numeric', 'between:-90,90'],
@@ -49,7 +49,7 @@ class ArborisisVisitController extends Controller
         // Anti-cheat validation
         $validation = $this->antiCheatService->validateVisit(
             $user,
-            $<redacted>Point,
+            $arborisisPoint,
             $userLat,
             $userLng,
             $accuracy,
@@ -68,7 +68,7 @@ class ArborisisVisitController extends Controller
 
         $visit = DB::transaction(function () use (
             $user,
-            $<redacted>Point,
+            $arborisisPoint,
             $userLat,
             $userLng,
             $validation,
@@ -78,7 +78,7 @@ class ArborisisVisitController extends Controller
         ) {
             $visit = ArborisisVisit::create([
                 'user_id' => $user->id,
-                '<redacted>_point_id' => $<redacted>Point->id,
+                'arborisis_point_id' => $arborisisPoint->id,
                 'latitude' => round($userLat, 4), // Store approximated user position
                 'longitude' => round($userLng, 4),
                 'distance_from_point' => $validation['distance'],
@@ -91,7 +91,7 @@ class ArborisisVisitController extends Controller
             ]);
 
             if ($status === VisitStatus::Valid) {
-                $this->antiCheatService->recordVisit($user, $<redacted>Point->id);
+                $this->antiCheatService->recordVisit($user, $arborisisPoint->id);
                 ArborisisPointVisited::dispatch($visit);
             }
 
@@ -134,7 +134,7 @@ class ArborisisVisitController extends Controller
 
     public function history(Request $request): JsonResponse
     {
-        $visits = ArborisisVisit::with('<redacted>Point:id,title,slug,category')
+        $visits = ArborisisVisit::with('arborisisPoint:id,title,slug,category')
             ->where('user_id', $request->user()->id)
             ->valid()
             ->latest('visited_at')
@@ -148,7 +148,7 @@ class ArborisisVisitController extends Controller
         $pointIds = ArborisisVisit::where('user_id', $request->user()->id)
             ->valid()
             ->distinct()
-            ->pluck('<redacted>_point_id');
+            ->pluck('arborisis_point_id');
 
         $points = ArborisisPoint::whereIn('id', $pointIds)
             ->public()

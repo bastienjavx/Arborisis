@@ -6,9 +6,9 @@ set -euo pipefail
 
 DB_HOST="${DB_HOST:-localhost}"
 DB_PORT="${DB_PORT:-5432}"
-DB_USER="${POSTGRES_USER:-<redacted>}"
+DB_USER="${POSTGRES_USER:-arborisis}"
 DB_PASS="${POSTGRES_PASSWORD:-change-me}"
-DB_NAME="${POSTGRES_DB:-<redacted>}"
+DB_NAME="${POSTGRES_DB:-arborisis}"
 
 WIKI_DB_NAME="${WIKI_DB_NAME:-wikijs}"
 WIKI_DB_USER="${WIKI_DB_USER:-wikijs}"

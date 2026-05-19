@@ -57,7 +57,7 @@ function downloadCsv() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = '<redacted>_data_sample.csv';
+    a.download = 'arborisis_data_sample.csv';
     a.click();
     URL.revokeObjectURL(url);
 }

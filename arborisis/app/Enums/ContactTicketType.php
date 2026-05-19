@@ -22,9 +22,9 @@ enum ContactTicketType: string
     public function recipientEmail(): string
     {
         return match ($this) {
-            self::Contact => 'contact@<redacted>.com',
-            self::Privacy => 'privacy@<redacted>.com',
-            self::Support => 'contact@<redacted>.com',
+            self::Contact => 'contact@arborisis.com',
+            self::Privacy => 'privacy@arborisis.com',
+            self::Support => 'contact@arborisis.com',
         };
     }
 }

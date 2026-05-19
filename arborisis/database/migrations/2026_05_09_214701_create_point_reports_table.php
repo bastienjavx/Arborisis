@@ -13,7 +13,7 @@ return new class extends Migration
         Schema::create('point_reports', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('<redacted>_point_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('arborisis_point_id')->constrained()->cascadeOnDelete();
             $table->string('reason'); // PointReportReason enum
             $table->text('description')->nullable();
             $table->string('status')->default('pending'); // pending | reviewed | resolved | dismissed
@@ -22,7 +22,7 @@ return new class extends Migration
             $table->timestamp('reviewed_at')->nullable();
             $table->timestamps();
 
-            $table->index(['<redacted>_point_id', 'status']);
+            $table->index(['arborisis_point_id', 'status']);
             $table->index('user_id');
             $table->index('status');
         });

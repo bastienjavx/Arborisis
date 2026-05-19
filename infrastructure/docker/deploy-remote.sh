@@ -4,7 +4,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 HOSTS_FILE="${HOSTS_FILE:-hosts.prod}"
-REMOTE_DIR="${REMOTE_DIR:-/var/www/<redacted>}"
+REMOTE_DIR="${REMOTE_DIR:-/var/www/arborisis}"
 ENV_FILE="${ENV_FILE:-.env}"
 
 if [ ! -f "$HOSTS_FILE" ]; then
@@ -26,8 +26,8 @@ sync_repo() {
     ssh "$host" "mkdir -p '$REMOTE_DIR'"
     rsync -az --delete \
         --exclude '.git' \
-        --exclude '<redacted>/.env' \
-        --exclude '<redacted>/discord-bot/.env' \
+        --exclude 'arborisis/.env' \
+        --exclude 'arborisis/discord-bot/.env' \
         --exclude 'services/audio-analyzer/.env' \
         --exclude 'infrastructure/docker/.env' \
         --exclude 'infrastructure/radio/.env' \

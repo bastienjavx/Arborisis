@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: <redacted>-audio-analyzer
+    container_name: arborisis-audio-analyzer
     ports:
       - "8000:8000"
     env_file:

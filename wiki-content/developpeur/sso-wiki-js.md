@@ -5,11 +5,11 @@
 Wiki.js est configuré avec une stratégie OAuth2 personnalisée qui pointe sur l'application Laravel. Le flux est le suivant :
 
 ```
-Utilisateur → wiki.<redacted>.com → [clique "Connexion Arborisis"]
-    → Redirect vers : https://<redacted>.com/internal/wiki/oauth/authorize
+Utilisateur → wiki.arborisis.com → [clique "Connexion Arborisis"]
+    → Redirect vers : https://arborisis.com/internal/wiki/oauth/authorize
     → Laravel vérifie la session utilisateur
     → Si connecté : génère un code OAuth temporaire
-    → Redirect vers : wiki.<redacted>.com/login/{provider}/callback?code=...
+    → Redirect vers : wiki.arborisis.com/login/{provider}/callback?code=...
     → Wiki.js échange le code contre un token
     → Wiki.js récupère les infos utilisateur (/internal/wiki/oauth/user)
     → Connexion réussie (création de compte wiki si nécessaire)
@@ -22,11 +22,11 @@ Dans l'admin Wiki.js (`/admin/auth`) :
 | Paramètre | Valeur |
 |-----------|--------|
 | Strategy | OAuth2 |
-| Client ID | `<redacted>-wiki` |
+| Client ID | `arborisis-wiki` |
 | Client Secret | `(voir .env WIKI_AUTH_OAUTH2_CLIENT_SECRET)` |
-| Authorization URL | `https://<redacted>.com/internal/wiki/oauth/authorize` |
-| Token URL | `https://<redacted>.com/internal/wiki/oauth/token` |
-| User Info URL | `https://<redacted>.com/internal/wiki/oauth/user` |
+| Authorization URL | `https://arborisis.com/internal/wiki/oauth/authorize` |
+| Token URL | `https://arborisis.com/internal/wiki/oauth/token` |
+| User Info URL | `https://arborisis.com/internal/wiki/oauth/user` |
 | Scopes | `openid profile email` |
 
 Mapping des claims :
@@ -87,7 +87,7 @@ Retourne les informations de l'utilisateur authentifié.
   "email": "user@example.com",
   "name": "Jean Dupont",
   "role": "admin",
-  "picture": "https://<redacted>.com/storage/avatars/42.jpg"
+  "picture": "https://arborisis.com/storage/avatars/42.jpg"
 }
 ```
 
@@ -95,7 +95,7 @@ Retourne les informations de l'utilisateur authentifié.
 
 Ces endpoints doivent être protégés par :
 1. **Rate limiting** : 10 req/min par IP
-2. **Vérification du `redirect_uri`** : doit correspondre exactement à `https://wiki.<redacted>.com/login/oauth2/callback`
+2. **Vérification du `redirect_uri`** : doit correspondre exactement à `https://wiki.arborisis.com/login/oauth2/callback`
 3. **Vérification du `client_id`** et `client_secret`
 
 ## Fallback local
@@ -188,7 +188,7 @@ Route::prefix('wiki/oauth')
 ## Configuration `.env`
 
 ```env
-WIKI_OAUTH_REDIRECT_URI=https://wiki.<redacted>.com/login/oauth2/callback
+WIKI_OAUTH_REDIRECT_URI=https://wiki.arborisis.com/login/oauth2/callback
 WIKI_OAUTH_SECRET=wiki-jwt-secret-key-min-32-chars
 ```
 
@@ -199,4 +199,4 @@ WIKI_OAUTH_SECRET=wiki-jwt-secret-key-min-32-chars
 | "Invalid client" | Client ID/Secret mismatch | Vérifier la correspondance entre Wiki.js et Laravel |
 | "Invalid code" | Code expiré ou déjà utilisé | Le code est à usage unique, TTL 5 min |
 | "Unauthorized" | Token JWT expiré | Wiki.js rafraîchit automatiquement |
-| Boucle de connexion | Session Laravel invalide | Se reconnecter sur <redacted>.com d'abord |
+| Boucle de connexion | Session Laravel invalide | Se reconnecter sur arborisis.com d'abord |

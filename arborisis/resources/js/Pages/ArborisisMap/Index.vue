@@ -109,7 +109,7 @@ const getCategoryColor = (cat) => categoryColors[cat] || '#9CA3AF';
 const fetchPoints = async () => {
     loading.value = true;
     try {
-        const response = await fetch('/api/<redacted>-points', { credentials: 'same-origin' });
+        const response = await fetch('/api/arborisis-points', { credentials: 'same-origin' });
         const data = await response.json();
         points.value = data.features ?? [];
     } catch (e) {
@@ -324,7 +324,7 @@ const handleVisit = async () => {
     }
 
     const sendVisit = (lat, lng, accuracy) => {
-        fetch(`/api/<redacted>-points/${selectedPoint.value.slug}/visit`, {
+        fetch(`/api/arborisis-points/${selectedPoint.value.slug}/visit`, {
             method: 'POST',
             credentials: 'same-origin',
             headers: {
@@ -394,7 +394,7 @@ const handleVisit = async () => {
 
 const handleCreatePoint = async (formData) => {
     try {
-        const response = await fetch('/api/<redacted>-points', {
+        const response = await fetch('/api/arborisis-points', {
             method: 'POST',
             credentials: 'same-origin',
             headers: {

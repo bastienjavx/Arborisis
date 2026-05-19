@@ -1,4 +1,4 @@
-@extends('mail.layouts.<redacted>', ['subject' => "Réponse à votre demande — {$ticket->ticket_number}"])
+@extends('mail.layouts.arborisis', ['subject' => "Réponse à votre demande — {$ticket->ticket_number}"])
 
 @section('content')
 <!-- Greeting -->

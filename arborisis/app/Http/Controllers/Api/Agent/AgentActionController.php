@@ -29,7 +29,7 @@ class AgentActionController extends Controller
         return response()->json([
             'message' => 'Point proposé avec succès. Il sera examiné par la modération avant publication.',
             'created_resource' => [
-                'type' => '<redacted>_point',
+                'type' => 'arborisis_point',
                 'id' => $point->id,
                 'slug' => $point->slug,
                 'title' => $point->title,
