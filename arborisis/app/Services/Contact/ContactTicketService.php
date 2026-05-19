@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Services\Contact;
 
+use App\Enums\ContactTicketCategory;
+use App\Enums\ContactTicketPriority;
 use App\Enums\ContactTicketReplySource;
 use App\Enums\ContactTicketStatus;
 use App\Mail\ContactTicketReceived;
 use App\Mail\ContactTicketSubmitted;
 use App\Models\ContactTicket;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -21,17 +24,19 @@ class ContactTicketService
         return 'ARB-'.now()->format('Ymd').'-'.strtoupper(Str::random(5));
     }
 
-    public function create(array $data, ?int $userId): ContactTicket
+    public function create(array $data, ?User $user): ContactTicket
     {
         $ticket = ContactTicket::create([
             'ticket_number' => $this->generateTicketNumber(),
             'type' => $data['type'],
+            'category' => ContactTicketCategory::General,
+            'priority' => ContactTicketPriority::Medium,
             'name' => $data['name'],
             'email' => $data['email'],
             'subject' => $data['subject'],
             'message' => $data['message'],
             'status' => ContactTicketStatus::New,
-            'user_id' => $userId,
+            'user_id' => $user?->id,
         ]);
 
         $this->sendNotificationEmail($ticket);
