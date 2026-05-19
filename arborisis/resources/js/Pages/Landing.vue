@@ -3,12 +3,13 @@ import { Head, Link } from '@inertiajs/vue3';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import { computed, ref, onMounted, onUnmounted, defineAsyncComponent } from 'vue';
 import { useParallax } from '@/Composables/useParallax.js';
-import ParticleField from '@/Components/Three/ParticleField.vue';
-import NatureScene from '@/Components/Three/NatureScene.vue';
 import SoundCard from '@/Components/SoundCard.vue';
 import CreatorCard from '@/Components/CreatorCard.vue';
 
+// Lazy load heavy components to reduce initial bundle
 const SoundMap = defineAsyncComponent(() => import('@/Components/Map/SoundMap.vue'));
+const ParticleField = defineAsyncComponent(() => import('@/Components/Three/ParticleField.vue'));
+const NatureScene = defineAsyncComponent(() => import('@/Components/Three/NatureScene.vue'));
 
 const props = defineProps({
     stats: Object,

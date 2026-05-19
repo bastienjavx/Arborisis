@@ -3,30 +3,18 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
 {
-    /**
-     * The root template that is loaded on the first page visit.
-     *
-     * @var string
-     */
     protected $rootView = 'app';
 
-    /**
-     * Determine the current asset version.
-     */
     public function version(Request $request): ?string
     {
         return parent::version($request);
     }
 
-    /**
-     * Define the props that are shared by default.
-     *
-     * @return array<string, mixed>
-     */
     public function share(Request $request): array
     {
         $user = $request->user();
@@ -35,7 +23,12 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'auth' => [
                 'user' => $user ? [
-                    ...$user->toArray(),
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'avatar_url' => $user->avatar_url,
+                    'level' => $user->level,
+                    'xp_total' => $user->xp_total,
                     'is_moderator' => $user->isModerator(),
                 ] : null,
             ],
@@ -44,5 +37,18 @@ class HandleInertiaRequests extends Middleware
                 'location' => $request->url(),
             ],
         ];
+    }
+
+    public function handle(Request $request, \Closure $next)
+    {
+        $response = parent::handle($request, $next);
+
+        // Add cache headers for static assets
+        if ($request->is('build/*', 'fonts/*', 'images/*', 'css/*', 'js/*')) {
+            $response->headers->set('Cache-Control', 'public, max-age=31536000, immutable');
+            $response->headers->set('Vary', 'Accept-Encoding');
+        }
+
+        return $response;
     }
 }

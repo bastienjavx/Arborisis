@@ -48,21 +48,22 @@ class SoundController extends Controller
 
         $this->authorize('view', $sound);
 
-        // Increment play count (can be optimized with cache/queue later)
-        $sound->increment('play_count');
+        // Increment play count via cache counter for performance
+        $cacheKey = "sound:plays:{$sound->id}";
+        $playCount = \Illuminate\Support\Facades\Cache::increment($cacheKey);
 
-        // Track listen for gamification
+        // Batch update play count every 10 plays or randomly with 5% chance
+        if ($playCount >= 10 || random_int(1, 20) === 1) {
+            \Illuminate\Support\Facades\Cache::put($cacheKey, 0);
+            $sound->increment('play_count', $playCount);
+        }
+
+        // Track listen for gamification asynchronously
         if (auth()->check()) {
             $user = auth()->user();
             $listenedSeconds = $sound->duration ?? 0;
 
-            \App\Models\SoundListen::create([
-                'user_id' => $user->id,
-                'sound_id' => $sound->id,
-                'listened_seconds' => $listenedSeconds,
-            ]);
-
-            \App\Events\Gamification\SoundListened::dispatch($user, $sound, $listenedSeconds);
+            \App\Jobs\TrackSoundListen::dispatch($user->id, $sound->id, $listenedSeconds);
         }
 
         // Get audio URL
