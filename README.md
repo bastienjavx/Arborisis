@@ -8,6 +8,8 @@
 
 [![Pipeline](https://gitlab.com/bastienjavaux/arborisis.com/badges/main/pipeline.svg)](https://gitlab.com/bastienjavaux/arborisis.com/-/commits/main)
 [![Coverage](https://gitlab.com/bastienjavaux/arborisis.com/badges/main/coverage.svg)](https://gitlab.com/bastienjavaux/arborisis.com/-/commits/main)
+[![CI](https://github.com/bastienjavx/Arborisis/actions/workflows/ci.yml/badge.svg)](https://github.com/bastienjavx/Arborisis/actions)
+[![Security](https://github.com/bastienjavx/Arborisis/actions/workflows/security.yml/badge.svg)](https://github.com/bastienjavx/Arborisis/actions)
 [![PHP Version](https://img.shields.io/badge/PHP-8.3%2B-777BB4?logo=php&logoColor=white)](https://php.net)
 [![Laravel Version](https://img.shields.io/badge/Laravel-12.x-FF2D20?logo=laravel&logoColor=white)](https://laravel.com)
 [![Vue.js Version](https://img.shields.io/badge/Vue.js-3.x-4FC08D?logo=vuedotjs&logoColor=white)](https://vuejs.org)
@@ -24,9 +26,9 @@
 
 <div align="center">
 
-| Pipeline CI/CD | Déploiement Production |
-|:---:|:---:|
-| ![Pipeline](gitlab-pipelines.png) | ![Production](prod-final-check.png) |
+| Pipeline CI/CD |
+|:---:|
+| ![Pipeline](docs/assets/gitlab-pipelines.png) |
 
 </div>
 
@@ -112,7 +114,30 @@ Arborisis est une **plateforme sociale immersive** pensée pour les *field recor
 
 ## 🚀 Installation Rapide
 
-### Prérequis
+### Option A — Docker (recommandée)
+
+Le plus simple pour démarrer en local ou sur un serveur frais. Nécessite seulement [Docker](https://docs.docker.com/get-docker/) et `git`.
+
+```bash
+git clone https://github.com/bastienjavx/Arborisis.git
+cd Arborisis
+./scripts/setup-dev.sh
+```
+
+Cela lance automatiquement :
+- PostgreSQL 17 + PostGIS
+- Redis 7
+- Laravel (PHP-FPM + Nginx)
+- SSR Inertia
+- Reverb (websockets)
+- Queue workers + Scheduler
+- Discord bot (optionnel)
+
+L'application est accessible sur **http://localhost**.
+
+### Option B — Manuelle (sans Docker)
+
+#### Prérequis
 - PHP 8.3+
 - PostgreSQL 16+ (avec PostGIS)
 - Redis 7+
@@ -126,12 +151,15 @@ cd arborisis.com/arborisis
 ```
 
 ### 2. Installer les dépendances
+#### 1. Cloner et installer
 ```bash
+git clone https://github.com/bastienjavx/Arborisis.git
+cd Arborisis/arborisis
 composer install
 npm install
 ```
 
-### 3. Configurer l'environnement
+#### 2. Configurer l'environnement
 ```bash
 cp .env.example .env
 php artisan key:generate
@@ -150,22 +178,15 @@ CACHE_DRIVER=redis
 SESSION_DRIVER=redis
 QUEUE_CONNECTION=redis
 REDIS_HOST=127.0.0.1
-
-AWS_ACCESS_KEY_ID=xxx
-AWS_SECRET_ACCESS_KEY=xxx
-AWS_DEFAULT_REGION=eu2
-AWS_BUCKET=arborisis-audio
-AWS_ENDPOINT=https://eu2.contabostorage.com
-AWS_USE_PATH_STYLE_ENDPOINT=true
 ```
 
-### 4. Base de données & assets
+#### 3. Base de données & assets
 ```bash
 php artisan migrate --seed
 npm run build
 ```
 
-### 5. Lancer
+#### 4. Lancer
 ```bash
 php artisan serve
 npm run dev   # dans un autre terminal
@@ -173,7 +194,37 @@ npm run dev   # dans un autre terminal
 
 ---
 
+## 🖥 Déploiement Serveur (VPS frais)
+
+Sur un serveur Ubuntu/Debian vierge, en une commande :
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/bastienjavx/Arborisis/dev/scripts/setup-server.sh | sudo bash
+```
+
+Ou manuellement :
+```bash
+git clone https://github.com/bastienjavx/Arborisis.git
+cd Arborisis
+sudo ./scripts/setup-server.sh
+```
+
+Le script :
+- Installe Docker et Docker Compose
+- Clone/met à jour le repo
+- Génère les fichiers `.env` et les secrets
+- Build et démarre tous les services
+- Exécute les migrations
+
+> ⚠️ **Après l'installation**, édite `arborisis/.env` pour ajouter tes clés S3/R2, Stripe, et configurer le SSL (Cloudflare Tunnel, Certbot, ou reverse proxy).
+
+---
+
 ## 📂 Structure du Projet
+
+Arborisis est un monorepo. L'application Laravel déployée reste dans
+`arborisis/`; la racine sert à coordonner la documentation, la CI, les workers,
+les services Python et l'infrastructure.
 
 ```
 arborisis/
@@ -192,15 +243,35 @@ arborisis/
 ├── database/migrations/       # Schéma PostgreSQL
 ├── routes/                    # web.php, api.php, admin.php
 └── tests/                     # Feature + Unit tests
+.
+├── arborisis/                 # Laravel 12 + Inertia/Vue + Discord bot
+├── workers/                   # Workers Cloudflare
+├── services/audio-analyzer/   # Service Python FastAPI d'analyse audio
+├── infrastructure/            # Docker, radio, wiki, monitoring, VPS
+├── docs/                      # Documentation, audits, assets
+├── wiki-content/              # Contenu Wiki.js
+└── scripts/security/          # Audits passifs et dépendances
 ```
 
-> Pour plus de détails, voir [`ARCHITECTURE.md`](ARCHITECTURE.md).
+> Pour plus de détails, voir [`docs/repository-map.md`](docs/repository-map.md) et [`ARCHITECTURE.md`](ARCHITECTURE.md).
+
+---
+
+## 📖 Documentation
+
+- [`docs/repository-map.md`](docs/repository-map.md) — carte du monorepo, commandes et règles de rangement.
+- [`ARCHITECTURE.md`](ARCHITECTURE.md) — architecture Laravel/Inertia de référence.
+- [`docs/deploiement-gitlab-vps.md`](docs/deploiement-gitlab-vps.md) — déploiement GitLab vers VPS.
+- [`docs/security/audit-2026-05-19.md`](docs/security/audit-2026-05-19.md) — dernier audit sécurité passif.
+- [`docs/agents/full-agent-guide.md`](docs/agents/full-agent-guide.md) — guide long pour agents IA et contributeurs.
 
 ---
 
 ## 🔧 Développement
 
 ### Commandes utiles
+Depuis `arborisis/` :
+
 ```bash
 # Mode développement
 npm run dev
@@ -218,6 +289,16 @@ php artisan queue:work
 ./vendor/bin/pint
 ```
 
+Depuis la racine du dépôt :
+
+```bash
+# Audits de dépendances PHP/Node
+scripts/security/dependency-audit.sh
+
+# Vérification passive de production
+scripts/security/passive-prod-check.sh https://arborisis.com
+```
+
 ### Conventions de code
 - PHP 8.3+ avec `declare(strict_types=1)`
 - Enums PHP pour tous les statuts et rôles
@@ -233,15 +314,30 @@ php artisan queue:work
 
 ## 🚀 Déploiement
 
-Le pipeline GitLab CI contient un job manuel `deploy_production` pour déployer
-Arborisis sur un VPS via SSH + rsync, avec releases atomiques et dossiers
-partagés.
+Les workflows GitHub Actions (`ci.yml`, `security.yml`) testent le backend, le frontend et auditent les dépendances à chaque PR.
+
+### Option 1 — Docker Compose (recommandée)
+
+Déploie l'ensemble de la stack (PostgreSQL, Redis, Laravel, Nginx, Workers) via Docker sur un seul serveur ou plusieurs. Voir [`scripts/setup-server.sh`](scripts/setup-server.sh) pour l'installation automatique sur un VPS vierge, ou [`infrastructure/docker/`](infrastructure/docker/) pour la configuration avancée.
+
+```bash
+cd infrastructure/docker
+./deploy-local.sh data    # PostgreSQL + Redis
+./deploy-local.sh web     # Laravel + Nginx + Reverb + SSR
+./deploy-local.sh workers # Queue + Scheduler + Discord bot
+```
+
+### Option 2 — GitLab CI + VPS classique
+
+Le pipeline GitLab CI (job manuel `deploy_production`) livre sur le VPS via SSH + rsync, avec releases atomiques et dossiers partagés.
 
 Voir [`docs/deploiement-gitlab-vps.md`](docs/deploiement-gitlab-vps.md).
 
 ---
 
 ## 🧪 Tests
+
+Depuis `arborisis/` :
 
 ```bash
 # Tests complets
@@ -271,13 +367,13 @@ php artisan test --filter=SoundUploadTest
 
 ## 🤝 Contribuer
 
-Les contributions sont les bienvenues ! Merci de lire [`CONTRIBUTING.md`](CONTRIBUTING.md) avant de proposer une MR.
+Les contributions sont les bienvenues ! Merci de lire [`CONTRIBUTING.md`](CONTRIBUTING.md) avant de proposer une PR.
 
 ### Rapport de bug
-Utilisez le template **Bug** dans les issues GitLab.
+Utilisez le template **Bug** dans les [issues GitHub](../../issues).
 
 ### Proposition de fonctionnalité
-Utilisez le template **Feature** dans les issues GitLab.
+Utilisez le template **Feature** dans les [issues GitHub](../../issues).
 
 ---
 
