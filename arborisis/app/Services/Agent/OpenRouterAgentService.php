@@ -14,6 +14,9 @@ use Illuminate\Support\Str;
 
 class OpenRouterAgentService
 {
+    private const COMPACTION_THRESHOLD = 8;
+    private const COMPACTION_KEEP_RECENT = 4;
+
     private ?User $currentUser = null;
 
     private array $conversationHistory = [];
@@ -50,7 +53,7 @@ class OpenRouterAgentService
 
         $messages = [
             ['role' => 'system', 'content' => $this->systemPrompt($user, $location, $page, $agentFiles)],
-            ...$this->trimHistory($history),
+            ...$this->maybeCompactHistory($this->trimHistory($history)),
             ['role' => 'user', 'content' => $this->safeString($message, 4000)],
         ];
 
@@ -935,6 +938,49 @@ class OpenRouterAgentService
             ->take(-10)
             ->values()
             ->all();
+    }
+
+    /**
+     * @param  array<int, array{role: string, content: string}>  $history
+     * @return array<int, array{role: string, content: string}>
+     */
+    private function maybeCompactHistory(array $history): array
+    {
+        if (count($history) <= self::COMPACTION_THRESHOLD) {
+            return $history;
+        }
+
+        $toCompact = array_slice($history, 0, -self::COMPACTION_KEEP_RECENT);
+        $recent = array_slice($history, -self::COMPACTION_KEEP_RECENT);
+
+        try {
+            $summaryMessages = [
+                [
+                    'role' => 'system',
+                    'content' => 'Tu resumes une conversation entre un utilisateur et un assistant. Extrais les faits importants, les preferences de l\'utilisateur, les decisions prises et les sujets abordes. Sois extremement concis (2-4 phrases maximum). Reponds UNIQUEMENT le resume, sans preambule.',
+                ],
+                ...$toCompact,
+            ];
+
+            $result = $this->callOpenRouter($summaryMessages, false);
+            $summary = trim((string) ($result['choices'][0]['message']['content'] ?? ''));
+
+            if ($summary !== '') {
+                return [
+                    [
+                        'role' => 'system',
+                        'content' => "Contexte precedent : {$summary}",
+                    ],
+                    ...$recent,
+                ];
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Sylve history compaction failed', [
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return $recent;
     }
 
     /**

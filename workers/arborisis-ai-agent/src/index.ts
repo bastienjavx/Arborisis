@@ -39,6 +39,8 @@ interface AgentRequest {
 
 const MODEL = "@cf/moonshotai/kimi-k2.6";
 const MAX_TOOL_STEPS = 2;
+const COMPACTION_THRESHOLD = 8;
+const COMPACTION_KEEP_RECENT = 4;
 
 const tools = [
   {
@@ -279,6 +281,44 @@ function normalizeHistory(payload: AgentRequest): ChatMessage[] {
       role: message.role as "user" | "assistant",
       content: safeString(message.content, 4000),
     }));
+}
+
+async function maybeCompactHistory(env: Env, history: ChatMessage[]): Promise<ChatMessage[]> {
+  if (history.length <= COMPACTION_THRESHOLD) {
+    return history;
+  }
+
+  const toCompact = history.slice(0, -COMPACTION_KEEP_RECENT);
+  const recent = history.slice(-COMPACTION_KEEP_RECENT);
+
+  try {
+    const summaryMessages: ChatMessage[] = [
+      {
+        role: "system",
+        content:
+          "Tu résumes une conversation entre un utilisateur et un assistant. Extrais les faits importants, les préférences de l'utilisateur, les décisions prises et les sujets abordés. Sois extrêmement concis (2-4 phrases maximum). Réponds UNIQUEMENT le résumé, sans préambule.",
+      },
+      ...toCompact,
+    ];
+
+    const result = await runModel(env, summaryMessages, false);
+    const summary = result.message.content.trim();
+
+    if (summary.length > 0) {
+      return [
+        {
+          role: "system",
+          content: `Contexte précédent : ${summary}`,
+        },
+        ...recent,
+      ];
+    }
+  } catch (e) {
+    console.error("[arborisis-ai-agent] history compaction failed", e);
+  }
+
+  // Fallback: keep recent messages only
+  return recent;
 }
 
 async function fetchApi(env: Env, path: string): Promise<unknown> {
@@ -546,7 +586,7 @@ async function chat(request: Request, env: Env): Promise<Response> {
 
   const messages: ChatMessage[] = [
     { role: "system", content: systemPrompt(payload, env) },
-    ...normalizeHistory(payload),
+    ...await maybeCompactHistory(env, normalizeHistory(payload)),
     { role: "user", content: userMessage },
   ];
   const sources: string[] = [];
