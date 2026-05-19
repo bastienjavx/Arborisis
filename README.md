@@ -6,15 +6,15 @@
 
 *Capturez, partagez et explorez le monde sonore sauvage.*
 
-[![Pipeline](https://gitlab.com/bastienjavaux/<redacted>.com/badges/main/pipeline.svg)](https://gitlab.com/bastienjavaux/<redacted>.com/-/commits/main)
-[![Coverage](https://gitlab.com/bastienjavaux/<redacted>.com/badges/main/coverage.svg)](https://gitlab.com/bastienjavaux/<redacted>.com/-/commits/main)
+[![CI](https://github.com/bastienjavx/Arborisis/actions/workflows/ci.yml/badge.svg)](https://github.com/bastienjavx/Arborisis/actions)
+[![Security](https://github.com/bastienjavx/Arborisis/actions/workflows/security.yml/badge.svg)](https://github.com/bastienjavx/Arborisis/actions)
 [![PHP Version](https://img.shields.io/badge/PHP-8.3%2B-777BB4?logo=php&logoColor=white)](https://php.net)
 [![Laravel Version](https://img.shields.io/badge/Laravel-12.x-FF2D20?logo=laravel&logoColor=white)](https://laravel.com)
 [![Vue.js Version](https://img.shields.io/badge/Vue.js-3.x-4FC08D?logo=vuedotjs&logoColor=white)](https://vuejs.org)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.x-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-[🌐 Site web](https://<redacted>.com) · [📖 Documentation](#documentation) · [🚀 Installation](#installation-rapide) · [🤝 Contribuer](#contribuer)
+[🌐 Site web](https://arborisis.com) · [📖 Documentation](#documentation) · [🚀 Installation](#installation-rapide) · [🤝 Contribuer](#contribuer)
 
 </div>
 
@@ -24,9 +24,9 @@
 
 <div align="center">
 
-| Pipeline CI/CD | Déploiement Production |
-|:---:|:---:|
-| ![Pipeline](gitlab-pipelines.png) | ![Production](prod-final-check.png) |
+| Pipeline CI/CD |
+|:---:|
+| ![Pipeline](docs/assets/gitlab-pipelines.png) |
 
 </div>
 
@@ -121,8 +121,8 @@ Arborisis est une **plateforme sociale immersive** pensée pour les *field recor
 
 ### 1. Cloner le projet
 ```bash
-git clone https://gitlab.com/bastienjavaux/<redacted>.com.git
-cd <redacted>.com/<redacted>
+git clone https://github.com/bastienjavx/Arborisis.git
+cd Arborisis/arborisis
 ```
 
 ### 2. Installer les dépendances
@@ -142,8 +142,8 @@ php artisan key:generate
 DB_CONNECTION=pgsql
 DB_HOST=127.0.0.1
 DB_PORT=5432
-DB_DATABASE=<redacted>
-DB_USERNAME=<redacted>
+DB_DATABASE=arborisis
+DB_USERNAME=arborisis
 DB_PASSWORD=secret
 
 CACHE_DRIVER=redis
@@ -154,7 +154,7 @@ REDIS_HOST=127.0.0.1
 AWS_ACCESS_KEY_ID=xxx
 AWS_SECRET_ACCESS_KEY=xxx
 AWS_DEFAULT_REGION=eu2
-AWS_BUCKET=<redacted>-audio
+AWS_BUCKET=arborisis-audio
 AWS_ENDPOINT=https://eu2.contabostorage.com
 AWS_USE_PATH_STYLE_ENDPOINT=true
 ```
@@ -175,32 +175,40 @@ npm run dev   # dans un autre terminal
 
 ## 📂 Structure du Projet
 
+Arborisis est un monorepo. L'application Laravel déployée reste dans
+`arborisis/`; la racine sert à coordonner la documentation, la CI, les workers,
+les services Python et l'infrastructure.
+
 ```
-<redacted>/
-├── app/
-│   ├── Http/Controllers/      # Web + API controllers
-│   ├── Http/Requests/         # Form Requests (validation)
-│   ├── Models/                # Eloquent + relations
-│   ├── Services/              # Logique métier
-│   ├── Policies/              # Autorisations
-│   └── Jobs/                  # Queues (audio, waveform)
-├── resources/js/
-│   ├── Pages/                 # Pages Inertia (Vue)
-│   ├── Components/            # Composants réutilisables
-│   ├── Composables/           # Logique Vue réutilisable
-│   └── Stores/                # Pinia (player global)
-├── database/migrations/       # Schéma PostgreSQL
-├── routes/                    # web.php, api.php, admin.php
-└── tests/                     # Feature + Unit tests
+.
+├── arborisis/                 # Laravel 12 + Inertia/Vue + Discord bot
+├── workers/                   # Workers Cloudflare
+├── services/audio-analyzer/   # Service Python FastAPI d'analyse audio
+├── infrastructure/            # Docker, radio, wiki, monitoring, VPS
+├── docs/                      # Documentation, audits, assets
+├── wiki-content/              # Contenu Wiki.js
+└── scripts/security/          # Audits passifs et dépendances
 ```
 
-> Pour plus de détails, voir [`ARCHITECTURE.md`](ARCHITECTURE.md).
+> Pour plus de détails, voir [`docs/repository-map.md`](docs/repository-map.md) et [`ARCHITECTURE.md`](ARCHITECTURE.md).
+
+---
+
+## 📖 Documentation
+
+- [`docs/repository-map.md`](docs/repository-map.md) — carte du monorepo, commandes et règles de rangement.
+- [`ARCHITECTURE.md`](ARCHITECTURE.md) — architecture Laravel/Inertia de référence.
+- [`docs/deploiement-gitlab-vps.md`](docs/deploiement-gitlab-vps.md) — déploiement GitLab vers VPS.
+- [`docs/security/audit-2026-05-19.md`](docs/security/audit-2026-05-19.md) — dernier audit sécurité passif.
+- [`docs/agents/full-agent-guide.md`](docs/agents/full-agent-guide.md) — guide long pour agents IA et contributeurs.
 
 ---
 
 ## 🔧 Développement
 
 ### Commandes utiles
+Depuis `arborisis/` :
+
 ```bash
 # Mode développement
 npm run dev
@@ -218,6 +226,16 @@ php artisan queue:work
 ./vendor/bin/pint
 ```
 
+Depuis la racine du dépôt :
+
+```bash
+# Audits de dépendances PHP/Node
+scripts/security/dependency-audit.sh
+
+# Vérification passive de production
+scripts/security/passive-prod-check.sh https://arborisis.com
+```
+
 ### Conventions de code
 - PHP 8.3+ avec `declare(strict_types=1)`
 - Enums PHP pour tous les statuts et rôles
@@ -233,15 +251,16 @@ php artisan queue:work
 
 ## 🚀 Déploiement
 
-Le pipeline GitLab CI contient un job manuel `deploy_production` pour déployer
-Arborisis sur un VPS via SSH + rsync, avec releases atomiques et dossiers
-partagés.
+Les workflows GitHub Actions (`ci.yml`, `security.yml`) testent le backend, le frontend et auditent les dépendances à chaque PR.  
+Le déploiement production utilise toujours le pipeline GitLab CI (job manuel `deploy_production`) pour livrer sur le VPS via SSH + rsync, avec releases atomiques et dossiers partagés.
 
 Voir [`docs/deploiement-gitlab-vps.md`](docs/deploiement-gitlab-vps.md).
 
 ---
 
 ## 🧪 Tests
+
+Depuis `arborisis/` :
 
 ```bash
 # Tests complets
@@ -271,13 +290,13 @@ php artisan test --filter=SoundUploadTest
 
 ## 🤝 Contribuer
 
-Les contributions sont les bienvenues ! Merci de lire [`CONTRIBUTING.md`](CONTRIBUTING.md) avant de proposer une MR.
+Les contributions sont les bienvenues ! Merci de lire [`CONTRIBUTING.md`](CONTRIBUTING.md) avant de proposer une PR.
 
 ### Rapport de bug
-Utilisez le template **Bug** dans les issues GitLab.
+Utilisez le template **Bug** dans les [issues GitHub](../../issues).
 
 ### Proposition de fonctionnalité
-Utilisez le template **Feature** dans les issues GitLab.
+Utilisez le template **Feature** dans les [issues GitHub](../../issues).
 
 ---
 
