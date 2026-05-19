@@ -14,7 +14,7 @@ class FeaturedController extends Controller
     public function sounds(): JsonResponse
     {
         $sounds = Sound::public()
-            ->with(['user', 'category'])
+            ->with(['user', 'category', 'soundFile'])
             ->latest()
             ->take(6)
             ->get()
@@ -39,6 +39,7 @@ class FeaturedController extends Controller
         $creators = User::whereHas('sounds', function ($query): void {
             $query->public();
         })
+            ->with('profile')
             ->withCount(['sounds' => fn ($q) => $q->public()])
             ->withSum(['sounds as total_plays' => fn ($q) => $q->public()], 'play_count')
             ->orderByDesc('sounds_count')
@@ -46,6 +47,7 @@ class FeaturedController extends Controller
             ->get()
             ->map(fn (User $user) => [
                 'id' => $user->id,
+                'slug' => $user->slug,
                 'name' => $user->name,
                 'avatar_url' => $user->avatar_url,
                 'location' => $user->location,
@@ -53,6 +55,7 @@ class FeaturedController extends Controller
                 'total_plays' => $user->total_plays ?? 0,
                 'featured_sound' => (function () use ($user) {
                     $popularSound = Sound::public()
+                        ->with('soundFile')
                         ->where('user_id', $user->id)
                         ->orderByDesc('play_count')
                         ->first();

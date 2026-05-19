@@ -13,6 +13,7 @@ import CookieBanner from '@/Components/CookieBanner.vue';
 import PwaInstallPrompt from '@/Components/PwaInstallPrompt.vue';
 import PwaUpdatePrompt from '@/Components/PwaUpdatePrompt.vue';
 import OfflineBanner from '@/Components/OfflineBanner.vue';
+import ArborisisAgent from '@/Components/Agent/ArborisisAgent.vue';
 import { usePwaStore } from '@/Stores/pwa';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
@@ -120,6 +121,7 @@ createInertiaApp({
                 h(PwaInstallPrompt),
                 h(PwaUpdatePrompt),
                 h(OfflineBanner),
+                h(ArborisisAgent),
             ]),
         });
 

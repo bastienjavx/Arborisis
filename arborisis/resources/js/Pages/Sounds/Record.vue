@@ -10,6 +10,7 @@ import TextInput from '@/Components/TextInput.vue';
 const props = defineProps({
     categories: Array,
     environments: Array,
+    selectedListeningPoint: Object,
 });
 
 const step = ref('record'); // 'record' | 'meta'
@@ -22,17 +23,21 @@ const form = useForm({
     description: '',
     recorded_at: '',
     recorded_time: '',
-    latitude: '',
-    longitude: '',
-    location_name: '',
+    latitude: props.selectedListeningPoint?.public_latitude ?? '',
+    longitude: props.selectedListeningPoint?.public_longitude ?? '',
+    location_name: props.selectedListeningPoint?.title ?? '',
     is_sensitive_location: false,
     tags: '',
     category_id: '',
-    environment_id: '',
+    new_category_name: '',
+    environment_id: props.selectedListeningPoint?.environment_id ?? '',
+    new_environment_name: '',
     equipment: '',
     license: 'all_rights_reserved',
     visibility: 'public',
     cover_image: null,
+    listening_point_id: props.selectedListeningPoint?.id ?? '',
+    create_new_listening_point: false,
 });
 
 const coverPreview = ref(null);
@@ -40,6 +45,8 @@ const isDragging = ref(false);
 const geoError = ref('');
 const locating = ref(false);
 const uploadProgress = ref(0);
+const categorySelection = ref('');
+const environmentSelection = ref(props.selectedListeningPoint?.environment_id ?? '');
 
 const licenses = [
     { value: 'all_rights_reserved', label: 'Tous droits réservés' },
@@ -54,6 +61,22 @@ const visibilities = [
     { value: 'followers', label: 'Abonnés uniquement' },
     { value: 'private', label: 'Privé' },
 ];
+
+const selectCategory = (value) => {
+    categorySelection.value = value;
+    form.category_id = value === '__new' ? '' : value;
+    if (value !== '__new') {
+        form.new_category_name = '';
+    }
+};
+
+const selectEnvironment = (value) => {
+    environmentSelection.value = value;
+    form.environment_id = value === '__new' ? '' : value;
+    if (value !== '__new') {
+        form.new_environment_name = '';
+    }
+};
 
 const onConfirmRecording = (blob, url) => {
     recordedBlob.value = blob;
@@ -135,9 +158,12 @@ const goBackToRecord = () => {
     <Head title="Enregistrer un son" />
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="font-display text-xl font-semibold text-arbor-cream">
-                Enregistrer un son
-            </h2>
+            <div>
+                <p class="atlas-kicker">Capture directe</p>
+                <h2 class="font-display text-2xl font-semibold text-arbor-cream">
+                    Enregistrer une trace sonore
+                </h2>
+            </div>
         </template>
 
         <div class="relative min-h-[calc(100vh-8rem)]">
@@ -152,17 +178,25 @@ const goBackToRecord = () => {
             >
                 <div v-if="step === 'record'" class="py-6">
                     <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-                        <div class="mb-8 text-center">
-                            <h1 class="font-display text-3xl font-light italic text-arbor-cream sm:text-4xl">
-                                Capturez l'instant
+                        <div class="trace-frame mb-8 p-6 text-center sm:p-8">
+                            <div class="relative z-10">
+                            <p class="atlas-kicker mb-4">Le terrain commence ici</p>
+                            <h1 class="atlas-heading text-5xl sm:text-6xl">
+                                Capturez l'instant.
                             </h1>
-                            <p class="mt-2 text-sm text-arbor-sage/70">
-                                Un enregistrement est un acte de présence. Choisissez votre source et appuyez sur le bouton.
+                            <p class="mx-auto mt-5 max-w-xl text-sm leading-6 text-arbor-sage/80">
+                                Choisissez votre source, écoutez le lieu, puis gardez uniquement les captures qui méritent d'entrer dans l'atlas.
                             </p>
+                            <p v-if="selectedListeningPoint" class="mx-auto mt-4 max-w-xl rounded-lg border border-arbor-lichen/20 bg-arbor-lichen/10 px-4 py-3 text-sm text-arbor-cream">
+                                Nouvelle prise pour <span class="font-semibold text-arbor-lichen">{{ selectedListeningPoint.title }}</span>.
+                            </p>
+                            </div>
                         </div>
 
-                        <div class="glass-card overflow-hidden">
+                        <div class="trace-frame overflow-hidden">
+                            <div class="relative z-10">
                             <AudioRecorder @confirm="onConfirmRecording" />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -181,7 +215,8 @@ const goBackToRecord = () => {
                     <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
                         <div class="mb-6 flex items-center justify-between">
                             <div>
-                                <h2 class="font-display text-2xl font-light italic text-arbor-cream">
+                                <p class="atlas-kicker">Contexte de terrain</p>
+                                <h2 class="font-display text-3xl font-semibold text-arbor-cream">
                                     Décrivez votre capture
                                 </h2>
                                 <p class="mt-1 text-sm text-arbor-sage/70">
@@ -200,12 +235,28 @@ const goBackToRecord = () => {
                         </div>
 
                         <form @submit.prevent="submit" class="space-y-8">
+                            <input type="hidden" v-model="form.listening_point_id" />
+                            <input type="hidden" v-model="form.create_new_listening_point" />
+
+                            <div v-if="selectedListeningPoint" class="trace-frame border-arbor-lichen/25 bg-arbor-lichen/10 p-5">
+                                <div class="relative z-10">
+                                    <p class="atlas-kicker mb-2">Point d'écoute prérempli</p>
+                                    <h3 class="font-display text-2xl font-semibold text-arbor-cream">
+                                        {{ selectedListeningPoint.title }}
+                                    </h3>
+                                    <p class="mt-1 text-sm text-arbor-sage">
+                                        La capture sera attachée à ce point après publication.
+                                    </p>
+                                </div>
+                            </div>
+
                             <!-- Audio preview (read-only) -->
-                            <div class="glass-card p-6">
+                            <div class="trace-frame p-6">
+                                <div class="relative z-10">
                                 <InputLabel value="Enregistrement" />
-                                <div class="mt-3 flex items-center gap-4 rounded-xl border border-arbor-glass-border bg-arbor-deep/40 px-4 py-3">
-                                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-arbor-emerald/10">
-                                        <svg class="h-5 w-5 text-arbor-emerald" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="mt-3 flex items-center gap-4 rounded-lg border border-arbor-mineral/10 bg-arbor-deep/40 px-4 py-3">
+                                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-arbor-lichen/10">
+                                        <svg class="h-5 w-5 text-arbor-lichen" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                                         </svg>
                                     </div>
@@ -220,10 +271,12 @@ const goBackToRecord = () => {
                                     </div>
                                     <audio :src="recordedUrl" controls class="h-8 w-32 sm:w-48" />
                                 </div>
+                                </div>
                             </div>
 
                             <!-- Title -->
-                            <div>
+                            <div class="trace-frame p-5 sm:p-6">
+                                <div class="relative z-10">
                                 <InputLabel for="title" value="Titre *" />
                                 <TextInput
                                     id="title"
@@ -234,10 +287,12 @@ const goBackToRecord = () => {
                                     required
                                 />
                                 <InputError :message="form.errors.title" />
+                                </div>
                             </div>
 
                             <!-- Description -->
-                            <div>
+                            <div class="trace-frame p-5 sm:p-6">
+                                <div class="relative z-10">
                                 <InputLabel for="description" value="Description" />
                                 <textarea
                                     id="description"
@@ -247,11 +302,21 @@ const goBackToRecord = () => {
                                     placeholder="Décrivez le contexte de l'enregistrement, ce que vous entendez, l'ambiance..."
                                 />
                                 <InputError :message="form.errors.description" />
+                                </div>
                             </div>
 
                             <!-- Location -->
-                            <div class="glass-card p-6">
-                                <h3 class="mb-4 font-semibold text-arbor-cream">Localisation *</h3>
+                            <div class="trace-frame p-6">
+                                <div class="relative z-10">
+                                <div class="mb-4 flex items-start justify-between gap-4">
+                                    <div>
+                                        <p class="atlas-kicker mb-1">Lieu d'écoute</p>
+                                        <h3 class="font-display text-2xl font-semibold text-arbor-cream">Localisation *</h3>
+                                    </div>
+                                    <span class="rounded-full border border-arbor-firefly/20 bg-arbor-firefly/10 px-3 py-1 text-[11px] text-arbor-firefly">
+                                        Public approximé
+                                    </span>
+                                </div>
                                 <div class="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div>
                                         <InputLabel for="latitude" value="Latitude" />
@@ -282,7 +347,7 @@ const goBackToRecord = () => {
                                     type="button"
                                     @click="getCurrentLocation"
                                     :disabled="locating"
-                                    class="mb-2 flex items-center gap-1.5 text-sm text-arbor-emerald transition-colors hover:text-arbor-emerald-dark disabled:cursor-not-allowed disabled:opacity-50"
+                                    class="mb-2 flex items-center gap-1.5 text-sm text-arbor-lichen transition-colors hover:text-arbor-firefly disabled:cursor-not-allowed disabled:opacity-50"
                                 >
                                     <svg v-if="locating" class="h-4 w-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -317,11 +382,12 @@ const goBackToRecord = () => {
                                         id="is_sensitive_location"
                                         v-model="form.is_sensitive_location"
                                         type="checkbox"
-                                        class="rounded border-arbor-glass-border bg-arbor-deep text-arbor-emerald focus:ring-arbor-emerald"
+                                        class="rounded border-arbor-glass-border bg-arbor-deep text-arbor-lichen focus:ring-arbor-lichen"
                                     />
                                     <label for="is_sensitive_location" class="text-sm text-arbor-sage">
                                         Ce lieu est sensible — afficher une localisation approximative uniquement
                                     </label>
+                                </div>
                                 </div>
                             </div>
 
@@ -353,27 +419,49 @@ const goBackToRecord = () => {
                                     <InputLabel for="category_id" value="Catégorie" />
                                     <select
                                         id="category_id"
-                                        v-model="form.category_id"
+                                        v-model="categorySelection"
+                                        @change="selectCategory($event.target.value)"
                                         class="mt-2 block w-full rounded-xl border-arbor-glass-border bg-arbor-deep text-arbor-cream shadow-sm focus:border-arbor-emerald focus:ring-arbor-emerald"
                                     >
                                         <option value="">Choisir une catégorie</option>
                                         <option v-for="cat in categories" :key="cat.id" :value="cat.id">
                                             {{ cat.name }}
                                         </option>
+                                        <option value="__new">Créer une nouvelle catégorie</option>
                                     </select>
+                                    <TextInput
+                                        v-if="categorySelection === '__new'"
+                                        id="new_category_name"
+                                        v-model="form.new_category_name"
+                                        type="text"
+                                        class="mt-3 block w-full"
+                                        placeholder="Ex: Chiroptères, geais, ambiance de canopée"
+                                    />
+                                    <InputError :message="form.errors.category_id || form.errors.new_category_name" />
                                 </div>
                                 <div>
                                     <InputLabel for="environment_id" value="Environnement" />
                                     <select
                                         id="environment_id"
-                                        v-model="form.environment_id"
+                                        v-model="environmentSelection"
+                                        @change="selectEnvironment($event.target.value)"
                                         class="mt-2 block w-full rounded-xl border-arbor-glass-border bg-arbor-deep text-arbor-cream shadow-sm focus:border-arbor-emerald focus:ring-arbor-emerald"
                                     >
                                         <option value="">Choisir un environnement</option>
                                         <option v-for="env in environments" :key="env.id" :value="env.id">
                                             {{ env.name }}
                                         </option>
+                                        <option value="__new">Créer un nouvel environnement</option>
                                     </select>
+                                    <TextInput
+                                        v-if="environmentSelection === '__new'"
+                                        id="new_environment_name"
+                                        v-model="form.new_environment_name"
+                                        type="text"
+                                        class="mt-3 block w-full"
+                                        placeholder="Ex: ripisylve, vieille haie, friche ferroviaire"
+                                    />
+                                    <InputError :message="form.errors.environment_id || form.errors.new_environment_name" />
                                 </div>
                             </div>
 
@@ -485,7 +573,7 @@ const goBackToRecord = () => {
                                     <div v-if="form.processing && uploadProgress > 0" class="mt-3">
                                         <div class="h-1.5 overflow-hidden rounded-full bg-arbor-glass">
                                             <div
-                                                class="h-full rounded-full bg-arbor-emerald transition-all duration-200"
+                                                class="h-full rounded-full bg-gradient-to-r from-arbor-lichen to-arbor-firefly transition-all duration-200"
                                                 :style="`width: ${uploadProgress}%`"
                                             />
                                         </div>

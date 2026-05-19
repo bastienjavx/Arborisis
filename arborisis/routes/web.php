@@ -87,6 +87,9 @@ Route::middleware(['auth', 'verified'])->get('/arborisis-map', function () {
     return Inertia::render('ArborisisMap/Index');
 })->name('arborisis-map.index');
 
+Route::get('/sound-walks', [\App\Http\Controllers\Web\SoundWalkController::class, 'index'])->name('sound-walks.index');
+Route::get('/sound-walks/{slug}', [\App\Http\Controllers\Web\SoundWalkController::class, 'show'])->name('sound-walks.show');
+
 Route::get('/creators', [CreatorController::class, 'index'])->name('creators.index');
 Route::get('/creators/{slug}', [CreatorProfileController::class, 'show'])->name('creators.show');
 
@@ -104,6 +107,8 @@ Route::middleware(['throttle:scientific-api'])->group(function () {
 Route::middleware(['throttle:listening-points'])->group(function () {
     Route::get('/listening-points', [\App\Http\Controllers\Web\ListeningPointController::class, 'index'])->name('listening-points.index');
     Route::get('/listening-points/{slug}', [\App\Http\Controllers\Web\ListeningPointController::class, 'show'])->name('listening-points.show');
+    Route::get('/api/listening-points/heatmap', [\App\Http\Controllers\Web\ListeningPointController::class, 'heatmap'])->name('listening-points.heatmap');
+    Route::get('/api/listening-points/timeline', [\App\Http\Controllers\Web\ListeningPointController::class, 'timeline'])->name('listening-points.timeline');
 });
 
 Route::get('/transparency', [PageController::class, 'transparency'])->name('transparency');

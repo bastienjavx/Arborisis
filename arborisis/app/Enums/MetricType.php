@@ -14,6 +14,12 @@ enum MetricType: string
     case SeasonalComparison = 'seasonal_comparison';
     case TimeOfDayModel = 'time_of_day_model';
     case AnomalyDetection = 'anomaly_detection';
+    case ShannonDiversityIndex = 'shannon_diversity_index';
+    case SimpsonDiversityIndex = 'simpson_diversity_index';
+    case AcousticComplexityIndex = 'acoustic_complexity_index';
+    case TemporalTurnover = 'temporal_turnover';
+    case AcousticConsistencyScore = 'acoustic_consistency_score';
+    case SpeciesRichness = 'species_richness';
 
     public function label(): string
     {
@@ -26,6 +32,12 @@ enum MetricType: string
             self::SeasonalComparison => 'Comparaison saisonnière',
             self::TimeOfDayModel => 'Modèle horaire',
             self::AnomalyDetection => 'Détection d\'anomalie',
+            self::ShannonDiversityIndex => 'Indice de diversité de Shannon',
+            self::SimpsonDiversityIndex => 'Indice de diversité de Simpson',
+            self::AcousticComplexityIndex => 'Indice de complexité acoustique',
+            self::TemporalTurnover => 'Turnover temporel des espèces',
+            self::AcousticConsistencyScore => 'Score de cohérence acoustique',
+            self::SpeciesRichness => 'Richesse spécifique',
         };
     }
 }

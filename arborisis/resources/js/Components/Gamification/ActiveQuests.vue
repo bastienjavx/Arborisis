@@ -7,7 +7,7 @@ const props = defineProps({
 });
 
 const statusConfig = {
-    in_progress: { label: 'En cours', color: 'text-arbor-emerald bg-arbor-emerald/10 border-arbor-emerald/20' },
+    in_progress: { label: 'En cours', color: 'text-arbor-firefly bg-arbor-firefly/10 border-arbor-firefly/20' },
     completed: { label: 'Terminée', color: 'text-arbor-amber bg-arbor-amber/10 border-arbor-amber/20' },
     claimed: { label: 'Réclamée', color: 'text-arbor-sage bg-arbor-sage/10 border-arbor-sage/20' },
     available: { label: 'Disponible', color: 'text-sky-400 bg-sky-400/10 border-sky-400/20' },
@@ -17,16 +17,17 @@ const getStatusConfig = (status) => statusConfig[status] || statusConfig.availab
 </script>
 
 <template>
-    <div class="glass-card p-6 lg:p-8">
+    <div class="trace-frame p-6 lg:p-8">
+        <div class="relative z-10">
         <div class="flex items-center justify-between mb-6">
             <div>
-                <span class="text-arbor-sage text-xs font-medium uppercase tracking-wider">Objectifs</span>
+                <span class="atlas-kicker">Carnet saisonnier</span>
                 <h2 class="font-display text-2xl font-semibold text-arbor-cream mt-1">
                     Quêtes actives
                 </h2>
             </div>
-            <div class="w-10 h-10 rounded-xl bg-arbor-moss/15 flex items-center justify-center">
-                <svg class="w-5 h-5 text-arbor-moss-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="w-10 h-10 rounded-full bg-arbor-lichen/15 border border-arbor-lichen/20 flex items-center justify-center">
+                <svg class="w-5 h-5 text-arbor-lichen" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                 </svg>
             </div>
@@ -36,13 +37,13 @@ const getStatusConfig = (status) => statusConfig[status] || statusConfig.availab
             <div
                 v-for="(quest, index) in quests"
                 :key="quest.id || quest.title + index"
-                class="group relative bg-arbor-charcoal/50 border border-arbor-fog/50 rounded-xl p-4 hover:border-arbor-moss/40 hover:bg-arbor-charcoal/70 transition-colors duration-300"
+                class="group relative bg-arbor-mist/[0.035] border border-arbor-mineral/10 rounded-lg p-4 hover:border-arbor-lichen/30 hover:bg-arbor-mist/[0.06] transition-colors duration-300"
                 :style="`animation: slideInRight 0.4s ease-out forwards; animation-delay: ${index * 0.1}s; opacity: 0;`"
             >
                 <div class="flex items-start justify-between gap-3 mb-3">
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2 mb-1">
-                            <h3 class="text-arbor-cream text-sm font-medium truncate group-hover:text-arbor-emerald transition-colors">
+                            <h3 class="text-arbor-cream text-sm font-medium truncate group-hover:text-arbor-lichen transition-colors">
                                 {{ quest.title }}
                             </h3>
                             <span
@@ -70,7 +71,7 @@ const getStatusConfig = (status) => statusConfig[status] || statusConfig.availab
                         <div
                             class="h-full rounded-full transition-[width] duration-700 ease-out"
                             :class="{
-                                'bg-arbor-emerald': quest.status === 'in_progress' || quest.status === 'available',
+                                'bg-arbor-firefly': quest.status === 'in_progress' || quest.status === 'available',
                                 'bg-arbor-amber': quest.status === 'completed',
                                 'bg-arbor-sage': quest.status === 'claimed',
                             }"
@@ -93,12 +94,13 @@ const getStatusConfig = (status) => statusConfig[status] || statusConfig.availab
         </div>
 
         <div v-else class="text-center py-8">
-            <div class="w-12 h-12 rounded-xl bg-arbor-moss/10 flex items-center justify-center mx-auto mb-3">
+            <div class="poetic-empty-icon flex items-center justify-center">
                 <svg class="w-6 h-6 text-arbor-moss/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
             </div>
             <p class="text-arbor-sage text-sm">Aucune quête active pour le moment.</p>
+        </div>
         </div>
     </div>
 </template>

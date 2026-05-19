@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\UserRole;
 use App\Notifications\ResetPasswordNotification;
 use App\Notifications\VerifyEmailNotification;
+use App\Services\Profile\ProfileAvatarService;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -180,6 +181,13 @@ class User extends Authenticatable implements MustVerifyEmail, FilamentUser
         return $this->role === UserRole::Creator || $this->isModerator() || $this->isAdmin();
     }
 
+    public function getAvatarUrlAttribute(): ?string
+    {
+        $this->loadMissing('profile');
+
+        return app(ProfileAvatarService::class)->url($this->profile?->avatar);
+    }
+
     public function discordAccount(): HasOne
     {
         return $this->hasOne(UserDiscordAccount::class);
@@ -198,6 +206,11 @@ class User extends Authenticatable implements MustVerifyEmail, FilamentUser
     public function arborisisPoints(): HasMany
     {
         return $this->hasMany(ArborisisPoint::class);
+    }
+
+    public function soundWalks(): HasMany
+    {
+        return $this->hasMany(SoundWalk::class);
     }
 
     public function arborisisVisits(): HasMany

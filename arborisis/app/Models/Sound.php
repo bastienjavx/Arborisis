@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -21,7 +22,7 @@ class Sound extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $appends = ['cover_url'];
+    protected $appends = ['cover_url', 'audio_url'];
 
     protected $fillable = [
         'user_id',
@@ -34,6 +35,7 @@ class Sound extends Model
         'recorded_at',
         'duration',
         'equipment',
+        'microphone_position',
         'weather_notes',
         'perceived_activity_level',
         'license',
@@ -76,6 +78,11 @@ class Sound extends Model
     public function listeningPoint(): BelongsTo
     {
         return $this->belongsTo(ListeningPoint::class);
+    }
+
+    public function scientificMetrics(): MorphMany
+    {
+        return $this->morphMany(ScientificMetric::class, 'measurable');
     }
 
     public function environmentalObservation(): HasOne

@@ -16,6 +16,8 @@ class ListeningPointService
 {
     public function __construct(
         private GeoMatchingService $geoMatching,
+        private ListeningPointNamingService $namingService,
+        private ListeningPointMetricsService $metricsService,
     ) {}
 
     /**
@@ -41,7 +43,7 @@ class ListeningPointService
         return DB::transaction(function () use ($sound, $location, $publicCoords, $overrides, $sensitivity) {
             $point = ListeningPoint::create([
                 'creator_user_id' => $sound->user_id,
-                'title' => $overrides['title'] ?? ($location->location_name ?? 'Point d\'écoute sans nom'),
+                'title' => $overrides['title'] ?? $this->namingService->generateName($location, $overrides['habitat_type'] ?? null),
                 'description' => $overrides['description'] ?? $sound->description,
                 'exact_latitude' => $location->exact_latitude,
                 'exact_longitude' => $location->exact_longitude,
@@ -50,7 +52,8 @@ class ListeningPointService
                 'public_accuracy_meters' => $publicCoords['public_accuracy_meters'],
                 'environment_id' => $sound->environment_id,
                 'habitat_type' => $overrides['habitat_type'] ?? null,
-                'moderation_status' => ModerationStatus::Pending,
+                'moderation_status' => ModerationStatus::Approved,
+                'approved_at' => now(),
                 'nature_sensitivity_level' => $sensitivity,
                 'recordings_count' => 1,
                 'first_recorded_at' => $sound->recorded_at,
@@ -59,6 +62,8 @@ class ListeningPointService
 
             $location->update(['listening_point_id' => $point->id]);
             $sound->update(['listening_point_id' => $point->id]);
+
+            $this->metricsService->computeAllMetrics($point);
 
             return $point;
         });
@@ -77,6 +82,7 @@ class ListeningPointService
             }
 
             $this->refreshPointStats($point);
+            $this->metricsService->computeAllMetrics($point);
         });
     }
 

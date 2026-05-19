@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
@@ -101,9 +100,9 @@ class ListeningPoint extends Model
         return $this->hasMany(SoundLocation::class);
     }
 
-    public function sounds(): HasManyThrough
+    public function sounds(): HasMany
     {
-        return $this->hasManyThrough(Sound::class, SoundLocation::class);
+        return $this->hasMany(Sound::class);
     }
 
     public function environmentalObservations(): HasMany
@@ -114,6 +113,16 @@ class ListeningPoint extends Model
     public function snapshots(): HasMany
     {
         return $this->hasMany(ListeningPointSnapshot::class);
+    }
+
+    public function versions(): HasMany
+    {
+        return $this->hasMany(ListeningPointVersion::class)->orderByDesc('version_number');
+    }
+
+    public function latestVersion(): HasMany
+    {
+        return $this->hasMany(ListeningPointVersion::class)->latest('version_number')->limit(1);
     }
 
     public function scientificMetrics(): MorphMany
@@ -140,7 +149,8 @@ class ListeningPoint extends Model
 
     public function scopePubliclyVisible($query)
     {
-        return $query->approved();
+        return $query->approved()
+            ->whereHas('sounds', fn ($q) => $q->public()->where('status', 'published'));
     }
 
     public function isApproved(): bool

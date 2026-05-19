@@ -30,7 +30,7 @@ class LandingController extends Controller
 
         // Featured sounds for the landing audio demo section
         $featuredSounds = Sound::public()
-            ->with(['user', 'category'])
+            ->with(['user', 'category', 'soundFile'])
             ->latest()
             ->take(6)
             ->get()
@@ -51,6 +51,7 @@ class LandingController extends Controller
         $featuredCreators = User::whereHas('sounds', function ($query): void {
             $query->public();
         })
+            ->with('profile')
             ->withCount(['sounds' => fn ($q) => $q->public()])
             ->withSum(['sounds as total_plays' => fn ($q) => $q->public()], 'play_count')
             ->orderByDesc('sounds_count')
@@ -58,6 +59,7 @@ class LandingController extends Controller
             ->get()
             ->map(fn (User $user) => [
                 'id' => $user->id,
+                'slug' => $user->slug,
                 'name' => $user->name,
                 'avatar_url' => $user->avatar_url,
                 'location' => $user->location,
@@ -68,6 +70,7 @@ class LandingController extends Controller
         // Attach each creator's most popular sound as featured
         $featuredCreators = $featuredCreators->map(function ($creator) {
             $popularSound = Sound::public()
+                ->with('soundFile')
                 ->where('user_id', $creator['id'])
                 ->orderByDesc('play_count')
                 ->first();

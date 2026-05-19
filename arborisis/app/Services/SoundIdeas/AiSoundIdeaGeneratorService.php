@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 
 class AiSoundIdeaGeneratorService
 {
-    private const DEFAULT_MODEL = 'anthropic/claude-sonnet-4.6';
+    private const DEFAULT_MODEL = 'anthropic/claude-opus-4.7';
 
     private const BASE_URL = 'https://openrouter.ai/api/v1';
 

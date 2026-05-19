@@ -4,11 +4,12 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 const props = defineProps({
     categories: Array,
     environments: Array,
+    selectedListeningPoint: Object,
 });
 
 const form = useForm({
@@ -17,17 +18,21 @@ const form = useForm({
     description: '',
     recorded_at: '',
     recorded_time: '',
-    latitude: '',
-    longitude: '',
-    location_name: '',
+    latitude: props.selectedListeningPoint?.public_latitude ?? '',
+    longitude: props.selectedListeningPoint?.public_longitude ?? '',
+    location_name: props.selectedListeningPoint?.title ?? '',
     is_sensitive_location: false,
     tags: '',
     category_id: '',
-    environment_id: '',
+    new_category_name: '',
+    environment_id: props.selectedListeningPoint?.environment_id ?? '',
+    new_environment_name: '',
     equipment: '',
     license: 'all_rights_reserved',
     visibility: 'public',
     cover_image: null,
+    listening_point_id: props.selectedListeningPoint?.id ?? '',
+    create_new_listening_point: false,
 });
 
 const audioPreview = ref(null);
@@ -36,6 +41,15 @@ const isDragging = ref(false);
 const geoError = ref('');
 const locating = ref(false);
 const uploadProgress = ref(0);
+const categorySelection = ref('');
+const environmentSelection = ref(props.selectedListeningPoint?.environment_id ?? '');
+
+const completionItems = computed(() => [
+    { label: 'Audio', done: Boolean(form.audio_file) },
+    { label: 'Titre', done: Boolean(form.title) },
+    { label: 'Lieu', done: Boolean(form.latitude && form.longitude) },
+    { label: 'Droits', done: Boolean(form.license && form.visibility) },
+]);
 
 const licenses = [
     { value: 'all_rights_reserved', label: 'Tous droits réservés' },
@@ -50,6 +64,22 @@ const visibilities = [
     { value: 'followers', label: 'Abonnés uniquement' },
     { value: 'private', label: 'Privé' },
 ];
+
+const selectCategory = (value) => {
+    categorySelection.value = value;
+    form.category_id = value === '__new' ? '' : value;
+    if (value !== '__new') {
+        form.new_category_name = '';
+    }
+};
+
+const selectEnvironment = (value) => {
+    environmentSelection.value = value;
+    form.environment_id = value === '__new' ? '' : value;
+    if (value !== '__new') {
+        form.new_environment_name = '';
+    }
+};
 
 const handleAudioChange = (e) => {
     const file = e.target.files[0];
@@ -118,18 +148,57 @@ const submit = () => {
     <Head title="Publier un son" />
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="font-display text-xl font-semibold text-arbor-cream">
-                Publier un son
-            </h2>
+            <div>
+                <p class="atlas-kicker">Nouvelle archive</p>
+                <h2 class="font-display text-2xl font-semibold text-arbor-cream">
+                    Publier une trace sonore
+                </h2>
+            </div>
         </template>
 
         <div class="py-8">
-            <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mx-auto grid max-w-6xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.78fr_1.22fr] lg:px-8">
+                <aside class="space-y-5">
+                    <div class="trace-frame p-6">
+                        <div class="relative z-10">
+                            <p class="atlas-kicker mb-4">Carnet de terrain</p>
+                            <h1 class="atlas-heading text-4xl">Une capsule du vivant.</h1>
+                            <p class="mt-5 text-sm leading-6 text-arbor-sage">
+                                Ajoutez le fichier, son contexte, puis une localisation. Les coordonnées publiques seront protégées selon les règles de confidentialité Arborisis.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="trace-frame p-5">
+                        <div class="relative z-10">
+                            <p class="mb-4 text-xs font-medium uppercase tracking-[0.16em] text-arbor-sage">Progression</p>
+                            <div class="space-y-3">
+                                <div
+                                    v-for="item in completionItems"
+                                    :key="item.label"
+                                    class="flex items-center justify-between rounded-lg border border-arbor-mineral/10 bg-arbor-mist/[0.035] px-3 py-2 text-sm"
+                                >
+                                    <span class="text-arbor-sage">{{ item.label }}</span>
+                                    <span
+                                        class="h-2.5 w-2.5 rounded-full"
+                                        :class="item.done ? 'bg-arbor-firefly shadow-firefly' : 'bg-arbor-mineral/20'"
+                                    ></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="rounded-lg border border-arbor-lichen/20 bg-arbor-lichen/10 p-4 text-sm leading-6 text-arbor-sage">
+                        Les lieux sensibles doivent rester approximés. Ne publiez jamais d’espèces fragiles avec coordonnées exactes.
+                    </div>
+                </aside>
+
+                <div>
                 <!-- Recorder promo banner -->
-                <div class="mb-8 rounded-2xl border border-arbor-emerald/20 bg-arbor-emerald/5 p-5 backdrop-blur-sm">
+                <div class="mb-8 rounded-lg border border-arbor-lichen/20 bg-arbor-lichen/5 p-5 backdrop-blur-sm">
                     <div class="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <h3 class="font-display text-lg font-light italic text-arbor-cream">
+                            <h3 class="font-display text-xl font-semibold text-arbor-cream">
                                 Enregistrez directement depuis votre appareil
                             </h3>
                             <p class="mt-1 text-sm text-arbor-sage/70">
@@ -137,7 +206,7 @@ const submit = () => {
                             </p>
                         </div>
                         <Link
-                            :href="route('sounds.record')"
+                            :href="route('sounds.record', selectedListeningPoint ? { listening_point_id: selectedListeningPoint.id } : {})"
                             class="btn-primary inline-flex shrink-0 items-center gap-2 text-sm"
                         >
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -148,24 +217,52 @@ const submit = () => {
                     </div>
                 </div>
 
-                <form @submit.prevent="submit" class="space-y-8">
+                    <form @submit.prevent="submit" class="space-y-8">
+                    <input type="hidden" v-model="form.listening_point_id" />
+                    <input type="hidden" v-model="form.create_new_listening_point" />
+
+                    <div v-if="selectedListeningPoint" class="trace-frame border-arbor-lichen/25 bg-arbor-lichen/10 p-5">
+                        <div class="relative z-10">
+                            <p class="atlas-kicker mb-2">Nouvelle prise liée</p>
+                            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                    <h3 class="font-display text-2xl font-semibold text-arbor-cream">
+                                        {{ selectedListeningPoint.title }}
+                                    </h3>
+                                    <p class="mt-1 text-sm text-arbor-sage">
+                                        Point prérempli · coordonnées publiques approximées à {{ selectedListeningPoint.public_accuracy_meters }} m.
+                                    </p>
+                                </div>
+                                <Link
+                                    :href="route('listening-points.show', selectedListeningPoint.slug)"
+                                    class="text-sm text-arbor-lichen hover:text-arbor-firefly"
+                                >
+                                    Voir le point
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Audio Upload -->
-                    <div>
+                    <div class="trace-frame p-5 sm:p-6">
+                        <div class="relative z-10">
                         <InputLabel value="Fichier audio *" />
                         <div
-                            class="mt-2 border-2 border-dashed rounded-2xl p-8 text-center transition-colors"
-                            :class="isDragging ? 'border-arbor-emerald bg-arbor-emerald/5' : 'border-arbor-glass-border hover:border-arbor-sage/50'"
+                            class="mt-2 border border-dashed rounded-lg p-8 text-center transition-colors"
+                            :class="isDragging ? 'border-arbor-firefly bg-arbor-firefly/5' : 'border-arbor-mineral/15 hover:border-arbor-lichen/40'"
                             @dragover.prevent="isDragging = true"
                             @dragleave.prevent="isDragging = false"
                             @drop="handleDrop"
                         >
                             <div v-if="!audioPreview">
-                                <svg class="w-12 h-12 text-arbor-moss/40 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-                                </svg>
+                                <div class="poetic-empty-icon flex items-center justify-center">
+                                    <svg class="relative w-8 h-8 text-arbor-lichen/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                                    </svg>
+                                </div>
                                 <p class="text-arbor-sage text-sm mb-2">
                                     Glissez-déposez votre fichier audio ici, ou
-                                    <label class="text-arbor-emerald cursor-pointer hover:underline">
+                                    <label class="text-arbor-lichen cursor-pointer hover:underline">
                                         parcourez
                                         <input type="file" accept="audio/mpeg,audio/wav,audio/flac,audio/mp4,audio/x-m4a" class="hidden" @change="handleAudioChange" />
                                     </label>
@@ -184,10 +281,12 @@ const submit = () => {
                             </div>
                         </div>
                         <InputError :message="form.errors.audio_file" />
+                        </div>
                     </div>
 
                     <!-- Title -->
-                    <div>
+                    <div class="trace-frame p-5 sm:p-6">
+                        <div class="relative z-10">
                         <InputLabel for="title" value="Titre *" />
                         <TextInput
                             id="title"
@@ -198,10 +297,12 @@ const submit = () => {
                             required
                         />
                         <InputError :message="form.errors.title" />
+                        </div>
                     </div>
 
                     <!-- Description -->
-                    <div>
+                    <div class="trace-frame p-5 sm:p-6">
+                        <div class="relative z-10">
                         <InputLabel for="description" value="Description" />
                         <textarea
                             id="description"
@@ -211,11 +312,21 @@ const submit = () => {
                             placeholder="Décrivez le contexte de l'enregistrement, ce que vous entendez, l'ambiance..."
                         />
                         <InputError :message="form.errors.description" />
+                        </div>
                     </div>
 
                     <!-- Location -->
-                    <div class="glass-card p-6">
-                        <h3 class="font-semibold text-arbor-cream mb-4">Localisation *</h3>
+                    <div class="trace-frame p-6">
+                        <div class="relative z-10">
+                        <div class="mb-4 flex items-start justify-between gap-4">
+                            <div>
+                                <p class="atlas-kicker mb-1">Lieu d'écoute</p>
+                                <h3 class="font-display text-2xl font-semibold text-arbor-cream">Localisation *</h3>
+                            </div>
+                            <span class="rounded-full border border-arbor-firefly/20 bg-arbor-firefly/10 px-3 py-1 text-[11px] text-arbor-firefly">
+                                Publique approximée
+                            </span>
+                        </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                             <div>
                                 <InputLabel for="latitude" value="Latitude" />
@@ -246,7 +357,7 @@ const submit = () => {
                             type="button"
                             @click="getCurrentLocation"
                             :disabled="locating"
-                            class="text-sm text-arbor-emerald hover:text-arbor-emerald-dark flex items-center gap-1.5 mb-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            class="text-sm text-arbor-lichen hover:text-arbor-firefly flex items-center gap-1.5 mb-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <svg v-if="locating" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -287,6 +398,7 @@ const submit = () => {
                                 Ce lieu est sensible — afficher une localisation approximative uniquement
                             </label>
                         </div>
+                        </div>
                     </div>
 
                     <!-- Recording Details -->
@@ -317,27 +429,49 @@ const submit = () => {
                             <InputLabel for="category_id" value="Catégorie" />
                             <select
                                 id="category_id"
-                                v-model="form.category_id"
+                                v-model="categorySelection"
+                                @change="selectCategory($event.target.value)"
                                 class="mt-2 block w-full rounded-xl border-arbor-glass-border bg-arbor-deep text-arbor-cream shadow-sm focus:border-arbor-emerald focus:ring-arbor-emerald"
                             >
                                 <option value="">Choisir une catégorie</option>
                                 <option v-for="cat in categories" :key="cat.id" :value="cat.id">
                                     {{ cat.name }}
                                 </option>
+                                <option value="__new">Créer une nouvelle catégorie</option>
                             </select>
+                            <TextInput
+                                v-if="categorySelection === '__new'"
+                                id="new_category_name"
+                                v-model="form.new_category_name"
+                                type="text"
+                                class="mt-3 block w-full"
+                                placeholder="Ex: Chiroptères, geais, ambiance de canopée"
+                            />
+                            <InputError :message="form.errors.category_id || form.errors.new_category_name" />
                         </div>
                         <div>
                             <InputLabel for="environment_id" value="Environnement" />
                             <select
                                 id="environment_id"
-                                v-model="form.environment_id"
+                                v-model="environmentSelection"
+                                @change="selectEnvironment($event.target.value)"
                                 class="mt-2 block w-full rounded-xl border-arbor-glass-border bg-arbor-deep text-arbor-cream shadow-sm focus:border-arbor-emerald focus:ring-arbor-emerald"
                             >
                                 <option value="">Choisir un environnement</option>
                                 <option v-for="env in environments" :key="env.id" :value="env.id">
                                     {{ env.name }}
                                 </option>
+                                <option value="__new">Créer un nouvel environnement</option>
                             </select>
+                            <TextInput
+                                v-if="environmentSelection === '__new'"
+                                id="new_environment_name"
+                                v-model="form.new_environment_name"
+                                type="text"
+                                class="mt-3 block w-full"
+                                placeholder="Ex: ripisylve, vieille haie, friche ferroviaire"
+                            />
+                            <InputError :message="form.errors.environment_id || form.errors.new_environment_name" />
                         </div>
                     </div>
 
@@ -449,7 +583,7 @@ const submit = () => {
                             <div v-if="form.processing && uploadProgress > 0" class="mt-3">
                                 <div class="h-1.5 bg-arbor-glass rounded-full overflow-hidden">
                                     <div
-                                        class="h-full bg-arbor-emerald rounded-full transition-all duration-200"
+                                        class="h-full bg-gradient-to-r from-arbor-lichen to-arbor-firefly rounded-full transition-all duration-200"
                                         :style="`width: ${uploadProgress}%`"
                                     />
                                 </div>
@@ -458,6 +592,7 @@ const submit = () => {
                         </div>
                     </div>
                 </form>
+                </div>
             </div>
         </div>
     </AuthenticatedLayout>

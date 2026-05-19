@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Services\Audio\AudioDurationService;
 use App\Services\Blog\BlogHtmlSanitizer;
 use App\Services\Discord\DiscordNotificationService;
+use App\Services\Scientific\ListeningPointService;
 use App\Services\Sound\SoundUploadService;
 use Illuminate\Http\UploadedFile;
 
@@ -95,6 +96,7 @@ it('generates uploaded audio names from the detected mime type instead of client
     $service = new SoundUploadService(
         mock(AudioDurationService::class),
         mock(DiscordNotificationService::class),
+        mock(ListeningPointService::class),
     );
     $file = UploadedFile::fake()->create('field-recording.php', 32, 'audio/mpeg');
 

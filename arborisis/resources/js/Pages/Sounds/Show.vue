@@ -41,6 +41,20 @@ const isCurrentInPlayer = computed(() =>
     player.currentSound?.id === props.sound.id
 );
 
+const archiveCode = computed(() => {
+    const raw = props.sound.recorded_at || props.sound.created_at || new Date().toISOString();
+    const year = new Date(raw).getFullYear();
+    const id = String(props.sound.id || '0000').padStart(4, '0');
+    return `ARB-${year}-${id}`;
+});
+
+const creatorAvatarUrl = computed(() =>
+    props.sound.user?.avatar_url
+    || props.sound.user?.profile?.avatar_url
+    || props.sound.user?.profile?.avatarUrl
+    || null
+);
+
 const effectiveIsPlaying = computed(() => {
     if (isCurrentInPlayer.value) {
         return player.isPlaying;
@@ -224,11 +238,42 @@ const getMetaIcon = (type) => {
                     ]"
                 />
 
+                <div class="mb-8 trace-frame p-5 sm:p-8">
+                    <div class="relative z-10 grid gap-8 lg:grid-cols-[1fr_0.78fr] lg:items-end">
+                        <div>
+                            <p class="atlas-kicker mb-4">Fiche d'archive vivante · {{ archiveCode }}</p>
+                            <h1 class="atlas-heading text-5xl sm:text-6xl">
+                                {{ sound.title }}
+                            </h1>
+                            <p class="mt-5 max-w-2xl text-arbor-sage leading-7">
+                                {{ sound.description || 'Une trace sonore publiée dans l’atlas Arborisis, à écouter comme un fragment de territoire.' }}
+                            </p>
+                        </div>
+                        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                            <div class="rounded-lg border border-arbor-mineral/10 bg-arbor-ink/40 p-4">
+                                <div class="text-xs text-arbor-sage">Créateur</div>
+                                <Link
+                                    :href="route('creators.show', sound.user?.slug)"
+                                    class="mt-1 block font-display text-2xl text-arbor-cream hover:text-arbor-lichen transition-colors"
+                                >
+                                    {{ sound.user?.name ?? 'Anonyme' }}
+                                </Link>
+                            </div>
+                            <div class="rounded-lg border border-arbor-mineral/10 bg-arbor-ink/40 p-4">
+                                <div class="text-xs text-arbor-sage">Lieu public</div>
+                                <div class="mt-1 font-display text-2xl text-arbor-cream">
+                                    {{ sound.sound_location?.location_name || 'Lieu approximé' }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <!-- Main Content -->
                     <div class="lg:col-span-2 space-y-8">
                         <!-- Cover / Visual -->
-                        <div class="aspect-[16/9] rounded-2xl overflow-hidden bg-arbor-deep relative group">
+                        <div class="aspect-[16/9] rounded-xl overflow-hidden bg-arbor-deep relative group border border-arbor-mineral/10">
                             <div
                                 v-if="coverUrl"
                                 class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
@@ -243,12 +288,14 @@ const getMetaIcon = (type) => {
                         </div>
 
                         <!-- Audio Player -->
-                        <div class="glass-card p-6 relative">
+                        <div class="trace-frame p-6 relative">
+                            <div class="relative z-10">
                             <div class="flex items-center gap-4 mb-4">
                                 <button
                                     @click="togglePlay"
                                     :aria-label="effectiveIsPlaying ? 'Pause' : 'Lire'"
-                                    class="w-14 h-14 rounded-full bg-arbor-emerald flex items-center justify-center hover:bg-arbor-emerald-dark transition-colors shrink-0 shadow-lg shadow-arbor-emerald/20 group"
+                                    class="audio-play-button w-14 h-14 shrink-0 group"
+                                    :class="{ 'is-playing': effectiveIsPlaying }"
                                 >
                                     <svg v-if="!effectiveIsPlaying" class="w-6 h-6 text-arbor-night ml-1 transition-transform group-hover:scale-110" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M8 5v14l11-7z" />
@@ -258,12 +305,12 @@ const getMetaIcon = (type) => {
                                     </svg>
                                 </button>
                                 <div class="flex-1 min-w-0">
-                                    <h1 class="font-display text-xl font-bold text-arbor-cream truncate">
+                                    <h2 class="font-display text-xl font-bold text-arbor-cream truncate">
                                         {{ sound.title }}
-                                    </h1>
+                                    </h2>
                                     <Link
                                         :href="route('creators.show', sound.user?.slug)"
-                                        class="text-sm text-arbor-sage hover:text-arbor-emerald transition-colors"
+                                        class="text-sm text-arbor-sage hover:text-arbor-lichen transition-colors"
                                     >
                                         {{ sound.user?.name ?? 'Anonyme' }}
                                     </Link>
@@ -277,7 +324,7 @@ const getMetaIcon = (type) => {
                                 :audio-url="audioUrl"
                                 :is-playing="effectiveIsPlaying"
                                 wave-color="#1E293B"
-                                progress-color="#34D399"
+                                progress-color="#D7B46A"
                                 cursor-color="#8FA68E"
                                 :height="100"
                                 @ready="onWaveReady"
@@ -295,7 +342,7 @@ const getMetaIcon = (type) => {
                                     @click="seek"
                                 >
                                     <div
-                                        class="absolute top-0 left-0 h-full bg-arbor-emerald rounded-full transition-transform duration-100 group-hover:bg-arbor-emerald-dark"
+                                    class="absolute top-0 left-0 h-full bg-gradient-to-r from-arbor-lichen to-arbor-firefly rounded-full transition-transform duration-100"
                                         :style="`width: ${duration ? (currentTime / duration) * 100 : 0}%`"
                                     />
                                     <div
@@ -304,6 +351,7 @@ const getMetaIcon = (type) => {
                                     />
                                 </div>
                                 <span class="text-xs text-arbor-sage w-10 font-mono">{{ formatTime(duration) }}</span>
+                            </div>
                             </div>
                         </div>
 
@@ -332,7 +380,7 @@ const getMetaIcon = (type) => {
 
                         <!-- Description -->
                         <div>
-                            <h2 class="font-semibold text-arbor-cream mb-3">Description</h2>
+                            <p class="atlas-kicker mb-3">Contexte de terrain</p>
                             <p class="text-arbor-sage leading-relaxed whitespace-pre-line">
                                 {{ sound.description || 'Aucune description.' }}
                             </p>
@@ -340,7 +388,7 @@ const getMetaIcon = (type) => {
 
                         <!-- Metadata -->
                         <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                            <div v-if="sound.category" class="glass-card p-4 hover-lift">
+                            <div v-if="sound.category" class="field-stat hover-lift">
                                 <div class="flex items-center gap-2 mb-2">
                                     <svg class="w-4 h-4 text-arbor-sage" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" :d="getMetaIcon('category')" />
@@ -349,7 +397,7 @@ const getMetaIcon = (type) => {
                                 </div>
                                 <div class="text-sm font-medium text-arbor-cream">{{ sound.category.name }}</div>
                             </div>
-                            <div v-if="sound.environment" class="glass-card p-4 hover-lift">
+                            <div v-if="sound.environment" class="field-stat hover-lift">
                                 <div class="flex items-center gap-2 mb-2">
                                     <svg class="w-4 h-4 text-arbor-sage" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" :d="getMetaIcon('environment')" />
@@ -358,7 +406,7 @@ const getMetaIcon = (type) => {
                                 </div>
                                 <div class="text-sm font-medium text-arbor-cream">{{ sound.environment.name }}</div>
                             </div>
-                            <div v-if="sound.equipment" class="glass-card p-4 hover-lift">
+                            <div v-if="sound.equipment" class="field-stat hover-lift">
                                 <div class="flex items-center gap-2 mb-2">
                                     <svg class="w-4 h-4 text-arbor-sage" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" :d="getMetaIcon('equipment')" />
@@ -367,7 +415,7 @@ const getMetaIcon = (type) => {
                                 </div>
                                 <div class="text-sm font-medium text-arbor-cream">{{ sound.equipment }}</div>
                             </div>
-                            <div v-if="sound.recorded_at" class="glass-card p-4 hover-lift">
+                            <div v-if="sound.recorded_at" class="field-stat hover-lift">
                                 <div class="flex items-center gap-2 mb-2">
                                     <svg class="w-4 h-4 text-arbor-sage" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" :d="getMetaIcon('date')" />
@@ -376,7 +424,7 @@ const getMetaIcon = (type) => {
                                 </div>
                                 <div class="text-sm font-medium text-arbor-cream">{{ formatDate(sound.recorded_at) }}</div>
                             </div>
-                            <div class="glass-card p-4 hover-lift">
+                            <div class="field-stat hover-lift">
                                 <div class="flex items-center gap-2 mb-2">
                                     <svg class="w-4 h-4 text-arbor-sage" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" :d="getMetaIcon('license')" />
@@ -385,7 +433,7 @@ const getMetaIcon = (type) => {
                                 </div>
                                 <div class="text-sm font-medium text-arbor-cream">{{ sound.license }}</div>
                             </div>
-                            <div v-if="sound.sound_location?.location_name" class="glass-card p-4 hover-lift">
+                            <div v-if="sound.sound_location?.location_name" class="field-stat hover-lift">
                                 <div class="flex items-center gap-2 mb-2">
                                     <svg class="w-4 h-4 text-arbor-sage" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" :d="getMetaIcon('location')" />
@@ -511,7 +559,14 @@ const getMetaIcon = (type) => {
                         <div class="glass-card p-6 hover-lift">
                             <Link :href="route('creators.show', sound.user?.slug)" class="flex items-center gap-3 mb-4 group">
                                 <div class="w-12 h-12 rounded-full bg-arbor-moss/30 flex items-center justify-center overflow-hidden ring-2 ring-arbor-glass-border/50 group-hover:ring-arbor-emerald/30 transition-colors">
-                                    <span class="text-lg font-display font-bold text-arbor-emerald">
+                                    <img
+                                        v-if="creatorAvatarUrl"
+                                        :src="creatorAvatarUrl"
+                                        :alt="`Avatar de ${sound.user?.name ?? 'Anonyme'}`"
+                                        class="h-full w-full object-cover"
+                                        loading="lazy"
+                                    />
+                                    <span v-else class="text-lg font-display font-bold text-arbor-emerald">
                                         {{ sound.user?.name?.charAt(0)?.toUpperCase() ?? '?' }}
                                     </span>
                                 </div>

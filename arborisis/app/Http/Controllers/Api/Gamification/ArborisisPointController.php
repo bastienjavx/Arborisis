@@ -194,4 +194,68 @@ class ArborisisPointController extends Controller
             'message' => 'Suggestion envoyée. Elle sera examinée par la modération.',
         ]);
     }
+
+    public function nearby(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'lat' => ['required', 'numeric', 'between:-90,90'],
+            'lng' => ['required', 'numeric', 'between:-180,180'],
+            'radius' => ['nullable', 'numeric', 'min:1', 'max:50'],
+        ]);
+
+        $lat = (float) $validated['lat'];
+        $lng = (float) $validated['lng'];
+        $radiusKm = $validated['radius'] ?? 10;
+
+        $latDelta = $radiusKm / 111;
+        $lngDelta = $radiusKm / (111 * cos(deg2rad($lat)));
+
+        $query = ArborisisPoint::query()
+            ->with(['user:id,name,slug'])
+            ->where(function ($q) {
+                $q->public();
+                if (auth()->check()) {
+                    $q->orWhere('user_id', auth()->id());
+                }
+            })
+            ->whereBetween('approximate_latitude', [$lat - $latDelta, $lat + $latDelta])
+            ->whereBetween('approximate_longitude', [$lng - $lngDelta, $lng + $lngDelta]);
+
+        $points = $query->limit(50)->get();
+
+        $features = $points->map(function (ArborisisPoint $point) {
+            return [
+                'type' => 'Feature',
+                'geometry' => [
+                    'type' => 'Point',
+                    'coordinates' => [
+                        $point->getPublicLongitude(),
+                        $point->getPublicLatitude(),
+                    ],
+                ],
+                'properties' => [
+                    'id' => $point->id,
+                    'slug' => $point->slug,
+                    'title' => $point->title,
+                    'description' => $point->description,
+                    'category' => $point->category?->label(),
+                    'category_value' => $point->category?->value,
+                    'difficulty_level' => $point->difficulty_level,
+                    'nature_sensitivity_level' => $point->nature_sensitivity_level?->label(),
+                    'nature_sensitivity_warning' => $point->nature_sensitivity_level?->warningText(),
+                    'recommended_time' => $point->recommended_time,
+                    'audio_environment_type' => $point->audio_environment_type,
+                    'tags' => $point->tags ?? [],
+                    'cover_image' => $point->cover_image,
+                    'user' => $point->user?->only('id', 'name', 'slug'),
+                    'distance_km' => null, // computed roughly by frontend or omitted
+                ],
+            ];
+        });
+
+        return response()->json([
+            'type' => 'FeatureCollection',
+            'features' => $features,
+        ]);
+    }
 }

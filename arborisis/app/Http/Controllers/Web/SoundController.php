@@ -8,11 +8,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Sound\StoreSoundRequest;
 use App\Models\Category;
 use App\Models\Environment;
+use App\Models\ListeningPoint;
 use App\Models\Sound;
 use App\Models\SoundAnalysis;
 use App\Services\AudioAnalysis\AudioAnalysisOrchestrationService;
 use App\Services\Sound\SoundUploadService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -78,7 +80,7 @@ class SoundController extends Controller
         }
 
         $comments = $sound->comments()
-            ->with(['user', 'replies.user'])
+            ->with(['user.profile', 'replies.user.profile'])
             ->latest()
             ->paginate(10);
 
@@ -111,19 +113,21 @@ class SoundController extends Controller
         ]);
     }
 
-    public function create(): Response
+    public function create(Request $request): Response
     {
         return Inertia::render('Sounds/Create', [
             'categories' => Category::orderBy('order')->get(),
             'environments' => Environment::orderBy('order')->get(),
+            'selectedListeningPoint' => $this->selectedListeningPoint($request),
         ]);
     }
 
-    public function record(): Response
+    public function record(Request $request): Response
     {
         return Inertia::render('Sounds/Record', [
             'categories' => Category::orderBy('order')->get(),
             'environments' => Environment::orderBy('order')->get(),
+            'selectedListeningPoint' => $this->selectedListeningPoint($request),
         ]);
     }
 
@@ -162,5 +166,36 @@ class SoundController extends Controller
         }
 
         return $storage->url($path);
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function selectedListeningPoint(Request $request): ?array
+    {
+        $pointId = $request->integer('listening_point_id');
+
+        if ($pointId <= 0) {
+            return null;
+        }
+
+        $point = ListeningPoint::approved()
+            ->with('environment')
+            ->find($pointId);
+
+        if (! $point) {
+            return null;
+        }
+
+        return [
+            'id' => $point->id,
+            'slug' => $point->slug,
+            'title' => $point->title,
+            'public_latitude' => (float) $point->public_latitude,
+            'public_longitude' => (float) $point->public_longitude,
+            'public_accuracy_meters' => $point->public_accuracy_meters,
+            'environment_id' => $point->environment_id,
+            'environment' => $point->environment?->name,
+        ];
     }
 }

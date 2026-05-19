@@ -40,9 +40,9 @@ onUnmounted(() => {
 <template>
     <div class="min-h-screen bg-arbor-night text-arbor-cream">
         <nav
-            class="fixed top-0 left-0 right-0 z-fixed-nav transition-colors duration-300"
+            class="fixed top-0 left-0 right-0 z-fixed-nav transition-all duration-300"
             :class="isScrolled
-                ? 'bg-arbor-night/80 backdrop-blur-xl border-b border-arbor-glass-border h-14'
+                ? 'bg-arbor-forest/84 backdrop-blur-xl border-b border-arbor-mineral/10 h-14 shadow-[0_10px_50px_rgba(0,0,0,0.22)]'
                 : 'bg-transparent h-16'"
         >
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
@@ -52,17 +52,17 @@ onUnmounted(() => {
                     </Link>
 
                     <!-- Desktop Navigation -->
-                    <div class="hidden md:flex items-center gap-1">
-                        <Link href="/sounds" class="nav-link px-3 py-2 rounded-lg text-sm text-arbor-sage hover:text-arbor-cream transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-arbor-emerald/50 focus-visible:ring-offset-2 focus-visible:ring-offset-arbor-night">
+                    <div class="hidden md:flex items-center gap-1 rounded-full border border-arbor-mineral/10 bg-arbor-ink/25 px-1.5 py-1 backdrop-blur-xl">
+                        <Link href="/sounds" class="nav-link px-3 py-2 rounded-full text-sm text-arbor-sage hover:text-arbor-cream hover:bg-arbor-mist/5 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-arbor-firefly/50 focus-visible:ring-offset-2 focus-visible:ring-offset-arbor-night">
                             Sons
                         </Link>
-                        <Link href="/map" class="nav-link px-3 py-2 rounded-lg text-sm text-arbor-sage hover:text-arbor-cream transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-arbor-emerald/50 focus-visible:ring-offset-2 focus-visible:ring-offset-arbor-night">
+                        <Link href="/map" class="nav-link px-3 py-2 rounded-full text-sm text-arbor-sage hover:text-arbor-cream hover:bg-arbor-mist/5 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-arbor-firefly/50 focus-visible:ring-offset-2 focus-visible:ring-offset-arbor-night">
                             Carte
                         </Link>
-                        <Link href="/creators" class="nav-link px-3 py-2 rounded-lg text-sm text-arbor-sage hover:text-arbor-cream transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-arbor-emerald/50 focus-visible:ring-offset-2 focus-visible:ring-offset-arbor-night">
+                        <Link href="/creators" class="nav-link px-3 py-2 rounded-full text-sm text-arbor-sage hover:text-arbor-cream hover:bg-arbor-mist/5 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-arbor-firefly/50 focus-visible:ring-offset-2 focus-visible:ring-offset-arbor-night">
                             Créateurs
                         </Link>
-                        <Link href="/radio" class="nav-link px-3 py-2 rounded-lg text-sm text-arbor-sage hover:text-arbor-cream transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-arbor-emerald/50 focus-visible:ring-offset-2 focus-visible:ring-offset-arbor-night">
+                        <Link href="/radio" class="nav-link px-3 py-2 rounded-full text-sm text-arbor-sage hover:text-arbor-cream hover:bg-arbor-mist/5 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-arbor-firefly/50 focus-visible:ring-offset-2 focus-visible:ring-offset-arbor-night">
                             Radio
                         </Link>
 
@@ -70,7 +70,7 @@ onUnmounted(() => {
                         <div ref="moreDropdownContainer" class="relative">
                             <button
                                 @click="showingMoreDropdown = !showingMoreDropdown"
-                                class="nav-link px-3 py-2 rounded-lg text-sm text-arbor-sage hover:text-arbor-cream transition-colors inline-flex items-center gap-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-arbor-emerald/50 focus-visible:ring-offset-2 focus-visible:ring-offset-arbor-night"
+                                class="nav-link px-3 py-2 rounded-full text-sm text-arbor-sage hover:text-arbor-cream hover:bg-arbor-mist/5 transition-colors inline-flex items-center gap-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-arbor-firefly/50 focus-visible:ring-offset-2 focus-visible:ring-offset-arbor-night"
                                 aria-haspopup="true"
                                 :aria-expanded="showingMoreDropdown"
                             >
@@ -81,7 +81,7 @@ onUnmounted(() => {
                             </button>
                             <div
                                 v-if="showingMoreDropdown"
-                                class="absolute right-0 mt-2 w-48 bg-arbor-deep/95 backdrop-blur-xl border border-arbor-glass-border rounded-xl shadow-xl py-1 z-dropdown"
+                                class="absolute right-0 mt-2 w-52 bg-arbor-forest/95 backdrop-blur-xl border border-arbor-mineral/10 rounded-xl shadow-xl py-1 z-dropdown"
                             >
                                 <Link href="/blog" class="block px-4 py-2 text-sm text-arbor-sage hover:text-arbor-cream hover:bg-arbor-glass transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-arbor-emerald/50 focus-visible:ring-offset-2 focus-visible:ring-offset-arbor-night">
                                     Chroniques
@@ -95,7 +95,7 @@ onUnmounted(() => {
                             </div>
                         </div>
 
-                        <div class="w-px h-5 bg-arbor-glass-border mx-2"></div>
+                        <div class="w-px h-5 bg-arbor-mineral/10 mx-2"></div>
 
                         <template v-if="$page.props.auth.user">
                             <Link
@@ -116,7 +116,7 @@ onUnmounted(() => {
                                 href="/register"
                                 class="btn-primary text-sm px-4 py-2 ml-1"
                             >
-                                Rejoindre
+                                Contribuer
                             </Link>
                         </template>
                     </div>
@@ -153,7 +153,7 @@ onUnmounted(() => {
             <!-- Mobile Menu -->
             <div
                 :class="{ block: showingMobileMenu, hidden: !showingMobileMenu }"
-                class="md:hidden bg-arbor-deep/95 backdrop-blur-xl border-b border-arbor-glass-border"
+            class="md:hidden bg-arbor-forest/96 backdrop-blur-xl border-b border-arbor-mineral/10"
             >
                 <div class="space-y-1 pb-3 pt-2 px-4">
                     <Link
@@ -227,7 +227,7 @@ onUnmounted(() => {
                             href="/register"
                             class="block px-3 py-2.5 mt-1 rounded-lg text-arbor-emerald bg-arbor-emerald/10 hover:bg-arbor-emerald/15 transition-colors font-medium"
                         >
-                            Rejoindre
+                            Contribuer
                         </Link>
                     </template>
                 </div>
@@ -240,15 +240,17 @@ onUnmounted(() => {
 
         <NowPlayingWidget />
 
-        <footer class="border-t border-arbor-glass-border bg-arbor-deep">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <footer class="relative overflow-hidden border-t border-arbor-mineral/10 bg-arbor-ink">
+            <div class="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_18%_0%,rgba(215,180,106,0.12),transparent_26rem),radial-gradient(circle_at_86%_12%,rgba(143,230,193,0.07),transparent_24rem)]"></div>
+            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+                <div class="grid grid-cols-1 gap-10 md:grid-cols-[1.4fr_0.8fr_0.8fr]">
                     <div>
                         <div class="flex items-center mb-4">
                             <ApplicationLogo class="h-12 w-auto shrink-0" />
                         </div>
-                        <p class="text-arbor-sage text-sm max-w-sm leading-relaxed mb-6">
-                            Une archive sonore vivante dédiée aux créateurs de field recording et aux amoureux de la nature.
+                        <p class="atlas-kicker mb-3">Le vivant s'écoute</p>
+                        <p class="text-arbor-sage text-sm max-w-md leading-relaxed mb-6">
+                            Arborisis est un atlas acoustique pour écouter, documenter et préserver les traces sonores de la nature.
                         </p>
                         <div class="max-w-sm">
                             <h4 class="text-xs font-medium text-arbor-cream uppercase tracking-wider mb-3">Newsletter</h4>
@@ -259,7 +261,9 @@ onUnmounted(() => {
                         <h3 class="font-medium text-arbor-cream mb-4 text-sm">Explorer</h3>
                         <ul class="space-y-2.5 text-sm text-arbor-sage">
                             <li><Link href="/map" class="hover:text-arbor-emerald transition-colors">Carte des sons</Link></li>
+                            <li><Link href="/listening-points" class="hover:text-arbor-emerald transition-colors">Points d'écoute</Link></li>
                             <li><Link href="/sounds" class="hover:text-arbor-emerald transition-colors">Tous les sons</Link></li>
+                            <li><Link href="/scientific-stats" class="hover:text-arbor-emerald transition-colors">API scientifique</Link></li>
                             <li><Link href="/creators" class="hover:text-arbor-emerald transition-colors">Créateurs</Link></li>
                             <li><Link href="/radio" class="hover:text-arbor-emerald transition-colors">Radio</Link></li>
                             <li><Link href="/blog" class="hover:text-arbor-emerald transition-colors">Chroniques</Link></li>

@@ -8,6 +8,8 @@ const props = defineProps({
     timeline: Array,
     species: Array,
     metrics: Object,
+    currentWeather: Object,
+    versions: Array,
     nearbyPoints: Array,
 });
 
@@ -17,7 +19,9 @@ const selectedSound = ref(props.timeline[0] ?? null);
 const tabs = [
     { key: 'timeline', label: 'Timeline' },
     { key: 'species', label: 'Espèces' },
+    { key: 'weather', label: 'Météo' },
     { key: 'stats', label: 'Statistiques' },
+    { key: 'archives', label: 'Archives' },
 ];
 
 const habitatEmoji = computed(() => {
@@ -38,6 +42,26 @@ function formatMonthYear(iso) {
     if (!iso) return '-';
     const d = new Date(iso);
     return d.toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' });
+}
+
+function formatDateTime(iso) {
+    if (!iso) return '-';
+    const d = new Date(iso);
+    return d.toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+}
+
+function weatherLabel(condition) {
+    const labels = {
+        clear: 'Ciel clair',
+        cloudy: 'Nuageux',
+        fog: 'Brume',
+        drizzle: 'Bruine',
+        rain: 'Pluie',
+        snow: 'Neige',
+        storm: 'Orage',
+    };
+
+    return labels[condition] ?? 'Conditions inconnues';
 }
 </script>
 
@@ -69,6 +93,20 @@ function formatMonthYear(iso) {
                             <p class="text-xs text-arbor-sage/70 font-mono mt-1">
                                 ~{{ point.public_accuracy_meters }}m de précision
                             </p>
+                            <div class="mt-3 flex justify-end gap-2">
+                                <Link
+                                    :href="route('sounds.record', { listening_point_id: point.id })"
+                                    class="inline-block px-4 py-2 bg-arbor-emerald/20 text-arbor-emerald border border-arbor-emerald/30 rounded-lg hover:bg-arbor-emerald/30 transition-colors text-sm font-medium"
+                                >
+                                    + Enregistrer une nouvelle prise
+                                </Link>
+                                <Link
+                                    :href="route('sounds.create', { listening_point_id: point.id })"
+                                    class="inline-block px-4 py-2 bg-arbor-glass/30 text-arbor-sage border border-arbor-glass-border rounded-lg hover:text-arbor-cream transition-colors text-sm font-medium"
+                                >
+                                    Importer
+                                </Link>
+                            </div>
                         </div>
                     </div>
 
@@ -89,6 +127,34 @@ function formatMonthYear(iso) {
                         <div class="glass-card p-4 text-center">
                             <p class="text-2xl font-display font-bold text-arbor-emerald">{{ Math.round(metrics.biodiversity_score ?? 0) }}</p>
                             <p class="text-xs text-arbor-sage uppercase tracking-wider">Score biodiversité</p>
+                        </div>
+                    </div>
+
+                    <div v-if="currentWeather" class="mt-4 glass-card p-4">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                            <div>
+                                <p class="text-xs text-arbor-sage uppercase tracking-wider">Météo temps réel</p>
+                                <p class="mt-1 text-lg font-display text-arbor-cream">
+                                    {{ weatherLabel(currentWeather.weather_condition) }}
+                                    <span v-if="currentWeather.temperature_c !== null" class="text-arbor-emerald">
+                                        · {{ Math.round(currentWeather.temperature_c) }}°C
+                                    </span>
+                                </p>
+                            </div>
+                            <div class="grid grid-cols-3 gap-3 text-center">
+                                <div>
+                                    <p class="text-sm font-mono text-arbor-cream">{{ currentWeather.humidity_percent ?? '-' }}%</p>
+                                    <p class="text-[10px] text-arbor-sage uppercase tracking-wider">Humidité</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-mono text-arbor-cream">{{ currentWeather.wind_speed_kmh ?? '-' }} km/h</p>
+                                    <p class="text-[10px] text-arbor-sage uppercase tracking-wider">Vent</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-mono text-arbor-cream">{{ currentWeather.wind_direction ?? '-' }}</p>
+                                    <p class="text-[10px] text-arbor-sage uppercase tracking-wider">Direction</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -254,6 +320,58 @@ function formatMonthYear(iso) {
                         </div>
 
                         <div class="glass-card p-6">
+                            <h3 class="font-display text-xl font-semibold text-arbor-cream mb-4">Indices de diversité</h3>
+                            <div class="space-y-4">
+                                <div v-if="metrics.shannon_index !== null">
+                                    <div class="flex items-center justify-between text-sm mb-2">
+                                        <span class="text-arbor-sage">Shannon (H')</span>
+                                        <span class="text-arbor-cream font-mono">{{ metrics.shannon_index.toFixed(2) }}</span>
+                                    </div>
+                                    <div class="h-2 rounded-full bg-arbor-deep overflow-hidden">
+                                        <div class="h-full rounded-full bg-gradient-to-r from-arbor-emerald to-arbor-moss" :style="{ width: `${Math.min((metrics.shannon_index / 3) * 100, 100)}%` }"></div>
+                                    </div>
+                                </div>
+                                <div v-if="metrics.simpson_index !== null">
+                                    <div class="flex items-center justify-between text-sm mb-2">
+                                        <span class="text-arbor-sage">Simpson (1-D)</span>
+                                        <span class="text-arbor-cream font-mono">{{ metrics.simpson_index.toFixed(2) }}</span>
+                                    </div>
+                                    <div class="h-2 rounded-full bg-arbor-deep overflow-hidden">
+                                        <div class="h-full rounded-full bg-gradient-to-r from-arbor-amber to-arbor-emerald" :style="{ width: `${(metrics.simpson_index) * 100}%` }"></div>
+                                    </div>
+                                </div>
+                                <div v-if="metrics.species_richness !== null">
+                                    <div class="flex items-center justify-between text-sm mb-2">
+                                        <span class="text-arbor-sage">Richesse spécifique</span>
+                                        <span class="text-arbor-cream font-mono">{{ Math.round(metrics.species_richness) }} espèces</span>
+                                    </div>
+                                </div>
+                                <div v-if="metrics.acoustic_complexity_index !== null">
+                                    <div class="flex items-center justify-between text-sm mb-2">
+                                        <span class="text-arbor-sage">Complexité acoustique (ACI)</span>
+                                        <span class="text-arbor-cream font-mono">{{ metrics.acoustic_complexity_index.toFixed(2) }}</span>
+                                    </div>
+                                </div>
+                                <div v-if="metrics.temporal_turnover !== null">
+                                    <div class="flex items-center justify-between text-sm mb-2">
+                                        <span class="text-arbor-sage">Turnover temporel</span>
+                                        <span class="text-arbor-cream font-mono">{{ (metrics.temporal_turnover * 100).toFixed(1) }}%</span>
+                                    </div>
+                                    <p class="text-xs text-arbor-sage">Taux de remplacement des espèces entre la première et la dernière période.</p>
+                                </div>
+                                <div v-if="metrics.acoustic_consistency_score !== null">
+                                    <div class="flex items-center justify-between text-sm mb-2">
+                                        <span class="text-arbor-sage">Cohérence acoustique</span>
+                                        <span class="text-arbor-cream font-mono">{{ Math.round(metrics.acoustic_consistency_score) }}/100</span>
+                                    </div>
+                                    <div class="h-2 rounded-full bg-arbor-deep overflow-hidden">
+                                        <div class="h-full rounded-full bg-arbor-emerald" :style="{ width: `${Math.min(metrics.acoustic_consistency_score, 100)}%` }"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-6">
                             <h3 class="font-display text-xl font-semibold text-arbor-cream mb-4">Répartition temporelle</h3>
                             <div class="space-y-2">
                                 <div
@@ -269,6 +387,94 @@ function formatMonthYear(iso) {
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Weather -->
+                <div v-if="activeTab === 'weather'" class="space-y-6 animate-fade-in">
+                    <div v-if="currentWeather" class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        <div class="glass-card p-6 lg:col-span-1">
+                            <p class="text-xs text-arbor-sage uppercase tracking-wider">Maintenant</p>
+                            <p class="mt-3 text-4xl font-display font-bold text-arbor-cream">
+                                {{ currentWeather.temperature_c !== null ? `${Math.round(currentWeather.temperature_c)}°C` : '-' }}
+                            </p>
+                            <p class="mt-2 text-arbor-emerald">{{ weatherLabel(currentWeather.weather_condition) }}</p>
+                            <p class="mt-4 text-xs text-arbor-sage">
+                                Relevé vers {{ formatDateTime(currentWeather.observed_at) }}
+                            </p>
+                        </div>
+                        <div class="glass-card p-6 lg:col-span-2">
+                            <h3 class="font-display text-xl font-semibold text-arbor-cream mb-4">Conditions du point</h3>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div class="rounded-lg bg-arbor-deep/50 p-4">
+                                    <p class="text-xs text-arbor-sage uppercase tracking-wider">Humidité</p>
+                                    <p class="mt-2 text-xl font-mono text-arbor-cream">{{ currentWeather.humidity_percent ?? '-' }}%</p>
+                                </div>
+                                <div class="rounded-lg bg-arbor-deep/50 p-4">
+                                    <p class="text-xs text-arbor-sage uppercase tracking-wider">Vent</p>
+                                    <p class="mt-2 text-xl font-mono text-arbor-cream">{{ currentWeather.wind_speed_kmh ?? '-' }} km/h</p>
+                                </div>
+                                <div class="rounded-lg bg-arbor-deep/50 p-4">
+                                    <p class="text-xs text-arbor-sage uppercase tracking-wider">Direction</p>
+                                    <p class="mt-2 text-xl font-mono text-arbor-cream">{{ currentWeather.wind_direction ?? '-' }}</p>
+                                </div>
+                                <div class="rounded-lg bg-arbor-deep/50 p-4">
+                                    <p class="text-xs text-arbor-sage uppercase tracking-wider">Précip.</p>
+                                    <p class="mt-2 text-xl font-mono text-arbor-cream">
+                                        {{ currentWeather.is_snowing ? 'Neige' : currentWeather.is_raining ? 'Pluie' : 'Non' }}
+                                    </p>
+                                </div>
+                            </div>
+                            <p class="mt-4 text-xs text-arbor-sage">
+                                Source {{ currentWeather.source }} · coordonnées publiques approximées.
+                            </p>
+                        </div>
+                    </div>
+                    <div v-else class="glass-card p-6">
+                        <p class="text-arbor-sage">La météo temps réel n'est pas disponible pour ce point.</p>
+                    </div>
+                </div>
+
+                <!-- Archives -->
+                <div v-if="activeTab === 'archives'" class="space-y-4 animate-fade-in">
+                    <div v-if="versions.length > 0" class="relative">
+                        <div class="absolute left-4 top-0 bottom-0 w-px bg-arbor-glass-border"></div>
+                        <div class="space-y-4">
+                            <div v-for="version in versions" :key="version.version_hash" class="relative pl-12">
+                                <div class="absolute left-2 top-2 w-5 h-5 rounded-full bg-arbor-deep border-2 border-arbor-emerald/50"></div>
+                                <div class="glass-card p-5">
+                                    <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+                                        <div>
+                                            <p class="text-sm font-display font-semibold text-arbor-cream">
+                                                v{{ version.version_number }} · {{ version.event_label }}
+                                            </p>
+                                            <p class="mt-1 text-xs text-arbor-sage">
+                                                {{ formatDateTime(version.captured_at) }}
+                                                <span v-if="version.actor"> · {{ version.actor.name }}</span>
+                                            </p>
+                                        </div>
+                                        <div class="text-left md:text-right">
+                                            <p class="font-mono text-xs text-arbor-emerald">{{ version.short_hash }}</p>
+                                            <p v-if="version.short_parent_hash" class="font-mono text-[10px] text-arbor-sage">
+                                                parent {{ version.short_parent_hash }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div v-if="version.changed_fields.length > 0" class="mt-3 flex flex-wrap gap-2">
+                                        <span
+                                            v-for="field in version.changed_fields.slice(0, 8)"
+                                            :key="field"
+                                            class="px-2 py-1 rounded bg-arbor-deep/60 text-[10px] font-mono text-arbor-sage"
+                                        >
+                                            {{ field }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-else class="glass-card p-6">
+                        <p class="text-arbor-sage">Aucune archive n'a encore été capturée pour ce point.</p>
                     </div>
                 </div>
 

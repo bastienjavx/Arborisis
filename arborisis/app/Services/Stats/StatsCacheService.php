@@ -81,6 +81,7 @@ class StatsCacheService
             'species_distribution',
             'listening_points',
             'global_metrics',
+            'environmental_overview',
             'quality_overview',
             'dataset_completeness',
         ];
@@ -109,6 +110,7 @@ class StatsCacheService
             'species_distribution' => $this->statsService->getSpeciesDistribution(),
             'listening_points' => $this->statsService->getListeningPointsOverview(),
             'global_metrics' => $this->statsService->getGlobalMetricsOverview(),
+            'environmental_overview' => $this->statsService->getEnvironmentalOverview(),
             'quality_overview' => $this->statsService->getQualityOverview(),
             'dataset_completeness' => $this->statsService->getDatasetCompleteness(),
             default => [],
@@ -121,6 +123,7 @@ class StatsCacheService
             'audio_features' => StatCategory::Audio,
             'species_distribution' => StatCategory::Biodiversity,
             'listening_points' => StatCategory::ListeningPoints,
+            'environmental_overview' => StatCategory::Distribution,
             'quality_overview', 'dataset_completeness' => StatCategory::Quality,
             default => StatCategory::General,
         };

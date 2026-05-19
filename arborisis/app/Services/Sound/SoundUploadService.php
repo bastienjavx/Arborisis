@@ -8,6 +8,8 @@ use App\Enums\SoundStatus;
 use App\Events\SoundPublished;
 use App\Jobs\ProcessAudioAnalysis;
 use App\Jobs\RequestAudioAnalysis;
+use App\Models\Category;
+use App\Models\Environment;
 use App\Models\Sound;
 use App\Services\Audio\AudioDurationService;
 use App\Services\Discord\DiscordNotificationService;
@@ -42,18 +44,21 @@ class SoundUploadService
                 /** @var UploadedFile $audioFile */
                 $audioFile = $data['audio_file'];
 
+                $categoryId = $this->resolveCategoryId($data);
+                $environmentId = $this->resolveEnvironmentId($data);
                 $duration = $this->durationService->getDuration($audioFile->getRealPath());
 
                 // 1. Create sound record
                 $sound = Sound::create([
                     'user_id' => $userId,
-                    'category_id' => $data['category_id'] ?? null,
-                    'environment_id' => $data['environment_id'] ?? null,
+                    'category_id' => $categoryId,
+                    'environment_id' => $environmentId,
                     'title' => $data['title'],
                     'description' => $data['description'] ?? null,
                     'recorded_at' => $this->combineDateTime($data['recorded_at'] ?? null, $data['recorded_time'] ?? null),
                     'duration' => $duration ? (int) round($duration) : null,
                     'equipment' => $data['equipment'] ?? null,
+                    'microphone_position' => $data['microphone_position'] ?? null,
                     'license' => $data['license'],
                     'visibility' => $data['visibility'],
                     'status' => SoundStatus::Published,
@@ -221,6 +226,52 @@ class SoundUploadService
         }
 
         return new \DateTimeImmutable("{$date} {$time}");
+    }
+
+    private function resolveCategoryId(array $data): ?int
+    {
+        $name = trim((string) ($data['new_category_name'] ?? ''));
+
+        if ($name !== '') {
+            $slug = Str::slug($name) ?: 'categorie';
+            $category = Category::firstOrCreate(
+                ['slug' => $slug],
+                [
+                    'name' => $name,
+                    'description' => 'Catégorie proposée par la communauté',
+                    'color' => '#7BAF6A',
+                    'icon' => 'tag',
+                    'order' => ((int) Category::max('order')) + 10,
+                ],
+            );
+
+            return $category->id;
+        }
+
+        return ! empty($data['category_id']) ? (int) $data['category_id'] : null;
+    }
+
+    private function resolveEnvironmentId(array $data): ?int
+    {
+        $name = trim((string) ($data['new_environment_name'] ?? ''));
+
+        if ($name !== '') {
+            $slug = Str::slug($name) ?: 'environnement';
+            $environment = Environment::firstOrCreate(
+                ['slug' => $slug],
+                [
+                    'name' => $name,
+                    'description' => 'Environnement proposé par la communauté',
+                    'color' => '#4A6741',
+                    'icon' => 'leaf',
+                    'order' => ((int) Environment::max('order')) + 10,
+                ],
+            );
+
+            return $environment->id;
+        }
+
+        return ! empty($data['environment_id']) ? (int) $data['environment_id'] : null;
     }
 
     /**

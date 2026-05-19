@@ -25,6 +25,7 @@ class ScientificStatsRequest extends FormRequest
             'environment_id' => ['sometimes', 'integer', 'exists:environments,id'],
             'min_confidence' => ['sometimes', 'numeric', 'min:0', 'max:1'],
             'limit' => ['sometimes', 'integer', 'min:1', 'max:1000'],
+            'offset' => ['sometimes', 'integer', 'min:0', 'max:100000'],
         ];
     }
 
@@ -42,5 +43,10 @@ class ScientificStatsRequest extends FormRequest
     public function resultLimit(int $default = 100, int $max = 1000): int
     {
         return min((int) $this->validated('limit', $default), $max);
+    }
+
+    public function resultOffset(): int
+    {
+        return (int) $this->validated('offset', 0);
     }
 }

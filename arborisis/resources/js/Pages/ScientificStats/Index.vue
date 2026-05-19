@@ -27,6 +27,10 @@ const props = defineProps({
     listeningPoints: Object,
     speciesDistribution: Array,
     globalMetrics: Object,
+    qualityOverview: Object,
+    datasetCompleteness: Object,
+    datasetSchema: Array,
+    environmentalOverview: Object,
 });
 
 const activeTab = ref('overview');
@@ -34,6 +38,55 @@ const activeTab = ref('overview');
 const audioFeaturesSafe = computed(() => props.audioFeatures ?? {});
 const audioDistributionsSafe = computed(() => props.audioFeatureDistribution ?? {});
 const statsSafe = computed(() => props.stats ?? {});
+const datasetCompletenessSafe = computed(() => props.datasetCompleteness ?? { fields: [], scientific_readiness_score: 0 });
+const datasetSchemaSafe = computed(() => props.datasetSchema ?? []);
+const qualityOverviewSafe = computed(() => props.qualityOverview ?? {});
+const modelWeatherContext = computed(() => props.globalMetrics?.weather_context ?? props.environmentalOverview ?? {});
+
+const datasetSummary = computed(() => {
+    const fields = datasetCompletenessSafe.value.fields ?? [];
+    const criticalFields = ['recorded_at', 'duration', 'category', 'environment', 'public_location', 'completed_analysis', 'species_detection'];
+    const criticalCoverage = fields.filter((field) => criticalFields.includes(field.field));
+    const meanCriticalCoverage = criticalCoverage.length
+        ? Math.round(criticalCoverage.reduce((sum, field) => sum + Number(field.percentage ?? 0), 0) / criticalCoverage.length)
+        : 0;
+
+    return {
+        readiness: Math.round(Number(datasetCompletenessSafe.value.scientific_readiness_score ?? 0)),
+        rows: Number(datasetCompletenessSafe.value.sounds_count ?? statsSafe.value.total_sounds ?? 0),
+        columns: datasetSchemaSafe.value.length,
+        criticalCoverage: meanCriticalCoverage,
+        fields,
+    };
+});
+
+const modelCards = computed(() => [
+    {
+        key: 'biodiversity_score',
+        title: 'SBS',
+        name: 'Sound Biodiversity Score',
+        metric: props.globalMetrics?.biodiversity_score ?? {},
+        desc: 'Score descriptif combinant espèces détectées, diversité acoustique et équilibre spectral.',
+        endpoint: '/api/scientific-stats/model-stats',
+    },
+    {
+        key: 'acoustic_activity_score',
+        title: 'AAS',
+        name: 'Acoustic Activity Score',
+        metric: props.globalMetrics?.acoustic_activity_score ?? {},
+        desc: 'Score descriptif basé sur loudness, événements acoustiques, silence et énergie RMS.',
+        endpoint: '/api/scientific-stats/model-stats',
+    },
+]);
+
+const modelWeatherSummary = computed(() => ({
+    coverage: modelWeatherContext.value.coverage ?? {},
+    averages: modelWeatherContext.value.averages ?? {},
+    conditions: modelWeatherContext.value.weather_conditions ?? [],
+    activityByCondition: modelWeatherContext.value.activity_by_weather_condition ?? [],
+    biodiversityByCondition: modelWeatherContext.value.biodiversity_by_weather_condition ?? [],
+    individualSounds: modelWeatherContext.value.individual_sounds ?? [],
+}));
 
 const audioFeatureRows = computed(() => Object.entries(audioFeaturesSafe.value).map(([key, stats]) => ({
     key,
@@ -94,6 +147,7 @@ const qualityChecks = [
 
 const tabs = [
     { key: 'overview', label: 'Vue d\'ensemble' },
+    { key: 'dataset', label: 'Dataset' },
     { key: 'listening-points', label: 'Points d\'écoute' },
     { key: 'species', label: 'Espèces' },
     { key: 'models', label: 'Modèles' },
@@ -117,19 +171,20 @@ function formatDuration(seconds) {
         <div class="min-h-screen bg-arbor-night">
             <!-- Hero -->
             <div class="relative overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-b from-arbor-moss/10 via-transparent to-transparent pointer-events-none"></div>
+                <div class="absolute inset-0 bg-[radial-gradient(circle_at_16%_0%,rgba(120,214,214,0.09),transparent_28rem),radial-gradient(circle_at_82%_12%,rgba(215,180,106,0.09),transparent_24rem)] pointer-events-none"></div>
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-10">
-                    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+                    <div class="trace-frame p-6 sm:p-8">
+                    <div class="relative z-10 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
                         <div>
                             <div class="flex items-center gap-2 mb-3">
-                                <span class="inline-block w-2 h-2 rounded-full bg-arbor-emerald animate-pulse"></span>
-                                <span class="text-xs font-medium text-arbor-emerald uppercase tracking-widest">Open Data</span>
+                                <span class="inline-block w-2 h-2 rounded-full bg-arbor-firefly animate-pulse"></span>
+                                <span class="atlas-kicker">Laboratoire naturaliste</span>
                             </div>
-                            <h1 class="font-display text-4xl md:text-5xl font-bold text-arbor-cream leading-tight">
-                                Données scientifiques
+                            <h1 class="atlas-heading text-5xl md:text-6xl">
+                                Données scientifiques du vivant sonore
                             </h1>
                             <p class="mt-3 text-arbor-sage text-lg max-w-2xl">
-                                Statistiques agrégées et anonymisées de la plateforme Arborisis, destinées à la recherche, la data science et la conservation.
+                                Dataset public, documenté et anonymisé pour observer les espèces, les lieux, les saisons et les dynamiques acoustiques sans exposer les coordonnées sensibles.
                             </p>
                         </div>
                         <div class="text-right hidden md:block">
@@ -141,18 +196,19 @@ function formatDuration(seconds) {
                             </p>
                         </div>
                     </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Stats row -->
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                    <StatCard label="Enregistrements" :value="props.stats.total_sounds" icon="🎙️" />
-                    <StatCard label="Durée totale" :value="Math.round((props.stats.total_duration_seconds || 0) / 3600)" suffix="h" icon="⏱️" />
-                    <StatCard label="Créateurs" :value="props.stats.total_creators" icon="👤" />
-                    <StatCard label="Lieux uniques" :value="props.stats.total_locations" icon="📍" />
-                    <StatCard label="Analyses" :value="props.stats.completed_analyses" icon="📊" />
-                    <StatCard label="Durée moy." :value="Math.round(props.stats.avg_duration_seconds || 0)" suffix="s" icon="📏" />
+                    <StatCard label="Enregistrements" :value="props.stats.total_sounds" icon="audio" />
+                    <StatCard label="Durée totale" :value="Math.round((props.stats.total_duration_seconds || 0) / 3600)" suffix="h" icon="time" />
+                    <StatCard label="Créateurs" :value="props.stats.total_creators" icon="users" />
+                    <StatCard label="Lieux uniques" :value="props.stats.total_locations" icon="location" />
+                    <StatCard label="Analyses" :value="props.stats.completed_analyses" icon="data" />
+                    <StatCard label="Score dataset" :value="datasetSummary.readiness" suffix="%" icon="score" />
                 </div>
             </div>
 
@@ -202,6 +258,86 @@ function formatDuration(seconds) {
                             </div>
                         </div>
                         <EquipmentChart :data="props.equipmentDistribution" />
+                    </div>
+                </div>
+
+                <!-- Dataset -->
+                <div v-if="activeTab === 'dataset'" class="space-y-6 animate-fade-in">
+                    <div class="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-6">
+                        <div class="glass-card p-6 overflow-hidden relative">
+                            <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-arbor-emerald/70 to-transparent"></div>
+                            <p class="text-xs uppercase tracking-widest text-arbor-emerald mb-3">Dataset chercheur</p>
+                            <h3 class="font-display text-2xl font-semibold text-arbor-cream mb-3">Table publique exploitable en notebook</h3>
+                            <p class="text-sm leading-relaxed text-arbor-sage max-w-3xl">
+                                L'endpoint dataset retourne des lignes normalisées, un schéma machine-readable, la pagination, la licence, la citation et les garanties de confidentialité. Les IDs utilisateur, clés fichiers privées et coordonnées exactes sont exclus.
+                            </p>
+                            <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
+                                <div class="rounded-xl bg-arbor-deep/45 border border-arbor-glass-border p-4">
+                                    <p class="text-xs uppercase tracking-wider text-arbor-sage">Lignes</p>
+                                    <p class="mt-2 text-2xl font-bold text-arbor-cream font-mono">{{ datasetSummary.rows.toLocaleString('fr-FR') }}</p>
+                                </div>
+                                <div class="rounded-xl bg-arbor-deep/45 border border-arbor-glass-border p-4">
+                                    <p class="text-xs uppercase tracking-wider text-arbor-sage">Colonnes</p>
+                                    <p class="mt-2 text-2xl font-bold text-arbor-cream font-mono">{{ datasetSummary.columns }}</p>
+                                </div>
+                                <div class="rounded-xl bg-arbor-deep/45 border border-arbor-glass-border p-4">
+                                    <p class="text-xs uppercase tracking-wider text-arbor-sage">Readiness</p>
+                                    <p class="mt-2 text-2xl font-bold text-arbor-emerald font-mono">{{ datasetSummary.readiness }}%</p>
+                                </div>
+                                <div class="rounded-xl bg-arbor-deep/45 border border-arbor-glass-border p-4">
+                                    <p class="text-xs uppercase tracking-wider text-arbor-sage">Critiques</p>
+                                    <p class="mt-2 text-2xl font-bold text-arbor-emerald font-mono">{{ datasetSummary.criticalCoverage }}%</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-6">
+                            <h3 class="font-display text-xl font-semibold text-arbor-cream mb-4">Accès direct</h3>
+                            <div class="space-y-3">
+                                <div class="rounded-xl bg-arbor-deep/45 border border-arbor-glass-border p-4">
+                                    <p class="text-xs text-arbor-sage mb-2">Dataset paginé</p>
+                                    <code class="text-sm text-arbor-emerald break-all">/api/scientific-stats/dataset?limit=100&offset=0</code>
+                                </div>
+                                <div class="rounded-xl bg-arbor-deep/45 border border-arbor-glass-border p-4">
+                                    <p class="text-xs text-arbor-sage mb-2">Schéma de colonnes</p>
+                                    <code class="text-sm text-arbor-emerald break-all">/api/scientific-stats/schema</code>
+                                </div>
+                                <div class="rounded-xl bg-arbor-amber/10 border border-arbor-amber/25 p-4">
+                                    <p class="text-sm leading-relaxed text-arbor-sage">Citation incluse dans la réponse API. Les données restent limitées aux sons publics publiés et aux coordonnées approximées.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="glass-card p-6">
+                            <h3 class="font-display text-xl font-semibold text-arbor-cream mb-4">Complétude des champs</h3>
+                            <div class="space-y-3">
+                                <div v-for="field in datasetSummary.fields" :key="field.field" class="rounded-xl bg-arbor-deep/35 border border-arbor-glass-border/60 p-3">
+                                    <div class="flex items-center justify-between gap-3">
+                                        <code class="text-xs text-arbor-cream">{{ field.field }}</code>
+                                        <span class="text-xs font-mono text-arbor-emerald">{{ Math.round(field.percentage) }}%</span>
+                                    </div>
+                                    <div class="mt-2 h-1.5 rounded-full bg-arbor-night overflow-hidden">
+                                        <div class="h-full rounded-full bg-arbor-emerald" :style="{ width: `${Math.min(field.percentage, 100)}%` }"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-6">
+                            <h3 class="font-display text-xl font-semibold text-arbor-cream mb-4">Dictionnaire de données</h3>
+                            <div class="space-y-2 max-h-[520px] overflow-y-auto custom-scrollbar pr-2">
+                                <div v-for="column in datasetSchemaSafe" :key="column.name" class="rounded-xl bg-arbor-deep/35 border border-arbor-glass-border/60 p-3">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <code class="text-xs text-arbor-emerald">{{ column.name }}</code>
+                                        <span class="text-[11px] uppercase tracking-wider text-arbor-sage">{{ column.type }}</span>
+                                        <span v-if="column.unit !== 'none'" class="text-[11px] text-arbor-sage/70">{{ column.unit }}</span>
+                                    </div>
+                                    <p class="mt-1 text-sm text-arbor-sage">{{ column.description }}</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -316,6 +452,161 @@ function formatDuration(seconds) {
 
                 <!-- Models -->
                 <div v-if="activeTab === 'models'" class="space-y-6 animate-fade-in">
+                    <div class="glass-card p-6">
+                        <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-6">
+                            <div>
+                                <p class="text-xs uppercase tracking-widest text-arbor-emerald mb-2">Model stats</p>
+                                <h3 class="font-display text-2xl font-semibold text-arbor-cream">Indicateurs descriptifs versionnés</h3>
+                                <p class="mt-2 text-sm leading-relaxed text-arbor-sage max-w-3xl">
+                                    Les modèles Arborisis sont publiés comme variables explicables du dataset, pas comme vérité naturaliste. Chaque score expose son échantillon, ses bornes et son endpoint API.
+                                </p>
+                            </div>
+                            <div class="rounded-xl border border-arbor-emerald/25 bg-arbor-emerald/10 px-4 py-3">
+                                <p class="text-xs uppercase tracking-wider text-arbor-sage">Endpoint</p>
+                                <code class="mt-1 block text-sm text-arbor-emerald">/api/scientific-stats/model-stats</code>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            <div
+                                v-for="model in modelCards"
+                                :key="model.key"
+                                class="rounded-xl border border-arbor-glass-border bg-arbor-deep/35 p-5"
+                            >
+                                <div class="flex items-start justify-between gap-4">
+                                    <div>
+                                        <p class="text-xs font-mono text-arbor-emerald">{{ model.title }}</p>
+                                        <h4 class="mt-1 text-lg font-semibold text-arbor-cream">{{ model.name }}</h4>
+                                        <p class="mt-2 text-sm leading-relaxed text-arbor-sage">{{ model.desc }}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-xs uppercase tracking-wider text-arbor-sage">N</p>
+                                        <p class="mt-1 text-2xl font-bold text-arbor-cream font-mono">{{ model.metric.count ?? 0 }}</p>
+                                    </div>
+                                </div>
+                                <div class="mt-5 grid grid-cols-2 md:grid-cols-4 gap-2">
+                                    <div class="rounded-lg bg-arbor-night/70 p-3">
+                                        <p class="text-[11px] uppercase tracking-wider text-arbor-sage">Moy.</p>
+                                        <p class="mt-1 text-sm font-mono text-arbor-cream">{{ model.metric.mean ?? '-' }}</p>
+                                    </div>
+                                    <div class="rounded-lg bg-arbor-night/70 p-3">
+                                        <p class="text-[11px] uppercase tracking-wider text-arbor-sage">Méd.</p>
+                                        <p class="mt-1 text-sm font-mono text-arbor-cream">{{ model.metric.median ?? '-' }}</p>
+                                    </div>
+                                    <div class="rounded-lg bg-arbor-night/70 p-3">
+                                        <p class="text-[11px] uppercase tracking-wider text-arbor-sage">Min</p>
+                                        <p class="mt-1 text-sm font-mono text-arbor-cream">{{ model.metric.min ?? '-' }}</p>
+                                    </div>
+                                    <div class="rounded-lg bg-arbor-night/70 p-3">
+                                        <p class="text-[11px] uppercase tracking-wider text-arbor-sage">Max</p>
+                                        <p class="mt-1 text-sm font-mono text-arbor-cream">{{ model.metric.max ?? '-' }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-6">
+                        <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-6">
+                            <div>
+                                <h3 class="font-display text-xl font-semibold text-arbor-cream">Contexte météo des modèles</h3>
+                                <p class="mt-2 text-sm leading-relaxed text-arbor-sage max-w-3xl">
+                                    Les scores sont croisés avec les observations météo publiques issues des coordonnées approximées. Ces variables servent à contextualiser l'activité acoustique et la biodiversité sonore.
+                                </p>
+                            </div>
+                            <div class="rounded-xl border border-arbor-glass-border bg-arbor-deep/45 px-4 py-3">
+                                <p class="text-xs uppercase tracking-wider text-arbor-sage">Couverture météo</p>
+                                <p class="mt-1 text-2xl font-bold text-arbor-emerald font-mono">{{ Math.round(modelWeatherSummary.coverage.percentage ?? 0) }}%</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                            <div class="rounded-xl border border-arbor-glass-border bg-arbor-deep/35 p-4">
+                                <p class="text-xs uppercase tracking-wider text-arbor-sage">Température moyenne</p>
+                                <p class="mt-2 text-xl font-semibold text-arbor-cream font-mono">{{ modelWeatherSummary.averages.temperature_c ?? '-' }}<span v-if="modelWeatherSummary.averages.temperature_c !== null && modelWeatherSummary.averages.temperature_c !== undefined"> °C</span></p>
+                            </div>
+                            <div class="rounded-xl border border-arbor-glass-border bg-arbor-deep/35 p-4">
+                                <p class="text-xs uppercase tracking-wider text-arbor-sage">Humidité moyenne</p>
+                                <p class="mt-2 text-xl font-semibold text-arbor-cream font-mono">{{ modelWeatherSummary.averages.humidity_percent ?? '-' }}<span v-if="modelWeatherSummary.averages.humidity_percent !== null && modelWeatherSummary.averages.humidity_percent !== undefined">%</span></p>
+                            </div>
+                            <div class="rounded-xl border border-arbor-glass-border bg-arbor-deep/35 p-4">
+                                <p class="text-xs uppercase tracking-wider text-arbor-sage">Vent moyen</p>
+                                <p class="mt-2 text-xl font-semibold text-arbor-cream font-mono">{{ modelWeatherSummary.averages.wind_speed_kmh ?? '-' }}<span v-if="modelWeatherSummary.averages.wind_speed_kmh !== null && modelWeatherSummary.averages.wind_speed_kmh !== undefined"> km/h</span></p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                            <div class="rounded-xl border border-arbor-glass-border bg-arbor-deep/35 p-4">
+                                <h4 class="text-sm font-semibold text-arbor-cream mb-3">Conditions météo</h4>
+                                <div class="space-y-2">
+                                    <div v-for="condition in modelWeatherSummary.conditions.slice(0, 8)" :key="condition.condition" class="flex items-center justify-between gap-3 text-sm">
+                                        <span class="text-arbor-sage">{{ condition.condition }}</span>
+                                        <span class="font-mono text-arbor-emerald">{{ condition.count }}</span>
+                                    </div>
+                                    <p v-if="modelWeatherSummary.conditions.length === 0" class="text-sm text-arbor-sage">Aucune météo associée pour le moment.</p>
+                                </div>
+                            </div>
+
+                            <div class="rounded-xl border border-arbor-glass-border bg-arbor-deep/35 p-4">
+                                <h4 class="text-sm font-semibold text-arbor-cream mb-3">AAS par météo</h4>
+                                <div class="space-y-2">
+                                    <div v-for="row in modelWeatherSummary.activityByCondition.slice(0, 8)" :key="row.condition" class="flex items-center justify-between gap-3 text-sm">
+                                        <span class="text-arbor-sage">{{ row.condition }}</span>
+                                        <span class="font-mono text-arbor-emerald">{{ row.mean_acoustic_activity_score }}</span>
+                                    </div>
+                                    <p v-if="modelWeatherSummary.activityByCondition.length === 0" class="text-sm text-arbor-sage">Aucun score AAS croisé météo.</p>
+                                </div>
+                            </div>
+
+                            <div class="rounded-xl border border-arbor-glass-border bg-arbor-deep/35 p-4">
+                                <h4 class="text-sm font-semibold text-arbor-cream mb-3">SBS par météo</h4>
+                                <div class="space-y-2">
+                                    <div v-for="row in modelWeatherSummary.biodiversityByCondition.slice(0, 8)" :key="row.condition" class="flex items-center justify-between gap-3 text-sm">
+                                        <span class="text-arbor-sage">{{ row.condition }}</span>
+                                        <span class="font-mono text-arbor-emerald">{{ row.mean_value }}</span>
+                                    </div>
+                                    <p v-if="modelWeatherSummary.biodiversityByCondition.length === 0" class="text-sm text-arbor-sage">Aucun score SBS croisé météo.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 rounded-xl border border-arbor-glass-border bg-arbor-deep/35 p-4">
+                            <div class="flex items-center justify-between gap-4 mb-3">
+                                <h4 class="text-sm font-semibold text-arbor-cream">Sons individuels enrichis</h4>
+                                <span class="text-xs font-mono text-arbor-emerald">{{ modelWeatherSummary.individualSounds.length }}</span>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm text-left">
+                                    <thead class="text-xs text-arbor-sage uppercase border-b border-arbor-glass-border">
+                                        <tr>
+                                            <th class="px-3 py-2">Son</th>
+                                            <th class="px-3 py-2">Coordonnées publiques</th>
+                                            <th class="px-3 py-2">Temp.</th>
+                                            <th class="px-3 py-2">Humidité</th>
+                                            <th class="px-3 py-2">Vent</th>
+                                            <th class="px-3 py-2">Condition</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="sound in modelWeatherSummary.individualSounds.slice(0, 25)" :key="sound.sound_id" class="border-b border-arbor-glass-border/40">
+                                            <td class="px-3 py-2 text-arbor-cream max-w-[260px] truncate">{{ sound.title }}</td>
+                                            <td class="px-3 py-2 text-arbor-sage font-mono text-xs">
+                                                {{ Number(sound.public_latitude).toFixed(2) }}, {{ Number(sound.public_longitude).toFixed(2) }}
+                                            </td>
+                                            <td class="px-3 py-2 text-arbor-sage font-mono">{{ sound.weather?.temperature_c ?? '-' }}</td>
+                                            <td class="px-3 py-2 text-arbor-sage font-mono">{{ sound.weather?.humidity_percent ?? '-' }}</td>
+                                            <td class="px-3 py-2 text-arbor-sage font-mono">{{ sound.weather?.wind_speed_kmh ?? '-' }}</td>
+                                            <td class="px-3 py-2 text-arbor-emerald">{{ sound.weather?.weather_condition ?? 'à enrichir' }}</td>
+                                        </tr>
+                                        <tr v-if="modelWeatherSummary.individualSounds.length === 0">
+                                            <td colspan="6" class="px-3 py-6 text-center text-arbor-sage">Aucun son public avec météo individuelle pour le moment.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div class="glass-card p-6">
                             <h3 class="font-display text-xl font-semibold text-arbor-cream mb-4">Score de biodiversité sonore (SBS)</h3>

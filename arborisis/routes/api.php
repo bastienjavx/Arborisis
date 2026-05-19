@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\HealthRadioController;
+use App\Http\Controllers\Api\Agent\AgentChatStatusController;
+use App\Http\Controllers\Api\Agent\ChatAgentController;
+use App\Http\Controllers\Api\Internal\WikiOAuthController;
 use App\Http\Controllers\Api\Gamification\AchievementController;
 use App\Http\Controllers\Api\Gamification\AdminArborisisPointController;
 use App\Http\Controllers\Api\Gamification\ArborisisPointController;
@@ -27,6 +30,32 @@ use Illuminate\Support\Facades\Route;
 Route::get('/health', HealthController::class)->name('api.health');
 Route::get('/health/radio', HealthRadioController::class)->name('api.health.radio');
 
+Route::post('/ai-agent/chat', ChatAgentController::class)
+    ->middleware(['web', 'throttle:ai-agent-chat'])
+    ->name('api.ai-agent.chat');
+
+Route::get('/ai-agent/status/{jobId}', AgentChatStatusController::class)
+    ->middleware(['web', 'throttle:60,1'])
+    ->name('api.ai-agent.status');
+
+// Agent Actions — Sylve peut créer des points et itinéraires
+Route::middleware(['web', 'auth', 'throttle:agent-action'])
+    ->prefix('agent/actions')
+    ->group(function () {
+        Route::post('/create-point', [\App\Http\Controllers\Api\Agent\AgentActionController::class, 'createPoint'])
+            ->name('api.agent.actions.create-point');
+        Route::post('/create-itinerary', [\App\Http\Controllers\Api\Agent\AgentActionController::class, 'createItinerary'])
+            ->name('api.agent.actions.create-itinerary');
+    });
+
+// SoundWalks — Public API
+Route::middleware(['throttle:60,1'])->group(function () {
+    Route::get('/sound-walks', [\App\Http\Controllers\Api\Gamification\SoundWalkController::class, 'index'])
+        ->name('api.sound-walks.index');
+    Route::get('/sound-walks/{soundWalk:slug}', [\App\Http\Controllers\Api\Gamification\SoundWalkController::class, 'show'])
+        ->name('api.sound-walks.show');
+});
+
 Route::post('/inbound/contact-ticket-replies', InboundContactTicketReplyController::class)
     ->middleware('throttle:30,1')
     ->name('api.inbound.contact-ticket-replies');
@@ -42,7 +71,11 @@ Route::middleware(['throttle:scientific-api'])->group(function () {
     Route::get('/scientific-stats/equipment', [\App\Http\Controllers\Api\ScientificStatsController::class, 'equipment'])->name('api.scientific-stats.equipment');
     Route::get('/scientific-stats/species', [\App\Http\Controllers\Api\ScientificStatsController::class, 'species'])->name('api.scientific-stats.species');
     Route::get('/scientific-stats/quality', [\App\Http\Controllers\Api\ScientificStatsController::class, 'quality'])->name('api.scientific-stats.quality');
+    Route::get('/scientific-stats/environmental', [\App\Http\Controllers\Api\ScientificStatsController::class, 'environmental'])->name('api.scientific-stats.environmental');
+    Route::get('/scientific-stats/model-stats', [\App\Http\Controllers\Api\ScientificStatsController::class, 'modelStats'])->name('api.scientific-stats.model-stats');
     Route::get('/scientific-stats/dataset-completeness', [\App\Http\Controllers\Api\ScientificStatsController::class, 'datasetCompleteness'])->name('api.scientific-stats.dataset-completeness');
+    Route::get('/scientific-stats/schema', [\App\Http\Controllers\Api\ScientificStatsController::class, 'schema'])->name('api.scientific-stats.schema');
+    Route::get('/scientific-stats/dataset', [\App\Http\Controllers\Api\ScientificStatsController::class, 'dataset'])->name('api.scientific-stats.dataset');
     Route::get('/scientific-stats/raw-data', [\App\Http\Controllers\Api\ScientificStatsController::class, 'rawData'])->name('api.scientific-stats.raw-data');
 });
 
@@ -97,6 +130,7 @@ Route::prefix('internal/discord')
 // Gamification — Arborisis Points
 Route::middleware(['throttle:60,1'])->group(function () {
     Route::get('/arborisis-points', [ArborisisPointController::class, 'index'])->name('api.arborisis-points.index');
+    Route::get('/arborisis-points/nearby', [ArborisisPointController::class, 'nearby'])->name('api.arborisis-points.nearby');
     Route::get('/arborisis-points/{arborisisPoint:slug}', [ArborisisPointController::class, 'show'])->name('api.arborisis-points.show');
 });
 
@@ -203,6 +237,12 @@ Route::middleware(['web', 'auth', 'throttle:60,1'])->prefix('admin')->group(func
     Route::post('/arborisis-points/reports/{report}', [AdminArborisisPointController::class, 'reviewReport'])->name('api.admin.arborisis-points.reports.review');
     Route::get('/arborisis-points/suggestions', [AdminArborisisPointController::class, 'suggestions'])->name('api.admin.arborisis-points.suggestions');
     Route::post('/arborisis-points/suggestions/{suggestion}', [AdminArborisisPointController::class, 'reviewSuggestion'])->name('api.admin.arborisis-points.suggestions.review');
+
+    // SoundWalks moderation
+    Route::get('/sound-walks/pending', [\App\Http\Controllers\Api\Gamification\AdminSoundWalkController::class, 'pending'])->name('api.admin.sound-walks.pending');
+    Route::post('/sound-walks/{soundWalk:slug}/approve', [\App\Http\Controllers\Api\Gamification\AdminSoundWalkController::class, 'approve'])->name('api.admin.sound-walks.approve');
+    Route::post('/sound-walks/{soundWalk:slug}/reject', [\App\Http\Controllers\Api\Gamification\AdminSoundWalkController::class, 'reject'])->name('api.admin.sound-walks.reject');
+    Route::post('/sound-walks/{soundWalk:slug}/hide', [\App\Http\Controllers\Api\Gamification\AdminSoundWalkController::class, 'hide'])->name('api.admin.sound-walks.hide');
 });
 
 // Daily Sound Ideas
@@ -210,4 +250,15 @@ Route::middleware(['web', 'auth', 'throttle:60,1'])->group(function () {
     Route::get('/sound-ideas', [DailySoundIdeaController::class, 'index'])->name('api.sound-ideas.index');
     Route::post('/sound-ideas/{idea}/toggle', [DailySoundIdeaController::class, 'toggle'])->name('api.sound-ideas.toggle');
     Route::post('/sound-ideas/{idea}/dismiss', [DailySoundIdeaController::class, 'dismiss'])->name('api.sound-ideas.dismiss');
+});
+
+// Wiki.js OAuth2 SSO
+Route::prefix('internal/wiki/oauth')->middleware(['throttle:10,1'])->group(function () {
+    Route::get('/authorize', [WikiOAuthController::class, 'authorize'])
+        ->middleware('web')
+        ->name('api.internal.wiki.oauth.authorize');
+    Route::post('/token', [WikiOAuthController::class, 'token'])
+        ->name('api.internal.wiki.oauth.token');
+    Route::get('/user', [WikiOAuthController::class, 'user'])
+        ->name('api.internal.wiki.oauth.user');
 });

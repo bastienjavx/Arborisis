@@ -6,6 +6,7 @@ namespace App\Jobs\Scientific;
 
 use App\Models\Sound;
 use App\Services\Scientific\ListeningPointService;
+use App\Services\Scientific\OpenMeteoEnvironmentalDataService;
 use App\Services\Scientific\ScientificMetricService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -26,6 +27,7 @@ class ComputeScientificMetricsJob implements ShouldQueue
     public function handle(
         ScientificMetricService $metricService,
         ListeningPointService $pointService,
+        OpenMeteoEnvironmentalDataService $weatherService,
     ): void {
         $sound = Sound::with(['soundAnalysis.birdnetDetections', 'tags', 'listeningPoint'])
             ->findOrFail($this->soundId);
@@ -33,6 +35,9 @@ class ComputeScientificMetricsJob implements ShouldQueue
         if (! $sound->isPublic()) {
             return;
         }
+
+        // Enrichissement serveur uniquement avec coordonnées publiques/obfusquées.
+        $weatherService->enrichSound($sound);
 
         // 1. Métriques du son
         $metricService->computeAllForSound($sound);

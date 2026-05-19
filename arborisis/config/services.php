@@ -110,8 +110,50 @@ return [
 
     'openrouter' => [
         'api_key' => env('OPENROUTER_API_KEY'),
-        'model' => env('OPENROUTER_MODEL', 'openai/gpt-4o-mini'),
+        'model' => env('OPENROUTER_MODEL', 'anthropic/claude-opus-4.7'),
         'base_url' => env('OPENROUTER_BASE_URL', 'https://openrouter.ai/api/v1'),
+        'max_tool_steps' => (int) env('OPENROUTER_MAX_TOOL_STEPS', 10),
+        'timeout' => (int) env('OPENROUTER_TIMEOUT', 60),
+    ],
+
+    'brave_search' => [
+        'api_key' => env('BRAVE_SEARCH_API_KEY'),
+    ],
+
+    'arborisis_agent' => [
+        'worker_url' => env('ARBORISIS_AGENT_WORKER_URL'),
+        'token' => env('ARBORISIS_AGENT_TOKEN'),
+        'timeout' => env('ARBORISIS_AGENT_TIMEOUT', 45),
+        'memory_disk' => env('ARBORISIS_AGENT_MEMORY_DISK', 'local'),
+        'memory_path' => env('ARBORISIS_AGENT_MEMORY_PATH', 'agent-memory'),
+        'rate_limit_per_minute' => (int) env('ARBORISIS_AGENT_RATE_LIMIT_PER_MINUTE', 6),
+        'guest_rate_limit_per_minute' => (int) env('ARBORISIS_AGENT_GUEST_RATE_LIMIT_PER_MINUTE', 3),
+        'daily_quota' => (int) env('ARBORISIS_AGENT_DAILY_QUOTA', 60),
+        'guest_daily_quota' => (int) env('ARBORISIS_AGENT_GUEST_DAILY_QUOTA', 15),
+    ],
+
+    'nominatim' => [
+        'enabled' => env('NOMINATIM_ENABLED', true),
+        'url' => env('NOMINATIM_URL', 'https://nominatim.openstreetmap.org/search'),
+        'timeout' => (int) env('NOMINATIM_TIMEOUT', 8),
+        'user_agent' => env('NOMINATIM_USER_AGENT', env('APP_NAME', 'Arborisis').'/1.0'),
+        'infer_sound_walk_waypoints' => env('NOMINATIM_INFER_SOUND_WALK_WAYPOINTS', true),
+    ],
+
+    'osrm' => [
+        'enabled' => env('OSRM_ENABLED', true),
+        'base_url' => env('OSRM_BASE_URL', 'https://routing.openstreetmap.de/routed-foot'),
+        'profile' => env('OSRM_PROFILE', 'foot'),
+        'timeout' => (int) env('OSRM_TIMEOUT', 10),
+        'user_agent' => env('OSRM_USER_AGENT', env('APP_NAME', 'Arborisis').'/1.0'),
+    ],
+
+    'open_meteo' => [
+        'enabled' => env('OPEN_METEO_ENABLED', true),
+        'archive_url' => env('OPEN_METEO_ARCHIVE_URL', 'https://archive-api.open-meteo.com/v1/archive'),
+        'forecast_url' => env('OPEN_METEO_FORECAST_URL', 'https://api.open-meteo.com/v1/forecast'),
+        'timeout' => env('OPEN_METEO_TIMEOUT', 8),
+        'current_refresh_minutes' => env('OPEN_METEO_CURRENT_REFRESH_MINUTES', 15),
     ],
 
 ];

@@ -359,7 +359,7 @@ PROMPT;
     public function generateFlashScript(array $context): ?array
     {
         $apiKey = config('services.openrouter.api_key');
-        $model = config('radio.host.ai_model', 'anthropic/claude-sonnet-4.6');
+        $model = config('radio.host.ai_model', 'anthropic/claude-opus-4.7');
         $baseUrl = rtrim(config('services.openrouter.base_url', self::BASE_URL), '/');
 
         if (empty($apiKey)) {
@@ -544,7 +544,7 @@ PROMPT;
     public function generateEmissionScript(array $sounds, array $context): ?array
     {
         $apiKey = config('services.openrouter.api_key');
-        $model = config('radio.host.ai_model', 'anthropic/claude-sonnet-4.6');
+        $model = config('radio.host.ai_model', 'anthropic/claude-opus-4.7');
         $baseUrl = rtrim(config('services.openrouter.base_url', self::BASE_URL), '/');
 
         if (empty($apiKey)) {
@@ -736,7 +736,7 @@ PROMPT;
     public function generateRadioProductionPlan(array $metadata): ?array
     {
         $apiKey = config('services.openrouter.api_key');
-        $model = config('radio.production.ai_model', config('radio.host.ai_model', 'anthropic/claude-sonnet-4.6'));
+        $model = config('radio.production.ai_model', config('radio.host.ai_model', 'anthropic/claude-opus-4.7'));
         $baseUrl = rtrim(config('services.openrouter.base_url', self::BASE_URL), '/');
 
         if (empty($apiKey)) {

@@ -10,6 +10,7 @@ use App\Models\BirdnetDetection;
 use App\Models\Sound;
 use App\Models\SoundAnalysis;
 use App\Models\SoundFile;
+use App\Services\Scientific\ListeningPointService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -17,6 +18,8 @@ class AudioAnalysisCallbackService
 {
     public function __construct(
         private readonly BirdnetDetectionFilterService $detectionFilter,
+        private readonly ListeningPointService $listeningPointService,
+        private readonly BirdnetTagSyncService $tagSyncService,
     ) {}
     /**
      * Traite le callback du service Python Analyzer.
@@ -106,6 +109,13 @@ class AudioAnalysisCallbackService
 
         // Crée/met à jour les détections BirdNET
         $this->syncBirdnetDetections($analysis, $sound, $results['birdnet_detections'] ?? []);
+
+        // Génère les tags auto à partir des détections
+        $this->tagSyncService->sync($sound, $results['birdnet_detections'] ?? []);
+
+        if ($sound->listening_point_id) {
+            $this->listeningPointService->refreshPointStats($sound->listeningPoint()->firstOrFail());
+        }
 
         event(new AudioAnalysisCompleted($analysis, $sound));
 

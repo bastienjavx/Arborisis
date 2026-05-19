@@ -1,7 +1,7 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
-import { ref, onMounted, onUnmounted, defineAsyncComponent } from 'vue';
+import { computed, ref, onMounted, onUnmounted, defineAsyncComponent } from 'vue';
 import { useParallax } from '@/Composables/useParallax.js';
 import ParticleField from '@/Components/Three/ParticleField.vue';
 import NatureScene from '@/Components/Three/NatureScene.vue';
@@ -76,6 +76,33 @@ const categories = ref([
     { name: 'Crépuscule', count: 0, color: 'bg-amber-500/20 text-amber-400' },
 ]);
 
+const atlasPillars = ref([
+    {
+        kicker: 'Explorer',
+        title: 'Carte vivante',
+        description: 'Des traces sonores approximées, filtrées par biomes, saisons et espèces, sans exposer les coordonnées sensibles.',
+    },
+    {
+        kicker: 'Écouter',
+        title: 'Archives précieuses',
+        description: 'Chaque enregistrement devient une fiche de terrain : contexte, lieu, heure, météo, espèces et signal audio.',
+    },
+    {
+        kicker: 'Documenter',
+        title: 'Laboratoire du vivant',
+        description: 'Des visualisations scientifiques lisibles pour observer la biodiversité sonore dans le temps.',
+    },
+]);
+
+const scientificSignals = ref([
+    'Densité sonore',
+    'Saisons',
+    'Espèces détectées',
+    'Météo',
+    'Habitats',
+    'Évolution du lieu',
+]);
+
 const mapSounds = ref([]);
 const mapLoading = ref(true);
 const mapError = ref(false);
@@ -90,6 +117,52 @@ const statsVisible = ref(false);
 let statsObserver = null;
 
 const prefersReducedMotion = ref(false);
+
+const normalizeHeroSound = (sound) => {
+    if (!sound) return null;
+
+    if (sound.properties) {
+        return {
+            id: sound.properties.id,
+            title: sound.properties.title,
+            slug: sound.properties.slug,
+            duration: sound.properties.duration,
+            category: sound.properties.category,
+            location: sound.properties.location_name,
+            user: sound.properties.user_name,
+            recordedAt: sound.properties.recorded_at,
+        };
+    }
+
+    return {
+        id: sound.id,
+        title: sound.title,
+        slug: sound.slug,
+        duration: sound.duration,
+        category: sound.category?.name || sound.category,
+        location: sound.sound_location?.location_name || sound.location_name,
+        user: sound.user_name || sound.user?.name,
+        recordedAt: sound.recorded_at || sound.created_at,
+    };
+};
+
+const heroTrace = computed(() => {
+    return normalizeHeroSound(featuredSounds.value[0] || mapSounds.value[0]);
+});
+
+const heroTraceCode = computed(() => {
+    if (!heroTrace.value?.id) return 'ARB-LIVE';
+    const rawDate = heroTrace.value.recordedAt || new Date().toISOString();
+    const year = new Date(rawDate).getFullYear();
+    return `ARB-${year}-${String(heroTrace.value.id).padStart(4, '0')}`;
+});
+
+const formatDuration = (seconds) => {
+    if (!seconds) return '--:--';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+};
 
 const animateCount = (target, key, duration = 1500) => {
     if (prefersReducedMotion.value) {
@@ -110,10 +183,6 @@ const animateCount = (target, key, duration = 1500) => {
 };
 
 const loadFeaturedSounds = async () => {
-    if (featuredSounds.value.length > 0) {
-        soundsLoading.value = false;
-        return;
-    }
     try {
         const response = await fetch('/api/sounds/featured');
         if (!response.ok) throw new Error('Failed to fetch sounds');
@@ -126,10 +195,6 @@ const loadFeaturedSounds = async () => {
 };
 
 const loadFeaturedCreators = async () => {
-    if (featuredCreators.value.length > 0) {
-        creatorsLoading.value = false;
-        return;
-    }
     try {
         const response = await fetch('/api/creators/featured');
         if (!response.ok) throw new Error('Failed to fetch creators');
@@ -182,10 +247,10 @@ const loadMapSounds = async () => {
 </script>
 
 <template>
-    <Head title="L'archive sonore du monde vivant" />
+    <Head title="Le vivant s'écoute" />
     <GuestLayout>
         <!-- Hero Section -->
-        <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <section class="relative flex min-h-screen items-center overflow-hidden">
             <!-- Cinematic nature photograph background -->
             <img
                 src="/images/hero-leaf.webp"
@@ -213,7 +278,7 @@ const loadMapSounds = async () => {
             />
 
             <!-- Hero glow -->
-            <div class="absolute inset-0 bg-hero-glow opacity-40" />
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_18%,rgba(215,180,106,0.18),transparent_28rem),radial-gradient(circle_at_75%_62%,rgba(143,230,193,0.1),transparent_24rem)] opacity-80" />
 
             <!-- Floating particles effect (Three.js) -->
             <ParticleField />
@@ -223,30 +288,95 @@ const loadMapSounds = async () => {
                 style="background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);"
             />
 
-            <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <h1 class="font-display text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-arbor-cream leading-tight mb-6 animate-slide-up">
-                    L'archive sonore<br />
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-arbor-emerald to-arbor-moss">du monde vivant</span>
-                </h1>
+            <div class="relative z-10 mx-auto grid max-w-7xl items-center gap-12 px-4 pb-16 pt-28 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
+                <div>
+                    <p class="atlas-kicker mb-5 animate-slide-up">Atlas acoustique du vivant</p>
+                    <h1 class="atlas-heading mb-6 max-w-4xl text-6xl sm:text-7xl lg:text-8xl animate-slide-up">
+                        Le vivant<br />
+                        s'écoute.
+                    </h1>
 
-                <p class="text-lg sm:text-xl text-arbor-sage max-w-2xl mx-auto mb-10 leading-relaxed animate-slide-up" style="animation-delay: 0.1s">
-                    Explorez, écoutez et préservez les sons de la nature, capturés par une communauté de field recorders passionnés.
-                </p>
+                    <p class="max-w-2xl text-lg leading-8 text-arbor-sage sm:text-xl animate-slide-up" style="animation-delay: 0.1s">
+                        Explorez les sons naturels du monde comme des traces vivantes : lieux, espèces, saisons et mémoires audio capturés par une communauté de créateurs naturalistes.
+                    </p>
 
-                <div class="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up" style="animation-delay: 0.2s">
+                    <div class="mt-10 flex flex-col gap-4 sm:flex-row animate-slide-up" style="animation-delay: 0.2s">
                     <Link href="/map" class="btn-primary text-base px-8 py-4 w-full sm:w-auto group">
                         <svg class="w-5 h-5 mr-2 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
                         </svg>
-                        Explorer la carte sonore
+                        Explorer la carte
                     </Link>
-                    <Link href="/sounds" class="btn-secondary text-base px-8 py-4 w-full sm:w-auto group">
+                    <Link :href="route('sounds.create')" class="btn-secondary text-base px-8 py-4 w-full sm:w-auto group">
                         <svg class="w-5 h-5 mr-2 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        Écouter les derniers sons
+                        Publier une trace
                     </Link>
+                    </div>
+
+                    <div class="mt-12 grid grid-cols-3 gap-3 max-w-xl animate-slide-up" style="animation-delay: 0.28s">
+                        <div class="field-stat">
+                            <div class="font-mono text-2xl text-arbor-cream tabular-nums">{{ props.stats.sounds }}+</div>
+                            <div class="mt-1 text-[11px] uppercase tracking-[0.16em] text-arbor-sage">sons</div>
+                        </div>
+                        <div class="field-stat">
+                            <div class="font-mono text-2xl text-arbor-cream tabular-nums">{{ props.stats.creators }}+</div>
+                            <div class="mt-1 text-[11px] uppercase tracking-[0.16em] text-arbor-sage">créateurs</div>
+                        </div>
+                        <div class="field-stat">
+                            <div class="font-mono text-2xl text-arbor-cream tabular-nums">{{ props.stats.countries }}+</div>
+                            <div class="mt-1 text-[11px] uppercase tracking-[0.16em] text-arbor-sage">pays</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="trace-frame hidden min-h-[520px] p-5 lg:block animate-slide-up" style="animation-delay: 0.18s">
+                    <div class="relative z-10 flex h-full flex-col justify-between">
+                        <div class="flex items-center justify-between">
+                            <span class="atlas-kicker">Trace de l'atlas</span>
+                            <span class="rounded-full border border-arbor-firefly/20 bg-arbor-firefly/10 px-3 py-1 font-mono text-[11px] text-arbor-firefly">
+                                {{ heroTraceCode }}
+                            </span>
+                        </div>
+                        <div class="my-10 grid flex-1 place-items-center">
+                            <div class="sound-trace grid h-64 w-64 place-items-center rounded-full border border-arbor-mineral/10 bg-arbor-forest/50">
+                                <div class="grid h-36 w-36 place-items-center rounded-full border border-arbor-lichen/20 bg-arbor-lichen/10">
+                                    <div class="trace-wave h-16">
+                                        <span></span><span></span><span></span><span></span><span></span><span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="rounded-lg border border-arbor-mineral/10 bg-arbor-ink/40 p-4">
+                                <div class="text-xs text-arbor-sage">Son publié</div>
+                                <Link
+                                    v-if="heroTrace?.slug"
+                                    :href="route('sounds.show', heroTrace.slug)"
+                                    class="mt-1 block truncate font-display text-xl text-arbor-cream transition-colors hover:text-arbor-lichen"
+                                >
+                                    {{ heroTrace.title }}
+                                </Link>
+                                <div v-else class="mt-1 font-display text-xl text-arbor-cream">
+                                    {{ mapLoading || soundsLoading ? 'Chargement...' : 'Aucune trace disponible' }}
+                                </div>
+                            </div>
+                            <div class="rounded-lg border border-arbor-mineral/10 bg-arbor-ink/40 p-4">
+                                <div class="text-xs text-arbor-sage">
+                                    {{ heroTrace?.location ? 'Lieu public' : 'Signal' }}
+                                </div>
+                                <div class="mt-1 truncate font-mono text-xl text-arbor-firefly">
+                                    {{ heroTrace?.location || formatDuration(heroTrace?.duration) }}
+                                </div>
+                            </div>
+                        </div>
+                        <div v-if="heroTrace?.category || heroTrace?.user" class="mt-3 flex items-center justify-between gap-3 rounded-lg border border-arbor-mineral/10 bg-arbor-ink/30 px-4 py-3 text-xs text-arbor-sage">
+                            <span class="truncate">{{ heroTrace.category || 'Archive sonore' }}</span>
+                            <span class="truncate">{{ heroTrace.user || 'Créateur Arborisis' }}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -261,27 +391,24 @@ const loadMapSounds = async () => {
             </div>
         </section>
 
-        <!-- Stats Section -->
-        <section id="stats-section" class="py-20 border-y border-arbor-glass-border bg-arbor-deep/50">
+        <!-- Atlas Pillars -->
+        <section id="stats-section" class="border-y border-arbor-mineral/10 bg-arbor-ink/40 py-20">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-8">
-                    <div class="text-center group">
-                        <div class="font-display text-4xl font-bold text-arbor-emerald mb-2 transition-transform duration-300 group-hover:scale-110">
-                            {{ animatedStats.sounds }}+
+                <div class="mb-10 max-w-3xl">
+                    <p class="atlas-kicker mb-3">Explorer le vivant par le son</p>
+                    <h2 class="atlas-heading text-4xl sm:text-5xl">Une carte, une archive, un laboratoire.</h2>
+                </div>
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                    <div
+                        v-for="pillar in atlasPillars"
+                        :key="pillar.title"
+                        class="trace-frame p-6"
+                    >
+                        <div class="relative z-10">
+                            <p class="atlas-kicker mb-5">{{ pillar.kicker }}</p>
+                            <h3 class="font-display text-2xl font-semibold text-arbor-cream">{{ pillar.title }}</h3>
+                            <p class="mt-4 text-sm leading-6 text-arbor-sage">{{ pillar.description }}</p>
                         </div>
-                        <div class="text-arbor-sage text-sm">Sons naturels</div>
-                    </div>
-                    <div class="text-center group">
-                        <div class="font-display text-4xl font-bold text-arbor-emerald mb-2 transition-transform duration-300 group-hover:scale-110">
-                            {{ animatedStats.creators }}+
-                        </div>
-                        <div class="text-arbor-sage text-sm">Créateurs</div>
-                    </div>
-                    <div class="text-center group">
-                        <div class="font-display text-4xl font-bold text-arbor-emerald mb-2 transition-transform duration-300 group-hover:scale-110">
-                            {{ animatedStats.countries }}+
-                        </div>
-                        <div class="text-arbor-sage text-sm">Pays</div>
                     </div>
                 </div>
             </div>
@@ -290,12 +417,13 @@ const loadMapSounds = async () => {
         <!-- Audio Demo Section -->
         <section class="py-24">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div ref="audioDemoTitle.elementRef" :style="audioDemoTitle.style.value" class="text-center mb-16">
-                    <h2 class="font-display text-3xl sm:text-4xl font-bold text-arbor-cream mb-4">
-                        Écoutez avant d'explorer
+                <div ref="audioDemoTitle.elementRef" :style="audioDemoTitle.style.value" class="mb-14 max-w-3xl">
+                    <p class="atlas-kicker mb-3">Fragments de territoire</p>
+                    <h2 class="atlas-heading text-4xl sm:text-5xl">
+                        Des sons traités comme des archives vivantes.
                     </h2>
-                    <p class="text-arbor-sage max-w-xl mx-auto">
-                        Une sélection de sons récents pour vous transporter immédiatement dans la nature.
+                    <p class="mt-5 text-arbor-sage max-w-2xl leading-7">
+                        Chaque carte porte une trace : durée, créateur, contexte et empreinte visuelle du signal.
                     </p>
                 </div>
 
@@ -354,16 +482,15 @@ const loadMapSounds = async () => {
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                     <div>
-                        <h2 class="font-display text-3xl sm:text-4xl font-bold text-arbor-cream mb-6">
-                            Explorez le monde<br />à travers le son
+                        <p class="atlas-kicker mb-4">Carte vivante</p>
+                        <h2 class="atlas-heading text-4xl sm:text-5xl mb-6">
+                            Le monde devient audible.
                         </h2>
                         <p class="text-arbor-sage mb-8 leading-relaxed">
-                            Chaque point sur la carte représente un moment capturé dans la nature :
-                            le chant d'un oiseau à l'aube, le murmure d'une rivière, le vent dans les cimes.
-                            Naviguez, filtrez et plongez dans l'acoustique des paysages.
+                            Chaque point représente un moment capturé : chant à l'aube, rivière en crue, vent dans les cimes. Les coordonnées publiques restent approximées pour protéger les lieux sensibles.
                         </p>
                         <div class="flex flex-wrap gap-3 mb-8">
-                            <span v-for="cat in categories" :key="cat.name" class="px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 hover:scale-105 cursor-pointer select-none" :class="cat.color">
+                            <span v-for="cat in categories" :key="cat.name" class="rounded-full border border-arbor-mineral/10 bg-arbor-mist/5 px-3 py-1.5 text-xs font-medium text-arbor-sage transition-all duration-200 hover:border-arbor-lichen/30 hover:text-arbor-cream cursor-pointer select-none">
                                 {{ cat.name }}
                             </span>
                         </div>
@@ -374,7 +501,7 @@ const loadMapSounds = async () => {
                             </svg>
                         </Link>
                     </div>
-                    <div class="glass-card aspect-[16/9] relative overflow-hidden rounded-2xl border border-arbor-glass-border hover-lift group">
+                    <div class="trace-frame aspect-[16/10] relative overflow-hidden hover-lift group">
                         <div v-if="mapLoading" class="absolute inset-0 flex flex-col items-center justify-center bg-arbor-deep/80 z-10">
                             <div class="w-10 h-10 border-2 border-arbor-emerald/30 border-t-arbor-emerald rounded-full animate-spin mb-4"></div>
                             <p class="text-arbor-sage text-sm">Chargement de la carte...</p>
@@ -386,7 +513,7 @@ const loadMapSounds = async () => {
                             :initial-center="[25, 10]"
                         />
                         <!-- Overlay for seamless blend -->
-                        <div class="absolute inset-0 pointer-events-none rounded-2xl ring-1 ring-inset ring-white/5"></div>
+                        <div class="absolute inset-0 pointer-events-none rounded-xl ring-1 ring-inset ring-white/5"></div>
                         <!-- Hover overlay -->
                         <Link
                             href="/map"
@@ -396,6 +523,46 @@ const loadMapSounds = async () => {
                                 Ouvrir la carte en plein écran
                             </span>
                         </Link>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Scientific Section -->
+        <section class="relative overflow-hidden py-24">
+            <div class="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_18%_20%,rgba(120,214,214,0.08),transparent_24rem)]"></div>
+            <div class="relative mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
+                <div>
+                    <p class="atlas-kicker mb-4">Laboratoire naturaliste</p>
+                    <h2 class="atlas-heading text-4xl sm:text-5xl">
+                        Beau à écouter. Sérieux à analyser.
+                    </h2>
+                    <p class="mt-6 max-w-xl text-arbor-sage leading-7">
+                        Arborisis relie l'émotion du terrain à des données exploitables : spectres, biodiversité sonore, variations saisonnières et comparaisons d'un même lieu.
+                    </p>
+                    <Link href="/scientific-stats" class="btn-secondary mt-8">
+                        Ouvrir les données scientifiques
+                    </Link>
+                </div>
+
+                <div class="trace-frame p-6">
+                    <div class="relative z-10">
+                        <div class="mb-6 flex items-center justify-between">
+                            <span class="atlas-kicker">Signaux observés</span>
+                            <span class="font-mono text-xs text-arbor-sage">public / anonymisé</span>
+                        </div>
+                        <div class="grid gap-3 sm:grid-cols-2">
+                            <div
+                                v-for="signal in scientificSignals"
+                                :key="signal"
+                                class="rounded-lg border border-arbor-mineral/10 bg-arbor-mist/[0.04] p-4"
+                            >
+                                <div class="trace-wave mb-4 h-9 opacity-80">
+                                    <span></span><span></span><span></span><span></span><span></span><span></span>
+                                </div>
+                                <div class="text-sm font-medium text-arbor-cream">{{ signal }}</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

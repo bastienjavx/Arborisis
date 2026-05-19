@@ -30,13 +30,24 @@ const formatDate = (dateString) => {
         minute: '2-digit',
     });
 };
+
+const getAvatarUrl = (user) => {
+    return user?.avatar_url || user?.profile?.avatar_url || user?.profile?.avatarUrl || null;
+};
 </script>
 
 <template>
     <div class="space-y-3">
         <div class="flex gap-3">
-            <div class="w-8 h-8 rounded-full bg-arbor-moss/30 flex items-center justify-center shrink-0">
-                <span class="text-xs font-bold text-arbor-emerald">
+            <div class="w-8 h-8 overflow-hidden rounded-full bg-arbor-moss/30 flex items-center justify-center shrink-0">
+                <img
+                    v-if="getAvatarUrl(comment.user)"
+                    :src="getAvatarUrl(comment.user)"
+                    :alt="`Avatar de ${comment.user?.name ?? 'Anonyme'}`"
+                    class="h-full w-full object-cover"
+                    loading="lazy"
+                />
+                <span v-else class="text-xs font-bold text-arbor-emerald">
                     {{ comment.user?.name?.charAt(0)?.toUpperCase() ?? '?' }}
                 </span>
             </div>
@@ -80,8 +91,15 @@ const formatDate = (dateString) => {
         <!-- Replies -->
         <div v-if="showReplies && comment.replies?.length > 0" class="ml-11 space-y-3">
             <div v-for="reply in comment.replies" :key="reply.id" class="flex gap-3">
-                <div class="w-6 h-6 rounded-full bg-arbor-moss/20 flex items-center justify-center shrink-0">
-                    <span class="text-xs font-bold text-arbor-emerald">
+                <div class="w-6 h-6 overflow-hidden rounded-full bg-arbor-moss/20 flex items-center justify-center shrink-0">
+                    <img
+                        v-if="getAvatarUrl(reply.user)"
+                        :src="getAvatarUrl(reply.user)"
+                        :alt="`Avatar de ${reply.user?.name ?? 'Anonyme'}`"
+                        class="h-full w-full object-cover"
+                        loading="lazy"
+                    />
+                    <span v-else class="text-xs font-bold text-arbor-emerald">
                         {{ reply.user?.name?.charAt(0)?.toUpperCase() ?? '?' }}
                     </span>
                 </div>
