@@ -15,14 +15,14 @@
 ```env
 AUDIO_DISK=r2
 
-R2_ACCESS_KEY_ID=<redacted>
-R2_SECRET_ACCESS_KEY=<redacted>
+R2_ACCESS_KEY_ID=<your-r2-access-key-id>
+R2_SECRET_ACCESS_KEY=<your-r2-secret-access-key>
 R2_DEFAULT_REGION=auto
-R2_BUCKET=<redacted>
-R2_ENDPOINT=<redacted>
+R2_BUCKET=<your-r2-bucket>
+R2_ENDPOINT=https://<account-id>.r2.cloudflarestorage.com
 R2_USE_PATH_STYLE_ENDPOINT=true
-R2_URL=https://storage.<redacted>.com
-R2_SIGNING_KEY=<redacted>=
+R2_URL=https://<public-r2-domain>
+R2_SIGNING_KEY=<generate-a-long-random-signing-key>
 ```
 
 ## Custom domain & Worker
