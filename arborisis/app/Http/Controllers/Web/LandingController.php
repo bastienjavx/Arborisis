@@ -8,56 +8,74 @@ use App\Http\Controllers\Controller;
 use App\Models\Sound;
 use App\Models\SoundLocation;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class LandingController extends Controller
 {
+    private const CACHE_TTL = 300; // 5 minutes
+
     public function index(): Response
     {
-        $soundsCount = Sound::public()->count();
+        $stats = Cache::remember('landing:stats', self::CACHE_TTL, function (): array {
+            return [
+                'sounds' => Sound::public()->count(),
+                'creators' => User::whereHas('sounds', function ($query): void {
+                    $query->public();
+                })->count(),
+                'countries' => SoundLocation::whereHas('sound', function ($query): void {
+                    $query->public();
+                })
+                    ->whereNotNull('location_name')
+                    ->distinct()
+                    ->count('location_name'),
+            ];
+        });
 
-        $creatorsCount = User::whereHas('sounds', function ($query): void {
-            $query->public();
-        })->count();
+        $featuredSounds = Cache::remember('landing:featured_sounds', self::CACHE_TTL, function (): array {
+            return Sound::public()
+                ->with(['user', 'category', 'soundFile'])
+                ->latest()
+                ->take(6)
+                ->get()
+                ->map(fn (Sound $sound) => [
+                    'id' => $sound->id,
+                    'slug' => $sound->slug,
+                    'title' => $sound->title,
+                    'user_name' => $sound->user->name,
+                    'audio_url' => $sound->audio_url,
+                    'cover_url' => $sound->cover_url,
+                    'duration' => $sound->duration,
+                    'play_count' => $sound->play_count,
+                    'like_count' => $sound->like_count,
+                    'category' => $sound->category?->only('id', 'name'),
+                ])
+                ->toArray();
+        });
 
-        $countriesCount = SoundLocation::whereHas('sound', function ($query): void {
-            $query->public();
-        })
-            ->whereNotNull('location_name')
-            ->distinct()
-            ->count('location_name');
+        $featuredCreators = Cache::remember('landing:featured_creators', self::CACHE_TTL, function (): array {
+            $creators = User::whereHas('sounds', function ($query): void {
+                $query->public();
+            })
+                ->with('profile')
+                ->withCount(['sounds' => fn ($q) => $q->public()])
+                ->withSum(['sounds as total_plays' => fn ($q) => $q->public()], 'play_count')
+                ->orderByDesc('sounds_count')
+                ->take(3)
+                ->get();
 
-        // Featured sounds for the landing audio demo section
-        $featuredSounds = Sound::public()
-            ->with(['user', 'category', 'soundFile'])
-            ->latest()
-            ->take(6)
-            ->get()
-            ->map(fn (Sound $sound) => [
-                'id' => $sound->id,
-                'slug' => $sound->slug,
-                'title' => $sound->title,
-                'user_name' => $sound->user->name,
-                'audio_url' => $sound->audio_url,
-                'cover_url' => $sound->cover_url,
-                'duration' => $sound->duration,
-                'play_count' => $sound->play_count,
-                'like_count' => $sound->like_count,
-                'category' => $sound->category?->only('id', 'name'),
-            ]);
+            // Pre-load popular sounds to avoid N+1
+            $creatorIds = $creators->pluck('id')->all();
+            $popularSounds = Sound::public()
+                ->with('soundFile')
+                ->whereIn('user_id', $creatorIds)
+                ->orderByDesc('play_count')
+                ->get()
+                ->groupBy('user_id')
+                ->map(fn ($sounds) => $sounds->first());
 
-        // Featured creators for the landing creators section
-        $featuredCreators = User::whereHas('sounds', function ($query): void {
-            $query->public();
-        })
-            ->with('profile')
-            ->withCount(['sounds' => fn ($q) => $q->public()])
-            ->withSum(['sounds as total_plays' => fn ($q) => $q->public()], 'play_count')
-            ->orderByDesc('sounds_count')
-            ->take(3)
-            ->get()
-            ->map(fn (User $user) => [
+            return $creators->map(fn (User $user) => [
                 'id' => $user->id,
                 'slug' => $user->slug,
                 'name' => $user->name,
@@ -65,31 +83,16 @@ class LandingController extends Controller
                 'location' => $user->location,
                 'sounds_count' => $user->sounds_count,
                 'total_plays' => $user->total_plays ?? 0,
-            ]);
-
-        // Attach each creator's most popular sound as featured
-        $featuredCreators = $featuredCreators->map(function ($creator) {
-            $popularSound = Sound::public()
-                ->with('soundFile')
-                ->where('user_id', $creator['id'])
-                ->orderByDesc('play_count')
-                ->first();
-
-            $creator['featured_sound'] = $popularSound ? [
-                'slug' => $popularSound->slug,
-                'title' => $popularSound->title,
-                'cover_url' => $popularSound->cover_url,
-            ] : null;
-
-            return $creator;
+                'featured_sound' => $popularSounds->has($user->id) ? [
+                    'slug' => $popularSounds[$user->id]->slug,
+                    'title' => $popularSounds[$user->id]->title,
+                    'cover_url' => $popularSounds[$user->id]->cover_url,
+                ] : null,
+            ])->toArray();
         });
 
         return Inertia::render('Landing', [
-            'stats' => [
-                'sounds' => $soundsCount,
-                'creators' => $creatorsCount,
-                'countries' => $countriesCount,
-            ],
+            'stats' => $stats,
             'featuredSounds' => $featuredSounds,
             'featuredCreators' => $featuredCreators,
         ]);

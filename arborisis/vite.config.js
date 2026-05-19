@@ -47,12 +47,14 @@ export default defineConfig({
         },
     },
     build: {
+        cssCodeSplit: true,
+        sourcemap: false,
         rollupOptions: {
             output: {
                 manualChunks(id) {
-                    // Isolate heavy vendors into separate chunks
+                    // Isolate heavy vendors into separate chunks for parallel loading
                     if (id.includes('node_modules')) {
-                        if (id.includes('leaflet') || id.includes('markercluster')) {
+                        if (id.includes('leaflet') || id.includes('markercluster') || id.includes('vue-leaflet')) {
                             return 'leaflet';
                         }
                         if (id.includes('inertiajs')) {
@@ -73,10 +75,39 @@ export default defineConfig({
                         if (id.includes('three')) {
                             return 'threejs';
                         }
+                        if (id.includes('wavesurfer')) {
+                            return 'audio';
+                        }
+                        if (id.includes('plotly')) {
+                            return 'charts';
+                        }
+                        if (id.includes('laravel-echo') || id.includes('pusher')) {
+                            return 'realtime';
+                        }
+                        if (id.includes('tailwindcss')) {
+                            return 'tailwind';
+                        }
                         return 'vendor';
                     }
                 },
+                assetFileNames: (assetInfo) => {
+                    const info = assetInfo.name.split('.');
+                    const ext = info[info.length - 1];
+                    if (/\.(woff2?|ttf|otf|eot)$/i.test(assetInfo.name)) {
+                        return 'assets/fonts/[name]-[hash][extname]';
+                    }
+                    if (/\.(png|jpe?g|gif|svg|webp|ico)$/i.test(assetInfo.name)) {
+                        return 'assets/images/[name]-[hash][extname]';
+                    }
+                    return 'assets/[name]-[hash][extname]';
+                },
+                chunkFileNames: 'assets/js/[name]-[hash].js',
+                entryFileNames: 'assets/js/[name]-[hash].js',
             },
         },
+        reportCompressedSize: false,
+    },
+    esbuild: {
+        drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
     },
 });
