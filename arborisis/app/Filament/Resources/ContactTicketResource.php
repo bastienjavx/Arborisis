@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources;
 
+use App\Enums\ContactTicketCategory;
+use App\Enums\ContactTicketPriority;
 use App\Enums\ContactTicketReplySource;
 use App\Enums\ContactTicketStatus;
 use App\Enums\ContactTicketType;
+use App\Enums\UserRole;
 use App\Filament\Resources\ContactTicketResource\Pages;
 use App\Models\ContactTicket;
+use App\Models\User;
+use App\Services\Helpdesk\HelpdeskService;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -30,56 +35,102 @@ class ContactTicketResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('type')
-                    ->label('Type')
-                    ->options(
-                        collect(ContactTicketType::cases())
-                            ->mapWithKeys(fn (ContactTicketType $type) => [$type->value => $type->label()])
-                            ->toArray()
-                    )
-                    ->disabled()
-                    ->required(),
-                Forms\Components\TextInput::make('ticket_number')
-                    ->label('Numéro de suivi')
-                    ->disabled(),
-                Forms\Components\TextInput::make('name')
-                    ->label('Nom')
-                    ->disabled(),
-                Forms\Components\TextInput::make('email')
-                    ->label('E-mail')
-                    ->disabled(),
-                Forms\Components\TextInput::make('subject')
-                    ->label('Sujet')
-                    ->disabled(),
-                Forms\Components\Textarea::make('message')
-                    ->label('Message')
-                    ->disabled()
-                    ->columnSpanFull(),
-                Forms\Components\Select::make('status')
-                    ->label('Statut')
-                    ->options(
-                        collect(ContactTicketStatus::cases())
-                            ->mapWithKeys(fn (ContactTicketStatus $status) => [$status->value => $status->label()])
-                            ->toArray()
-                    )
-                    ->required(),
+                Forms\Components\Section::make('Informations du ticket')
+                    ->schema([
+                        Forms\Components\Select::make('type')
+                            ->label('Type')
+                            ->options(
+                                collect(ContactTicketType::cases())
+                                    ->mapWithKeys(fn (ContactTicketType $type) => [$type->value => $type->label()])
+                                    ->toArray()
+                            )
+                            ->diasabled()
+                            ->required(),
+                        Forms\Components\Select::make('category')
+                            ->label('Catégorie')
+                            ->options(
+                                collect(ContactTicketCategory::cases())
+                                    ->mapWithKeys(fn (ContactTicketCategory $cat) => [$cat->value => $cat->label()])
+                                    ->toArray()
+                            )
+                            ->required(),
+                        Forms\Components\Select::make('priority')
+                            ->label('Priorité')
+                            ->options(
+                                collect(ContactTicketPriority::cases())
+                                    ->mapWithKeys(fn (ContactTicketPriority $p) => [$p->value => $p->label()])
+                                    ->toArray()
+                            )
+                            ->required(),
+                        Forms\Components\Select::make('assigned_to')
+                            ->label('Assigné à')
+                            ->options(
+                                User::whereIn('role', [UserRole::Moderator, UserRole::Admin])
+                                    ->pluck('name', 'id')
+                                    ->toArray()
+                            )
+                            ->searchable()
+                            ->prependOptionLabel('Non assigné'),
+                        Forms\Components\TextInput::make('ticket_number')
+                            ->label('Numéro de suivi')
+                            ->diasabled(),
+                        Forms\Components\TextInput::make('name')
+                            ->label('Nom')
+                            ->diasabled(),
+                        Forms\Components\TextInput::make('email')
+                            ->label('E-mail')
+                            ->diasabled(),
+                        Forms\Components\TextInput::make('subject')
+                            ->label('Sujet')
+                            ->diasabled(),
+                        Forms\Components\Textarea::make('message')
+                            ->label('Message')
+                            ->diasabled()
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(2),
+
+                Forms\Components\Section::make('Statut et résolution')
+                    ->schema([
+                        Forms\Components\Select::make('status')
+                            ->label('Statut')
+                            ->options(
+                                collect(ContactTicketStatus::cases())
+                                    ->mapWithKeys(fn (ContactTicketStatus $status) => [$status->value => $status->label()])
+                                    ->toArray()
+                            )
+                            ->required(),
+                        Forms\Components\DateTimePicker::make('resolved_at')
+                            ->label('Résolu le')
+                            ->native(false)
+                            ->diasabled(),
+                        Forms\Components\Textarea::make('internal_notes')
+                            ->label('Notes internes')
+                            ->placeholder('Notes visibles uniquement par l\'équipe...')
+                            ->rows(4)
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(2),
+
                 Forms\Components\Section::make('Historique des réponses')
                     ->visibleOn('edit')
                     ->schema([
                         Forms\Components\Placeholder::make('replies_list')
                             ->label('')
                             ->content(function (ContactTicket $record): HtmlString {
-                                if ($record->replies->isEmpty()) {
+                                $replies = $record->replies->where('is_internal', false);
+                                if ($replies->isEmpty()) {
                                     return new HtmlString('<p class="text-sm text-gray-500">Aucune réponse pour le moment.</p>');
                                 }
 
-                                $html = $record->replies->map(function ($reply) {
+                                $html = $replies->map(function ($reply) use ($record) {
                                     $author = e($reply->source === ContactTicketReplySource::Customer ? $record->name : ($reply->user?->name ?? 'Équipe Arborisis'));
                                     $date = $reply->created_at->format('d/m/Y à H:i');
                                     $message = nl2br(e($reply->reply));
+                                    $borderColor = $reply->source === ContactTicketReplySource::Customer ? 'border-gray-400' : 'border-primary-600';
 
                                     return <<<HTML
-                                    <div class="mb-4 border-l-4 border-primary-600 pl-4 py-1">
+                                    <div class="mb-4 border-l-4 {$borderColor} pl-4 py-1">
                                         <p class="text-xs font-medium text-gray-500 mb-1">{$author} — {$date}</p>
                                         <div class="text-sm text-gray-900">{$message}</div>
                                     </div>
@@ -90,12 +141,45 @@ class ContactTicketResource extends Resource
                             })
                             ->columnSpanFull(),
                     ]),
+
+                Forms\Components\Section::make('Notes internes')
+                    ->visibleOn('edit')
+                    ->schema([
+                        Forms\Components\Placeholder::make('internal_replies_list')
+                            ->label('')
+                            ->content(function (ContactTicket $record): HtmlString {
+                                $replies = $record->replies->where('is_internal', true);
+                                if ($replies->isEmpty()) {
+                                    return new HtmlString('<p class="text-sm text-gray-500">Aucune note interne.</p>');
+                                }
+
+                                $html = $replies->map(function ($reply) {
+                                    $author = e($reply->user?->name ?? 'Équipe');
+                                    $date = $reply->created_at->format('d/m/Y à H:i');
+                                    $message = nl2br(e($reply->reply));
+
+                                    return <<<HTML
+                                    <div class="mb-4 border-l-4 border-amber-500 pl-4 py-1">
+                                        <p class="text-xs font-medium text-gray-500 mb-1">{$author} — {$date}</p>
+                                        <div class="text-sm text-gray-900">{$message}</div>
+                                    </div>
+                                    HTML;
+                                })->implode('');
+
+                                return new HtmlString($html);
+                            })
+                            ->columnSpanFull(),
+                    ]),
+
                 Forms\Components\Section::make('Répondre au ticket')
                     ->visibleOn('edit')
                     ->schema([
+                        Forms\Components\Toggle::make('reply_is_internal')
+                            ->label('Note interne (non visible par le client)')
+                            ->default(false),
                         Forms\Components\Textarea::make('new_reply')
                             ->label('Nouvelle réponse')
-                            ->placeholder('Rédigez votre réponse à l\'utilisateur ici...')
+                            ->placeholder('Rédigez votre réponse ici...')
                             ->rows(6)
                             ->columnSpanFull(),
                     ]),
@@ -120,6 +204,18 @@ class ContactTicketResource extends Resource
                         ContactTicketType::Support => 'danger',
                     })
                     ->sortable(),
+                Tables\Columns\TextColumn::make('category')
+                    ->label('Catégorie')
+                    ->badge()
+                    ->formatStateUsing(fn (ContactTicketCategory $state): string => $state->label())
+                    ->color(fn (ContactTicketCategory $state): string => $state->color())
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('priority')
+                    ->label('Priorité')
+                    ->badge()
+                    ->formatStateUsing(fn (ContactTicketPriority $state): string => $state->label())
+                    ->color(fn (ContactTicketPriority $state): string => $state->color())
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nom')
                     ->searchable()
@@ -132,6 +228,11 @@ class ContactTicketResource extends Resource
                     ->label('Sujet')
                     ->searchable()
                     ->limit(40),
+                Tables\Columns\TextColumn::make('assignedTo.name')
+                    ->label('Assigné à')
+                    ->searchable()
+                    ->sortable()
+                    ->placeholder('Non assigné'),
                 Tables\Columns\TextColumn::make('status')
                     ->label('Statut')
                     ->badge()
@@ -154,6 +255,20 @@ class ContactTicketResource extends Resource
                     ->options(
                         collect(ContactTicketType::cases())
                             ->mapWithKeys(fn (ContactTicketType $type) => [$type->value => $type->label()])
+                            ->toArray()
+                    ),
+                Tables\Filters\SelectFilter::make('category')
+                    ->label('Catégorie')
+                    ->options(
+                        collect(ContactTicketCategory::cases())
+                            ->mapWithKeys(fn (ContactTicketCategory $cat) => [$cat->value => $cat->label()])
+                            ->toArray()
+                    ),
+                Tables\Filters\SelectFilter::make('priority')
+                    ->label('Priorité')
+                    ->options(
+                        collect(ContactTicketPriority::cases())
+                            ->mapWithKeys(fn (ContactTicketPriority $p) => [$p->value => $p->label()])
                             ->toArray()
                     ),
                 Tables\Filters\SelectFilter::make('status')

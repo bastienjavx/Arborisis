@@ -17,11 +17,13 @@ class ContactTicketReply extends Model
         'contact_ticket_id',
         'user_id',
         'source',
+        'is_internal',
         'reply',
     ];
 
     protected $casts = [
         'source' => ContactTicketReplySource::class,
+        'is_internal' => 'boolean',
     ];
 
     public function ticket(): BelongsTo
@@ -32,5 +34,15 @@ class ContactTicketReply extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function isTeamReply(): bool
+    {
+        return $this->source === ContactTicketReplySource::Team;
+    }
+
+    public function isCustomerReply(): bool
+    {
+        return $this->source === ContactTicketReplySource::Customer;
     }
 }

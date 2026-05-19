@@ -59,7 +59,7 @@ class ContactController extends Controller
     {
         $ticket = $this->contactTicketService->create(
             $request->validated(),
-            $request->user()?->id
+            $request->user()
         );
 
         return back()->with('success', "Votre demande a bien été envoyée. Numéro de suivi : {$ticket->ticket_number}");
