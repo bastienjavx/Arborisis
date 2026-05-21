@@ -91,12 +91,13 @@ export default defineConfig({
                     }
                 },
                 assetFileNames: (assetInfo) => {
-                    const info = assetInfo.name.split('.');
+                    const name = assetInfo.name || '';
+                    const info = name.split('.');
                     const ext = info[info.length - 1];
-                    if (/\.(woff2?|ttf|otf|eot)$/i.test(assetInfo.name)) {
+                    if (/\.(woff2?|ttf|otf|eot)$/i.test(name)) {
                         return 'assets/fonts/[name]-[hash][extname]';
                     }
-                    if (/\.(png|jpe?g|gif|svg|webp|ico)$/i.test(assetInfo.name)) {
+                    if (/\.(png|jpe?g|gif|svg|webp|ico)$/i.test(name)) {
                         return 'assets/images/[name]-[hash][extname]';
                     }
                     return 'assets/[name]-[hash][extname]';

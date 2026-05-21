@@ -10,8 +10,8 @@ return new class extends Migration
     {
         // Sounds table - most queried table
         Schema::table('sounds', function (Blueprint $table) {
-            if (! $this->hasIndex('sounds', 'sounds_is_public_idx')) {
-                $table->index('is_public', 'sounds_is_public_idx');
+            if (! $this->hasIndex('sounds', 'sounds_visibility_idx')) {
+                $table->index('visibility', 'sounds_visibility_idx');
             }
             if (! $this->hasIndex('sounds', 'sounds_user_id_idx')) {
                 $table->index('user_id', 'sounds_user_id_idx');
@@ -68,8 +68,8 @@ return new class extends Migration
 
         // Follows - social features
         Schema::table('follows', function (Blueprint $table) {
-            if (! $this->hasIndex('follows', 'follows_following_id_idx')) {
-                $table->index('following_id', 'follows_following_id_idx');
+            if (! $this->hasIndex('follows', 'follows_followed_id_idx')) {
+                $table->index('followed_id', 'follows_followed_id_idx');
             }
             if (! $this->hasIndex('follows', 'follows_created_at_idx')) {
                 $table->index('created_at', 'follows_created_at_idx');
@@ -80,9 +80,6 @@ return new class extends Migration
         Schema::table('quest_progress', function (Blueprint $table) {
             if (! $this->hasIndex('quest_progress', 'qp_user_id_status_idx')) {
                 $table->index(['user_id', 'status'], 'qp_user_id_status_idx');
-            }
-            if (! $this->hasIndex('quest_progress', 'qp_updated_at_idx')) {
-                $table->index('updated_at', 'qp_updated_at_idx');
             }
         });
 
@@ -114,7 +111,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('sounds', function (Blueprint $table) {
-            $table->dropIndex(['sounds_is_public_idx']);
+            $table->dropIndex(['sounds_visibility_idx']);
             $table->dropIndex(['sounds_user_id_idx']);
             $table->dropIndex(['sounds_category_id_idx']);
             $table->dropIndex(['sounds_environment_id_idx']);
@@ -140,13 +137,12 @@ return new class extends Migration
         });
 
         Schema::table('follows', function (Blueprint $table) {
-            $table->dropIndex(['follows_following_id_idx']);
+            $table->dropIndex(['follows_followed_id_idx']);
             $table->dropIndex(['follows_created_at_idx']);
         });
 
         Schema::table('quest_progress', function (Blueprint $table) {
             $table->dropIndex(['qp_user_id_status_idx']);
-            $table->dropIndex(['qp_updated_at_idx']);
         });
 
         Schema::table('user_achievements', function (Blueprint $table) {
