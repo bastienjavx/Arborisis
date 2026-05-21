@@ -24,15 +24,15 @@ export default {
                 'dropdown': '10',
                 'sticky': '20',
                 'fixed-nav': '1100',
+                'agent': '1150',
                 'drawer': '40',
                 'modal': '50',
                 'popover': '60',
                 'toast': '70',
                 'tooltip': '80',
                 'banner': '90',
-                'max': '100',
                 'map': '800',
-                'map-max': '1000',
+                'map-max': '800',
             },
             colors: {
                 arbor: {

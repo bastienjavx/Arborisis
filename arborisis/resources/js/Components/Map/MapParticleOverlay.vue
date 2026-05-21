@@ -296,5 +296,5 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div ref="canvasContainer" class="absolute inset-0 w-full h-full pointer-events-none z-[900]" aria-hidden="true" />
+    <div ref="canvasContainer" class="absolute inset-0 w-full h-full pointer-events-none z-[700]" aria-hidden="true" />
 </template>
