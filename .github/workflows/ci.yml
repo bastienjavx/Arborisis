@@ -20,8 +20,8 @@ concurrency:
 
 env:
   APP_DIR: arborisis
-  PHP_VERSION: "8.3"
-  NODE_VERSION: "20"
+  PHP_VERSION: "8.4"
+  NODE_VERSION: "22"
   PYTHON_VERSION: "3.10"
 
 jobs:
@@ -78,6 +78,9 @@ jobs:
       STRIPE_PUBLIC_KEY: pk_test_placeholder
       STRIPE_SECRET_KEY: sk_test_placeholder
       STRIPE_WEBHOOK_SECRET: whsec_placeholder
+      REVERB_APP_KEY: placeholder
+      REVERB_APP_SECRET: placeholder
+      REVERB_APP_ID: placeholder
 
     steps:
       - name: Checkout
@@ -98,6 +101,11 @@ jobs:
           path: ${{ env.APP_DIR }}/vendor
           key: composer-${{ runner.os }}-${{ hashFiles('arborisis/composer.lock') }}
           restore-keys: composer-${{ runner.os }}-
+
+      - name: Create Laravel cache directories
+        run: |
+          mkdir -p ${{ env.APP_DIR }}/storage/framework/{views,cache,sessions,testing}
+          mkdir -p ${{ env.APP_DIR }}/bootstrap/cache
 
       - name: Install PHP dependencies
         run: composer install --prefer-dist --no-interaction --no-progress
@@ -125,9 +133,31 @@ jobs:
       run:
         working-directory: ${{ env.APP_DIR }}
 
+    env:
+      REVERB_APP_KEY: placeholder
+      REVERB_APP_SECRET: placeholder
+      REVERB_APP_ID: placeholder
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: bcmath, curl, dom, gd, intl, mbstring, pcntl, pdo_pgsql, redis, zip
+          ini-values: memory_limit=-1
+          coverage: none
+          tools: composer:v2
+
+      - name: Create Laravel cache directories
+        run: |
+          mkdir -p storage/framework/{views,cache,sessions,testing}
+          mkdir -p bootstrap/cache
+
+      - name: Install PHP dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -176,7 +206,7 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
-          cache-dependency-path: arborisis/python/requirements.txt
+          cache-dependency-path: services/python-analysis/requirements.txt
 
       - name: Install system dependencies
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends ffmpeg
@@ -192,6 +222,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
 
+    env:
+      REVERB_APP_KEY: placeholder
+      REVERB_APP_SECRET: placeholder
+      REVERB_APP_ID: placeholder
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -206,6 +241,11 @@ jobs:
           ini-values: memory_limit=-1
           coverage: none
           tools: composer:v2
+
+      - name: Create Laravel cache directories
+        run: |
+          mkdir -p ${{ env.APP_DIR }}/storage/framework/{views,cache,sessions,testing}
+          mkdir -p ${{ env.APP_DIR }}/bootstrap/cache
 
       - name: Install PHP dependencies
         working-directory: ${{ env.APP_DIR }}
@@ -223,7 +263,7 @@ jobs:
       - name: NPM audit locked projects
         run: |
           set -euo pipefail
-          for project in arborisis arborisis/discord-bot workers/arborisis-ai-agent workers/audio-analysis-orchestrator workers/audio-analyzer-container workers/r2-proxy; do
+          for project in arborisis discord-bot workers/arborisis-ai-agent workers/audio-analysis-orchestrator workers/audio-analyzer-container workers/r2-proxy; do
             if [ -f "$project/package.json" ] && [ -f "$project/package-lock.json" ]; then
               echo "Auditing $project"
               npm ci --prefix "$project" --ignore-scripts
@@ -340,6 +380,37 @@ jobs:
             exit 1
           fi
 
+  docker-build-check:
+    name: Docker build verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build App image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          platforms: linux/amd64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build Dev image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile.dev
+          push: false
+          platforms: linux/amd64
+          cache-from: type=gha
+
   summary:
     name: CI summary
     runs-on: ubuntu-latest
@@ -350,6 +421,7 @@ jobs:
       - python-tests
       - security-audit
       - architecture-guard
+      - docker-build-check
 
     steps:
       - name: Write summary
@@ -364,6 +436,7 @@ jobs:
             echo "| Python audio tests | ${{ needs.python-tests.result }} |"
             echo "| Security audit | ${{ needs.security-audit.result }} |"
             echo "| Architecture guard | ${{ needs.architecture-guard.result }} |"
+            echo "| Docker build check | ${{ needs.docker-build-check.result }} |"
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Fail on critical job failure
