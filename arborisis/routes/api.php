@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\HealthRadioController;
+use App\Http\Controllers\Api\HelpdeskController;
 use App\Http\Controllers\Api\Agent\AgentChatStatusController;
 use App\Http\Controllers\Api\Agent\ChatAgentController;
 use App\Http\Controllers\Api\Internal\WikiOAuthController;
@@ -250,6 +251,19 @@ Route::middleware(['web', 'auth', 'throttle:60,1'])->group(function () {
     Route::get('/sound-ideas', [DailySoundIdeaController::class, 'index'])->name('api.sound-ideas.index');
     Route::post('/sound-ideas/{idea}/toggle', [DailySoundIdeaController::class, 'toggle'])->name('api.sound-ideas.toggle');
     Route::post('/sound-ideas/{idea}/dismiss', [DailySoundIdeaController::class, 'dismiss'])->name('api.sound-ideas.dismiss');
+});
+
+// Helpdesk API
+Route::middleware(['web', 'auth', 'throttle:helpdesk'])->prefix('helpdesk')->group(function () {
+    Route::get('/', [HelpdeskController::class, 'index'])->name('api.helpdesk.index');
+    Route::post('/', [HelpdeskController::class, 'store'])->name('api.helpdesk.store');
+    Route::get('/{ticket}', [HelpdeskController::class, 'show'])->name('api.helpdesk.show');
+    Route::post('/{ticket}/reply', [HelpdeskController::class, 'reply'])->name('api.helpdesk.reply');
+    Route::post('/{ticket}/resolve', [HelpdeskController::class, 'resolve'])->name('api.helpdesk.resolve');
+    Route::post('/{ticket}/close', [HelpdeskController::class, 'close'])->name('api.helpdesk.close');
+    Route::post('/{ticket}/reopen', [HelpdeskController::class, 'reopen'])->name('api.helpdesk.reopen');
+    Route::post('/{ticket}/ia-suggest', [HelpdeskController::class, 'generateIaSuggestion'])->name('api.helpdesk.ia-suggest');
+    Route::post('/ia-suggestions/{suggestion}/validate', [HelpdeskController::class, 'validateIaSuggestion'])->name('api.helpdesk.ia-validate');
 });
 
 // Wiki.js OAuth2 SSO
