@@ -400,6 +400,60 @@ Arborisis/
 
 ---
 
+## 🐳 Docker
+
+### Prérequis
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (ou Docker Engine + Compose v2)
+- Docker Compose v2.20+
+
+### Démarrage rapide
+
+```bash
+# Copier le template d'environnement
+cp .env.docker .env
+# Éditer .env avec vos secrets
+
+# Démarrer l'environnement de développement
+docker compose -f docker-compose.dev.yml up -d
+
+# OU démarrer la production
+docker compose -f docker-compose.yml up -d
+```
+
+### Architecture des conteneurs
+
+| Service | Image | Description |
+|:---|:---|:---|
+| `app` | `ghcr.io/bastienjavx/arborisis-app` | Application Laravel (PHP-FPM) |
+| `nginx` | `nginx:alpine` | Reverse proxy |
+| `db` | `postgis/postgis:16-3.4-alpine` | PostgreSQL + PostGIS |
+| `redis` | `redis:7-alpine` | Cache, sessions, queues |
+| `queue` | `ghcr.io/bastienjavx/arborisis-app` | Worker Laravel Queue |
+| `scheduler` | `ghcr.io/bastienjavx/arborisis-app` | Laravel Scheduler (cron) |
+| `discord-bot` | `ghcr.io/bastienjavx/arborisis-discord-bot` | Bot Discord Node.js |
+| `python-analyzer` | `ghcr.io/bastienjavx/arborisis-python-analyzer` | Analyse audio Python |
+
+### Commandes utiles
+
+```bash
+# Shell dans le conteneur app
+docker compose -f docker-compose.dev.yml exec app sh
+
+# Exécuter artisan
+docker compose -f docker-compose.dev.yml exec app php artisan migrate
+
+# Logs
+docker compose -f docker-compose.dev.yml logs -f app
+
+# Rebuild après modification du Dockerfile
+docker compose -f docker-compose.dev.yml up -d --build
+```
+
+Pour une documentation Docker complète, voir [`DOCKER.md`](DOCKER.md).
+
+---
+
 ## 🗺 Roadmap
 
 <div align="center">

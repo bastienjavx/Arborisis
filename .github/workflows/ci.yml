@@ -340,6 +340,37 @@ jobs:
             exit 1
           fi
 
+  docker-build-check:
+    name: Docker build verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build App image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          platforms: linux/amd64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build Dev image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile.dev
+          push: false
+          platforms: linux/amd64
+          cache-from: type=gha
+
   summary:
     name: CI summary
     runs-on: ubuntu-latest
@@ -350,6 +381,7 @@ jobs:
       - python-tests
       - security-audit
       - architecture-guard
+      - docker-build-check
 
     steps:
       - name: Write summary
@@ -364,6 +396,7 @@ jobs:
             echo "| Python audio tests | ${{ needs.python-tests.result }} |"
             echo "| Security audit | ${{ needs.security-audit.result }} |"
             echo "| Architecture guard | ${{ needs.architecture-guard.result }} |"
+            echo "| Docker build check | ${{ needs.docker-build-check.result }} |"
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Fail on critical job failure
