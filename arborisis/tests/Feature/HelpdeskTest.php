@@ -2,166 +2,103 @@
 
 declare(strict_types=1);
 
-use App\Enums\ContactTicketCategory;
-use App\Enums\ContactTicketPriority;
-use App\Enums\ContactTicketStatus;
-use App\Enums\ContactTicketType;
-use App\Models\ContactTicket;
+namespace Tests\Feature;
+
+use App\Enums\HelpdeskTicketPriority;
+use App\Enums\HelpdeskTicketStatus;
+use App\Models\HelpdeskCategory;
+use App\Models\HelpdeskTicket;
 use App\Models\User;
-use Illuminate\Support\Facades\Mail;
+use Tests\TestCase;
 
-beforeEach(function () {
-    $this->user = User::factory()->create([
-        'email_verified_at' => now(),
-    ]);
-});
+class HelpdeskTest extends TestCase
+{
+    public function test_authenticated_user_can_create_ticket(): void
+    {
+        $user = User::factory()->create();
+        $category = HelpdeskCategory::factory()->create();
 
-it('displays the helpdesk index with user tickets', function () {
-    ContactTicket::create([
-        'ticket_number' => 'ARB-20260519-TEST1',
-        'type' => ContactTicketType::Support,
-        'category' => ContactTicketCategory::Bug,
-        'priority' => ContactTicketPriority::High,
-        'name' => $this->user->name,
-        'email' => $this->user->email,
-        'subject' => 'Bug test',
-        'message' => 'Description du bug',
-        'status' => ContactTicketStatus::New,
-        'user_id' => $this->user->id,
-    ]);
+        $response = $this->actingAs($user)->post('/helpdesk', [
+            'subject' => 'Problème de test',
+            'body' => 'Description détaillée du problème',
+            'priority' => HelpdeskTicketPriority::Normal->value,
+            'category_id' => $category->id,
+        ]);
 
-    $response = $this->actingAs($this->user)->get(route('helpdesk.index'));
+        $response->assertRedirect();
+        $this->assertDatabaseHas('helpdesk_tickets', [
+            'subject' => 'Problème de test',
+            'user_id' => $user->id,
+            'status' => HelpdeskTicketStatus::Open->value,
+        ]);
+    }
 
-    $response->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->component('Helpdesk/Index')
-            ->has('tickets', 1)
-            ->where('stats.total', 1)
-            ->where('stats.open', 1)
-            ->where('stats.resolved', 0)
-        );
-});
+    public function test_guest_cannot_access_helpdesk(): void
+    {
+        $response = $this->get('/helpdesk');
+        $response->assertRedirect('/login');
+    }
 
-it('creates a new ticket via the helpdesk', function () {
-    Mail::fake();
+    public function test_user_can_view_own_ticket(): void
+    {
+        $user = User::factory()->create();
+        $ticket = HelpdeskTicket::factory()->create(['user_id' => $user->id]);
 
-    $response = $this->actingAs($this->user)->post(route('helpdesk.store'), [
-        'type' => ContactTicketType::Support->value,
-        'category' => ContactTicketCategory::Bug->value,
-        'subject' => 'Problème d\'upload',
-        'message' => 'Je ne peux pas uploader mon fichier.',
-    ]);
+        $response = $this->actingAs($user)->get("/helpdesk/{$ticket->id}");
 
-    $response->assertRedirect()
-        ->sessionHas('success');
+        $response->assertOk();
+    }
 
-    $this->assertDatabaseHas('contact_tickets', [
-        'subject' => 'Problème d\'upload',
-        'user_id' => $this->user->id,
-        'category' => ContactTicketCategory::Bug->value,
-        'priority' => ContactTicketPriority::Medium->value,
-    ]);
-});
+    public function test_user_cannot_view_other_user_ticket(): void
+    {
+        $user = User::factory()->create();
+        $otherUser = User::factory()->create();
+        $ticket = HelpdeskTicket::factory()->create(['user_id' => $otherUser->id]);
 
-it('shows a specific ticket to its owner', function () {
-    $ticket = ContactTicket::create([
-        'ticket_number' => 'ARB-20260519-TEST2',
-        'type' => ContactTicketType::Support,
-        'category' => ContactTicketCategory::Account,
-        'priority' => ContactTicketPriority::Medium,
-        'name' => $this->user->name,
-        'email' => $this->user->email,
-        'subject' => 'Question compte',
-        'message' => 'Comment changer mon mot de passe ?',
-        'status' => ContactTicketStatus::New,
-        'user_id' => $this->user->id,
-    ]);
+        $response = $this->actingAs($user)->get("/helpdesk/{$ticket->id}");
 
-    $response = $this->actingAs($this->user)->get(route('helpdesk.show', $ticket->ticket_number));
+        $response->assertForbidden();
+    }
 
-    $response->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->component('Helpdesk/Show')
-            ->where('ticket.ticket_number', $ticket->ticket_number)
-            ->where('ticket.subject', 'Question compte')
-        );
-});
+    public function test_admin_can_view_any_ticket(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $otherUser = User::factory()->create();
+        $ticket = HelpdeskTicket::factory()->create(['user_id' => $otherUser->id]);
 
-it('allows the owner to reply to an open ticket', function () {
-    $ticket = ContactTicket::create([
-        'ticket_number' => 'ARB-20260519-TEST3',
-        'type' => ContactTicketType::Support,
-        'category' => ContactTicketCategory::General,
-        'priority' => ContactTicketPriority::Low,
-        'name' => $this->user->name,
-        'email' => $this->user->email,
-        'subject' => 'Question',
-        'message' => 'Message initial',
-        'status' => ContactTicketStatus::New,
-        'user_id' => $this->user->id,
-    ]);
+        $response = $this->actingAs($admin)->get("/helpdesk/{$ticket->id}");
 
-    $response = $this->actingAs($this->user)->post(route('helpdesk.reply', $ticket->ticket_number), [
-        'message' => 'Merci pour votre réponse rapide.',
-    ]);
+        $response->assertOk();
+    }
 
-    $response->assertRedirect()
-        ->sessionHas('success');
+    public function test_agent_can_reply_to_ticket(): void
+    {
+        $user = User::factory()->create();
+        $ticket = HelpdeskTicket::factory()->create(['user_id' => $user->id]);
 
-    $this->assertDatabaseHas('contact_ticket_replies', [
-        'contact_ticket_id' => $ticket->id,
-        'reply' => 'Merci pour votre réponse rapide.',
-        'is_internal' => false,
-    ]);
+        $response = $this->actingAs($user)->post("/helpdesk/{$ticket->id}/reply", [
+            'body' => 'Ma réponse',
+        ]);
 
-    expect($ticket->fresh()->status)->toBe(ContactTicketStatus::InProgress);
-});
+        $response->assertRedirect();
+        $this->assertDatabaseHas('helpdesk_replies', [
+            'body' => 'Ma réponse',
+            'ticket_id' => $ticket->id,
+        ]);
+    }
 
-it('prevents replying to a resolved ticket', function () {
-    $ticket = ContactTicket::create([
-        'ticket_number' => 'ARB-20260519-TEST4',
-        'type' => ContactTicketType::Support,
-        'category' => ContactTicketCategory::General,
-        'priority' => ContactTicketPriority::Low,
-        'name' => $this->user->name,
-        'email' => $this->user->email,
-        'subject' => 'Question',
-        'message' => 'Message initial',
-        'status' => ContactTicketStatus::Resolved,
-        'user_id' => $this->user->id,
-        'resolved_at' => now(),
-    ]);
+    public function test_closed_ticket_cannot_receive_reply(): void
+    {
+        $user = User::factory()->create();
+        $ticket = HelpdeskTicket::factory()->create([
+            'user_id' => $user->id,
+            'status' => HelpdeskTicketStatus::Closed,
+        ]);
 
-    $response = $this->actingAs($this->user)->post(route('helpdesk.reply', $ticket->ticket_number), [
-        'message' => 'Essai de réponse.',
-    ]);
+        $response = $this->actingAs($user)->post("/helpdesk/{$ticket->id}/reply", [
+            'body' => 'Réponse interdite',
+        ]);
 
-    $response->assertNotFound();
-});
-
-it('denies access to another user\'s ticket', function () {
-    $otherUser = User::factory()->create();
-
-    $ticket = ContactTicket::create([
-        'ticket_number' => 'ARB-20260519-TEST5',
-        'type' => ContactTicketType::Support,
-        'category' => ContactTicketCategory::General,
-        'priority' => ContactTicketPriority::Low,
-        'name' => $otherUser->name,
-        'email' => $otherUser->email,
-        'subject' => 'Question privée',
-        'message' => 'Message',
-        'status' => ContactTicketStatus::New,
-        'user_id' => $otherUser->id,
-    ]);
-
-    $response = $this->actingAs($this->user)->get(route('helpdesk.show', $ticket->ticket_number));
-
-    $response->assertNotFound();
-});
-
-it('requires authentication for helpdesk routes', function () {
-    $this->get(route('helpdesk.index'))->assertRedirect('/login');
-    $this->get(route('helpdesk.create'))->assertRedirect('/login');
-    $this->post(route('helpdesk.store'))->assertRedirect('/login');
-});
+        $response->assertForbidden();
+    }
+}

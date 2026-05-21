@@ -28,6 +28,8 @@ use App\Http\Controllers\Web\ChatRoomController;
 use App\Http\Controllers\Web\BlogController;
 use App\Http\Controllers\Web\SoundController;
 use App\Http\Controllers\Web\WalletController;
+use App\Http\Controllers\Web\AdminHelpdeskController;
+use App\Http\Controllers\Web\HelpdeskController;
 use App\Http\Controllers\Web\XenoCantoSubmissionController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
@@ -239,6 +241,25 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ECHO Donations
     Route::post('/donations', [EchoDonationController::class, 'store'])->name('donations.store');
     Route::get('/donations/history', [EchoDonationController::class, 'history'])->name('donations.history');
+});
+
+// Helpdesk
+Route::middleware(['auth', 'verified'])->prefix('helpdesk')->name('helpdesk.')->group(function () {
+    Route::get('/', [HelpdeskController::class, 'index'])->name('index');
+    Route::get('/create', [HelpdeskController::class, 'create'])->name('create');
+    Route::post('/', [HelpdeskController::class, 'store'])->name('store');
+    Route::get('/{ticket}', [HelpdeskController::class, 'show'])->name('show');
+    Route::post('/{ticket}/reply', [HelpdeskController::class, 'reply'])->name('reply');
+    Route::post('/{ticket}/resolve', [HelpdeskController::class, 'resolve'])->name('resolve');
+    Route::post('/{ticket}/close', [HelpdeskController::class, 'close'])->name('close');
+    Route::post('/{ticket}/reopen', [HelpdeskController::class, 'reopen'])->name('reopen');
+    Route::post('/{ticket}/assign', [HelpdeskController::class, 'assign'])->name('assign');
+});
+
+// Admin Helpdesk
+Route::middleware(['auth', 'verified'])->prefix('admin/helpdesk')->name('admin.helpdesk.')->group(function () {
+    Route::get('/', [AdminHelpdeskController::class, 'index'])->name('index');
+    Route::get('/{ticket}', [AdminHelpdeskController::class, 'show'])->name('show');
 });
 
 // Stripe Webhook (no auth, signed by Stripe)

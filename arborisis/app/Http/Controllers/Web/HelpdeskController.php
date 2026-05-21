@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Web;
 
-use App\Enums\ContactTicketReplySource;
-use App\Enums\ContactTicketStatus;
+use App\Enums\HelpdeskTicketStatus;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Helpdesk\StoreHelpdeskReplyRequest;
-use App\Http\Requests\Helpdesk\StoreHelpdeskTicketRequest;
-use App\Models\ContactTicket;
-use App\Services\Helpdesk\HelpdeskService;
+use App\Http\Requests\Helpdesk\StoreReplyRequest;
+use App\Http\Requests\Helpdesk\StoreTicketRequest;
+use App\Models\HelpdeskTicket;
+use App\Services\HelpdeskService;
+use App\Services\IaSuggestionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -19,117 +19,115 @@ use Inertia\Response;
 class HelpdeskController extends Controller
 {
     public function __construct(
-        private readonly HelpdeskService $helpdeskService
-    ) {}
+        private readonly HelpdeskService $helpdeskService,
+        private readonly IaSuggestionService $iaSuggestionService,
+    ) {
+    }
 
     public function index(): Response
     {
         $user = Auth::user();
+        $isAgent = $user->isAdmin() || $user->isModerator();
 
-        $tickets = ContactTicket::forUser($user->id)
-            ->with('assignedTo')
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(fn (ContactTicket $ticket) => $this->mapTicket($ticket));
+        $filters = request()->only(['status', 'priority', 'assigned_to']);
 
-        $stats = [
-            'total' => $tickets->count(),
-            'open' => $tickets->whereIn('status', [ContactTicketStatus::New->value, ContactTicketStatus::InProgress->value])->count(),
-            'resolved' => $tickets->where('status', ContactTicketStatus::Resolved->value)->count(),
-        ];
+        if ($isAgent) {
+            $tickets = $this->helpdeskService->listAllTickets($filters, 15);
+        } else {
+            $tickets = $this->helpdeskService->listTicketsForUser($user, $filters, 15);
+        }
 
         return Inertia::render('Helpdesk/Index', [
             'tickets' => $tickets,
-            'stats' => $stats,
+            'categories' => $this->helpdeskService->getActiveCategories(),
+            'filters' => $filters,
+            'isAgent' => $isAgent,
         ]);
     }
 
     public function create(): Response
     {
-        return Inertia::render('Helpdesk/Create');
-    }
-
-    public function store(StoreHelpdeskTicketRequest $request): RedirectResponse
-    {
-        $ticket = $this->helpdeskService->createTicket(
-            $request->validated(),
-            $request->user()
-        );
-
-        return redirect()
-            ->route('helpdesk.show', $ticket->ticket_number)
-            ->with('success', "Votre ticket {$ticket->ticket_number} a été créé.");
-    }
-
-    public function show(string $ticketNumber): Response
-    {
-        $user = Auth::user();
-
-        $ticket = ContactTicket::with(['replies.user', 'assignedTo'])
-            ->where('ticket_number', $ticketNumber)
-            ->where('user_id', $user->id)
-            ->firstOrFail();
-
-        return Inertia::render('Helpdesk/Show', [
-            'ticket' => $this->mapTicket($ticket, true),
+        return Inertia::render('Helpdesk/Create', [
+            'categories' => $this->helpdeskService->getActiveCategories(),
         ]);
     }
 
-    public function reply(StoreHelpdeskReplyRequest $request, string $ticketNumber): RedirectResponse
+    public function store(StoreTicketRequest $request): RedirectResponse
     {
-        $user = Auth::user();
+        $ticket = $this->helpdeskService->createTicket(
+            Auth::user(),
+            $request->validated()
+        );
 
-        $ticket = ContactTicket::where('ticket_number', $ticketNumber)
-            ->where('user_id', $user->id)
-            ->whereIn('status', [ContactTicketStatus::New, ContactTicketStatus::InProgress])
-            ->firstOrFail();
+        // Déclenche la suggestion IA en file d'attente
+        dispatch(function () use ($ticket) {
+            app(IaSuggestionService::class)->generateSuggestion($ticket);
+        })->onQueue('helpdesk');
+
+        return redirect()
+            ->route('helpdesk.show', $ticket)
+            ->with('success', 'Ticket créé avec succès. Notre équipe vous répondra rapidement.');
+    }
+
+    public function show(HelpdeskTicket $ticket): Response
+    {
+        $this->authorize('view', $ticket);
+
+        $ticket->load(['category', 'user', 'assignee', 'replies.user', 'iaSuggestions.validator']);
+
+        return Inertia::render('Helpdesk/Show', [
+            'ticket' => $ticket,
+            'canReply' => Auth::user()->can('reply', $ticket),
+        ]);
+    }
+
+    public function reply(StoreReplyRequest $request, HelpdeskTicket $ticket): RedirectResponse
+    {
+        $this->authorize('reply', $ticket);
 
         $this->helpdeskService->addReply(
             $ticket,
-            $request->validated('message'),
-            $user
+            Auth::user(),
+            $request->validated('body'),
+            $request->boolean('is_internal_note', false)
         );
 
-        return back()->with('success', 'Votre réponse a été envoyée.');
+        return back()->with('success', 'Réponse envoyée.');
     }
 
-    private function mapTicket(ContactTicket $ticket, bool $withReplies = false): array
+    public function resolve(HelpdeskTicket $ticket): RedirectResponse
     {
-        $data = [
-            'id' => $ticket->id,
-            'ticket_number' => $ticket->ticket_number,
-            'subject' => $ticket->subject,
-            'message' => $ticket->message,
-            'status' => $ticket->status->value,
-            'status_label' => $ticket->status->label(),
-            'priority' => $ticket->priority->value,
-            'priority_label' => $ticket->priority->label(),
-            'category' => $ticket->category->value,
-            'category_label' => $ticket->category->label(),
-            'type' => $ticket->type->value,
-            'type_label' => $ticket->type->label(),
-            'created_at' => $ticket->created_at->toIso8601String(),
-            'replied_at' => $ticket->replied_at?->toIso8601String(),
-            'resolved_at' => $ticket->resolved_at?->toIso8601String(),
-            'assigned_to' => $ticket->assignedTo?->name,
-        ];
+        $this->authorize('update', $ticket);
 
-        if ($withReplies) {
-            $data['replies'] = $ticket->replies
-                ->where('is_internal', false)
-                ->map(fn ($reply) => [
-                    'id' => $reply->id,
-                    'reply' => $reply->reply,
-                    'source' => $reply->source->value,
-                    'source_label' => $reply->source->label(),
-                    'author' => $reply->source === ContactTicketReplySource::Customer
-                        ? $ticket->name
-                        : ($reply->user?->name ?? 'Équipe Arborisis'),
-                    'created_at' => $reply->created_at->toIso8601String(),
-                ])
-                ->values();
-        }
+        $this->helpdeskService->resolveTicket($ticket, Auth::user());
 
-        return $data;
+        return back()->with('success', 'Ticket marqué comme résolu.');
+    }
+
+    public function close(HelpdeskTicket $ticket): RedirectResponse
+    {
+        $this->authorize('update', $ticket);
+
+        $this->helpdeskService->closeTicket($ticket);
+
+        return back()->with('success', 'Ticket fermé.');
+    }
+
+    public function reopen(HelpdeskTicket $ticket): RedirectResponse
+    {
+        $this->authorize('update', $ticket);
+
+        $this->helpdeskService->reopenTicket($ticket);
+
+        return back()->with('success', 'Ticket rouvert.');
+    }
+
+    public function assign(HelpdeskTicket $ticket): RedirectResponse
+    {
+        $this->authorize('assign', $ticket);
+
+        $this->helpdeskService->assignTicket($ticket, Auth::user());
+
+        return back()->with('success', 'Ticket assigné.');
     }
 }

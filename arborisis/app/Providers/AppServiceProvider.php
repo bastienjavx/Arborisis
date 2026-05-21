@@ -54,10 +54,12 @@ use App\Observers\SoundFileObserver;
 use App\Observers\UserObserver;
 use App\Models\ChatMessage;
 use App\Models\ChatRoom;
+use App\Models\HelpdeskTicket;
 use App\Policies\ArborisisPointPolicy;
 use App\Policies\ChatMessagePolicy;
 use App\Policies\ChatRoomPolicy;
 use App\Policies\ContactTicketPolicy;
+use App\Policies\HelpdeskTicketPolicy;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
@@ -96,6 +98,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(ContactTicket::class, ContactTicketPolicy::class);
         Gate::policy(ChatRoom::class, ChatRoomPolicy::class);
         Gate::policy(ChatMessage::class, ChatMessagePolicy::class);
+        Gate::policy(HelpdeskTicket::class, HelpdeskTicketPolicy::class);
 
         Event::listen(SoundPublished::class, SendNewSoundPushNotification::class);
         Event::listen(DiscordNotification::class, DispatchDiscordNotification::class);
@@ -206,6 +209,10 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('agent-action', function ($request) {
             return Limit::perHour(10)->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('helpdesk', function ($request) {
+            return Limit::perMinute(20)->by($request->user()?->id ?: $request->ip());
         });
     }
 }
