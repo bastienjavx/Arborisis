@@ -1,0 +1,23 @@
+# =============================================================================
+# Arborisis — Docker Compose Override (Local)
+# =============================================================================
+# Ce fichier surcharge la configuration locale sans être versionné.
+# Placez ici vos personnalisations : ports, volumes, environnement.
+# =============================================================================
+
+# Exemples de surcharge courantes :
+
+# services:
+#   app:
+#     ports:
+#       - "9003:9003"  # Xdebug
+#     environment:
+#       APP_DEBUG: "true"
+#
+#   db:
+#     ports:
+#       - "5432:5432"  # Accès PostgreSQL depuis l'hôte
+#
+#   redis:
+#     ports:
+#       - "6379:6379"  # Accès Redis depuis l'hôte
