@@ -157,8 +157,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: ./arborisis/discord-bot
-          file: ./arborisis/discord-bot/Dockerfile
+          context: ./discord-bot
+          file: ./discord-bot/Dockerfile
           push: true
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
@@ -199,8 +199,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: ./arborisis/python
-          file: ./arborisis/python/Dockerfile
+          context: ./services/python-analysis
+          file: ./services/python-analysis/Dockerfile
           push: true
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}

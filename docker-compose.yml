@@ -193,7 +193,7 @@ services:
   # ---------------------------------------------------------------------------
   discord-bot:
     build:
-      context: ./arborisis/discord-bot
+      context: ./discord-bot
       dockerfile: Dockerfile
     image: ghcr.io/bastienjavx/arborisis-discord-bot:latest
     container_name: arborisis-discord-bot
@@ -212,7 +212,7 @@ services:
   # ---------------------------------------------------------------------------
   python-analyzer:
     build:
-      context: ./arborisis/python
+      context: ./services/python-analysis
       dockerfile: Dockerfile
     image: ghcr.io/bastienjavx/arborisis-python-analyzer:latest
     container_name: arborisis-python-analyzer

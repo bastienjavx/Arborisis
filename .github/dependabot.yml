@@ -55,7 +55,22 @@ updates:
       include: scope
 
   - package-ecosystem: npm
-    directory: /arborisis/discord-bot
+    directory: /discord-bot
+
+  - package-ecosystem: pip
+    directory: /services/python-analysis
+    schedule:
+      interval: weekly
+      day: monday
+      time: "07:30"
+      timezone: Europe/Brussels
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: chore
+      include: scope
+
+  - package-ecosystem: npm
+    directory: /discord-bot
     schedule:
       interval: weekly
       day: monday

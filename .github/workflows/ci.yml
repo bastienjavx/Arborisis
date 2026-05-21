@@ -188,7 +188,7 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
-          cache-dependency-path: arborisis/python/requirements.txt
+          cache-dependency-path: services/python-analysis/requirements.txt
 
       - name: Install system dependencies
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends ffmpeg
@@ -235,7 +235,7 @@ jobs:
       - name: NPM audit locked projects
         run: |
           set -euo pipefail
-          for project in arborisis arborisis/discord-bot workers/arborisis-ai-agent workers/audio-analysis-orchestrator workers/audio-analyzer-container workers/r2-proxy; do
+          for project in arborisis discord-bot workers/arborisis-ai-agent workers/audio-analysis-orchestrator workers/audio-analyzer-container workers/r2-proxy; do
             if [ -f "$project/package.json" ] && [ -f "$project/package-lock.json" ]; then
               echo "Auditing $project"
               npm ci --prefix "$project" --ignore-scripts

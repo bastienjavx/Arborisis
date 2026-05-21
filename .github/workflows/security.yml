@@ -95,7 +95,7 @@ jobs:
       - name: NPM audit production dependencies
         run: |
           set -euo pipefail
-          for project in arborisis arborisis/discord-bot workers/arborisis-ai-agent workers/audio-analysis-orchestrator workers/audio-analyzer-container workers/r2-proxy; do
+          for project in arborisis discord-bot workers/arborisis-ai-agent workers/audio-analysis-orchestrator workers/audio-analyzer-container workers/r2-proxy; do
             if [ -f "$project/package.json" ] && [ -f "$project/package-lock.json" ]; then
               echo "Auditing $project"
               npm ci --prefix "$project" --ignore-scripts
