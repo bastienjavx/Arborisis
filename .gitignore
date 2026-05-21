@@ -57,3 +57,39 @@ coverage/
 *.key
 storage/pail
 auth.json
+
+# Docker
+.env.staging
+.env.production
+docker-compose.override.yml
+*.local.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# Workers build artifacts
+workers/**/node_modules/
+workers/**/.wrangler/
+workers/**/*.log
+
+# Discord bot
+arborisis/discord-bot/node_modules/
+arborisis/discord-bot/logs/
+
+# Local overrides
+*.local
+*.override
+
+# macOS duplicate files
+* 2
+* 2.*
+* 3
+* 3.*
